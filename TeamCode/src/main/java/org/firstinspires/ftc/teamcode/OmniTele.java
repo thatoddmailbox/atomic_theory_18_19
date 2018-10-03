@@ -86,13 +86,13 @@ public class OmniTele extends LinearOpMode {
             else elbow.setPower(0);
 
             //Elbow Control
-            if(gamepad1.left_trigger>0.1) shoulder.setPower(gamepad1.left_trigger);
-            else if(gamepad1.right_trigger>0.1) shoulder.setPower(-gamepad1.right_trigger);
+            if(gamepad1.left_trigger>0.3) shoulder.setPower(gamepad1.left_trigger);
+            else if(gamepad1.right_trigger>0.3) shoulder.setPower(-gamepad1.right_trigger);
             else shoulder.setPower(0);
 
             //Nom Control
-            if(gamepad1.x) nom.setPower(.9);
-            else if(gamepad1.y) nom.setPower(-.9);
+            if(gamepad1.x) nom.setPower(.95);
+            else if(gamepad1.y) nom.setPower(-.95);
             else nom.setPower(0);
 
         }
