@@ -15,6 +15,10 @@ public class OmniTele extends LinearOpMode {
         DcMotor backLeft = hardwareMap.dcMotor.get("back_left");
         DcMotor backRight = hardwareMap.dcMotor.get("back_right");
 
+        DcMotor nom = hardwareMap.dcMotor.get("nom");
+        DcMotor shoulder = hardwareMap.dcMotor.get("shoulder");
+        DcMotor elbow = hardwareMap.dcMotor.get("elbow");
+
         frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -24,6 +28,16 @@ public class OmniTele extends LinearOpMode {
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        nom.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shoulder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        elbow.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
 
         telemetry.addData("Status", "Ready to go");
         telemetry.update();
@@ -42,6 +56,8 @@ public class OmniTele extends LinearOpMode {
 
             double dead_zone = 0.2;
 
+
+            //Omni Wheel Drive
             if (Math.abs(drive_power) > dead_zone) {
                 frontLeft.setPower(drive_power * scale);
                 frontRight.setPower(drive_power * scale);
@@ -63,6 +79,22 @@ public class OmniTele extends LinearOpMode {
                 frontRight.setPower(0);
                 backRight.setPower(0);
             }
+
+            //Shoulder Control
+            if(gamepad1.left_bumper) elbow.setPower(.9);
+            else if(gamepad1.right_bumper) elbow.setPower(-.9);
+            else elbow.setPower(0);
+
+            //Elbow Control
+            if(gamepad1.left_trigger>0.1) shoulder.setPower(gamepad1.left_trigger);
+            else if(gamepad1.right_trigger>0.1) shoulder.setPower(-gamepad1.right_trigger);
+            else shoulder.setPower(0);
+
+            //Nom Control
+            if(gamepad1.x) nom.setPower(.9);
+            else if(gamepad1.y) nom.setPower(-.9);
+            else nom.setPower(0);
+
         }
     }
 }
