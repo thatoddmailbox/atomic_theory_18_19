@@ -52,7 +52,7 @@ public class OmniTele extends LinearOpMode {
             double strafe_power = gamepad1.left_stick_x;
             double turn_power = gamepad1.right_stick_x;
 
-            double scale = 0.3;
+            double scale = 0.9;
 
             double dead_zone = 0.2;
 
@@ -94,6 +94,9 @@ public class OmniTele extends LinearOpMode {
             if(gamepad1.x) nom.setPower(.95);
             else if(gamepad1.y) nom.setPower(-.95);
             else nom.setPower(0);
+
+            double shoulderEncoder = 0;
+            double elbowEncoder = 0;
 
         }
     }
