@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmodes.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -6,12 +6,18 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
+import org.firstinspires.ftc.teamcode.Consts;
+import org.firstinspires.ftc.teamcode.utils.PIDController;
+
 @Autonomous(name="Potentiometer test")
 public class PotentiometerTest extends LinearOpMode {
 
     AnalogInput elbowPotentiometer;
     DcMotor elbowMotor;
     PIDController elbowPID;
+
+    static final double ELBOW_POSITION_CLOSED = 0.045;
+    static final double ELBOW_POSITION_OPEN = 1.345;
 
     @Override
     public void runOpMode() {
@@ -47,7 +53,7 @@ public class PotentiometerTest extends LinearOpMode {
 
     public double getPosition() {
         // 0 is closed, 1 is open
-        return ((elbowPotentiometer.getVoltage() - Consts.ELBOW_POSITION_CLOSED) / Consts.ELBOW_POSITION_OPEN);
+        return ((elbowPotentiometer.getVoltage() - ELBOW_POSITION_CLOSED) / ELBOW_POSITION_OPEN);
     }
 
     public void moveToPosition_crappy(double target) {
