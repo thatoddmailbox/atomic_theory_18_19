@@ -38,11 +38,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     android:orderInCategory="100"
     android:showAsAction="never"
     android:title="@string/settings_menu_item"/>
+
+  <!-- START MODIFICATION -->
   <item
-    android:id="@+id/action_restart_robot"
-    android:orderInCategory="200"
-    android:showAsAction="never"
-    android:title="@string/restart_robot_menu_item"/>
+      android:id="@+id/action_change_channel"
+      android:orderInCategory="150"
+      android:showAsAction="never"
+      android:title="@string/change_channel_menu_item"/>
+  <!-- END MODIFICATION -->
+
+  <item
+      android:id="@+id/action_restart_robot"
+      android:orderInCategory="200"
+      android:showAsAction="never"
+      android:title="@string/restart_robot_menu_item"/>
 
   <item
     android:id="@+id/action_configure_robot"

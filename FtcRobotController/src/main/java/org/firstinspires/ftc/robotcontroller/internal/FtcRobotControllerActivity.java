@@ -549,6 +549,20 @@ public class FtcRobotControllerActivity extends Activity
       return true;
     }
 
+    // START MODIFICATION
+    else if (id == R.id.action_change_channel) {
+      Class channelChanger = null;
+      try {
+        channelChanger = Class.forName("org.firstinspires.ftc.teamcode.activities.ATChannelChangeActivity");
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+      }
+      Intent intent = new Intent(AppUtil.getDefContext(), channelChanger);
+      startActivity(intent);
+      return true;
+    }
+    // END MODIFICATION
+
    return super.onOptionsItemSelected(item);
   }
 
