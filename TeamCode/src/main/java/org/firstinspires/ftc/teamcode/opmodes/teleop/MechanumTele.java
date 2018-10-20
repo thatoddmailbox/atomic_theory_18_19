@@ -47,12 +47,43 @@ public class MechanumTele extends LinearOpMode {
             double drive_power = -1 * gamepad1.left_stick_y;
             double strafe_power = gamepad1.left_stick_x;
             double turn_power = gamepad1.right_stick_x;
+
             double lenny_back_power = gamepad1.left_trigger;
             double lenny_forward_power = gamepad1.right_trigger;
 
-            double scale = 0.9;
 
+            double scale = 0.9;
             double dead_zone = 0.2;
+
+            //Complete Directional Mecanum Driving
+            if(Math.abs(drive_power)>dead_zone ||
+                    Math.abs(strafe_power) > dead_zone || Math.abs(turn_power) < dead_zone){
+
+                //Sets up variables
+                double r = Math.hypot(strafe_power, drive_power);
+                double robotAngle = Math.atan2(drive_power, strafe_power) - Math.PI / 4;
+
+                //Does triggy stuff
+                double FL = r * Math.cos(robotAngle) + turn_power;
+                double FR = r * Math.sin(robotAngle) - turn_power;
+                double BL = r * Math.sin(robotAngle) + turn_power;
+                double BR = r * Math.cos(robotAngle) - turn_power;
+
+                //Ensures no power will ever exceed that of scale
+                double max = Math.max(Math.max(Math.abs(FL),Math.abs(FR)),(Math.max(Math.abs(BL),Math.abs(BR))));
+
+                frontLeft.setPower(FL / max * scale);
+                frontRight.setPower(FR/max*scale);
+                backLeft.setPower(BL/max*scale);
+                backRight.setPower(BR/max*scale);
+
+            }
+            else{
+                frontLeft.setPower(0);
+                frontRight.setPower(0);
+                backLeft.setPower(0);
+                backRight.setPower(0);
+            }
 
             //Lenny Control
             if (lenny_back_power > dead_zone) {
@@ -69,46 +100,28 @@ public class MechanumTele extends LinearOpMode {
             else if(gamepad1.y) george.setPower(-.9);
             else george.setPower(0);
 
-            //Mechanum Wheel Drive
-            if (Math.abs(drive_power) > dead_zone) {
-                frontLeft.setPower(drive_power * scale);
-                frontRight.setPower(drive_power * scale);
-                backLeft.setPower(drive_power * scale);
-                backRight.setPower(drive_power * scale);
-            } else if (Math.abs(strafe_power) > dead_zone) {
-                frontLeft.setPower(strafe_power * scale);
-                backLeft.setPower(-strafe_power * scale);
-                frontRight.setPower(-strafe_power * scale);
-                backRight.setPower(strafe_power * scale);
-            } else if (Math.abs(turn_power) > dead_zone) {
-                frontLeft.setPower(turn_power * scale);
-                backLeft.setPower(turn_power * scale);
-                frontRight.setPower(-turn_power * scale);
-                backRight.setPower(-turn_power * scale);
-            } else {
-                frontLeft.setPower(0);
-                backLeft.setPower(0);
-                frontRight.setPower(0);
-                backRight.setPower(0);
-            }
-
-//            //Shoulder Control
-//            if(gamepad1.left_bumper) elbow.setPower(.3);
-//            else if(gamepad1.right_bumper) elbow.setPower(-.3);
-//            else elbow.setPower(0);
-//
-//            //Elbow Control
-//            if(gamepad1.left_trigger>0.1) shoulder.setPower(gamepad1.left_trigger);
-//            else if(gamepad1.right_trigger>0.1) shoulder.setPower(-gamepad1.right_trigger);
-//            else shoulder.setPower(0);
-//
-//            //Nom Control
-//            if(gamepad1.x) nom.setPower(.95);
-//            else if(gamepad1.y) nom.setPower(-.95);
-//            else nom.setPower(0);
-//
-//            double shoulderEncoder = 0;
-//            double elbowEncoder = 0;
+//            //Mechanum Wheel Drive
+//            if (Math.abs(drive_power) > dead_zone) {
+//                frontLeft.setPower(drive_power * scale);
+//                frontRight.setPower(drive_power * scale);
+//                backLeft.setPower(drive_power * scale);
+//                backRight.setPower(drive_power * scale);
+//            } else if (Math.abs(strafe_power) > dead_zone) {
+//                frontLeft.setPower(strafe_power * scale);
+//                frontRight.setPower(-strafe_power * scale);
+//                backLeft.setPower(-strafe_power * scale);
+//                backRight.setPower(strafe_power * scale);
+//            } else if (Math.abs(turn_power) > dead_zone) {
+//                frontLeft.setPower(turn_power * scale);
+//                frontRight.setPower(-turn_power * scale);
+//                backLeft.setPower(turn_power * scale);
+//                backRight.setPower(-turn_power * scale);
+//            } else {
+//                frontLeft.setPower(0);
+//                frontRight.setPower(0);
+//                backLeft.setPower(0);
+//                backRight.setPower(0);
+//            }
 
         }
     }
