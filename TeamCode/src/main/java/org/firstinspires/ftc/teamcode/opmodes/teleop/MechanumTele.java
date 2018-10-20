@@ -15,24 +15,25 @@ public class MechanumTele extends LinearOpMode {
         DcMotor backLeft = hardwareMap.dcMotor.get("back_left");
         DcMotor backRight = hardwareMap.dcMotor.get("back_right");
 
-//        DcMotor nom = hardwareMap.dcMotor.get("nom");
-//        DcMotor shoulder = hardwareMap.dcMotor.get("shoulder");
-//        DcMotor elbow = hardwareMap.dcMotor.get("elbow");
+        DcMotor george = hardwareMap.dcMotor.get("george");
+        DcMotor lenny = hardwareMap.dcMotor.get("lenny");
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        george.setDirection(DcMotorSimple.Direction.FORWARD);
+        lenny.setDirection(DcMotorSimple.Direction.FORWARD);
+
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        george.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-//        nom.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        shoulder.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        elbow.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         telemetry.addData("Status", "Ready to go");
         telemetry.update();
@@ -46,11 +47,27 @@ public class MechanumTele extends LinearOpMode {
             double drive_power = -1 * gamepad1.left_stick_y;
             double strafe_power = gamepad1.left_stick_x;
             double turn_power = gamepad1.right_stick_x;
+            double lenny_back_power = gamepad1.left_trigger;
+            double lenny_forward_power = gamepad1.right_trigger;
 
             double scale = 0.9;
 
             double dead_zone = 0.2;
 
+            //Lenny Control
+            if (lenny_back_power > dead_zone) {
+                lenny.setPower(-lenny_back_power);
+            }
+            else if(lenny_forward_power > dead_zone){
+                lenny.setPower(lenny_forward_power);
+            }
+            else lenny.setPower(0);
+
+
+            //George Control
+            if(gamepad1.x) george.setPower(.9);
+            else if(gamepad1.y) george.setPower(-.9);
+            else george.setPower(0);
 
             //Mechanum Wheel Drive
             if (Math.abs(drive_power) > dead_zone) {
