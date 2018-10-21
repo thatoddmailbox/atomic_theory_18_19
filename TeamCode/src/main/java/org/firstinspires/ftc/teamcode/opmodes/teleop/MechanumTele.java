@@ -8,6 +8,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 @TeleOp(name="Mechanum Tele-op")
 public class MechanumTele extends LinearOpMode {
 
+    public void setClippedMotorPower(DcMotor motor, double power) {
+        if (power < 0.2) {
+            motor.setPower(0);
+        } else {
+            motor.setPower(Math.min(power, 1));
+        }
+    }
+
     @Override
     public void runOpMode() {
         DcMotor frontLeft = hardwareMap.dcMotor.get("front_left");
@@ -44,37 +52,36 @@ public class MechanumTele extends LinearOpMode {
         telemetry.update();
 
         while (opModeIsActive()) {
-            double drive_power = -1 * gamepad1.left_stick_y;
-            double strafe_power = gamepad1.left_stick_x;
-            double turn_power = gamepad1.right_stick_x;
+            double drivePower = -1 * gamepad1.left_stick_y;
+            double strafePower = gamepad1.left_stick_x;
+            double turnPower = gamepad1.right_stick_x;
 
-            double lenny_back_power = gamepad1.left_trigger;
-            double lenny_forward_power = gamepad1.right_trigger;
-
+            double lennyBackPower = gamepad1.left_trigger;
+            double lennyForwardPower = gamepad1.right_trigger;
 
             double maxPower = 0.9;
-            double dead_zone = 0.2;
+            double deadZone = 0.2;
 
             //Complete Directional Mecanum Driving
-            if(Math.abs(drive_power)>dead_zone ||
-                    Math.abs(strafe_power) > dead_zone || Math.abs(turn_power) > dead_zone){
+            if(Math.abs(drivePower)>deadZone ||
+                    Math.abs(strafePower) > deadZone || Math.abs(turnPower) > deadZone){
 
                 //Sets up variables
-                double robotAngle = Math.atan2(drive_power, strafe_power) - Math.PI / 4;
+                double robotAngle = Math.atan2(drivePower, strafePower) - Math.PI / 4;
 
-                double biggerStick = Math.max(Math.abs(strafe_power),Math.abs(drive_power));
+                double biggerStick = Math.max(Math.abs(strafePower),Math.abs(drivePower));
                 double biggerValue = Math.max(Math.abs(Math.cos(robotAngle)),Math.abs(Math.sin(robotAngle)));
 
                 //Does triggy stuff
-                double FL = (biggerStick * Math.cos(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turn_power))) + (turn_power*maxPower);
-                double FR = (biggerStick * Math.sin(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turn_power))) - (turn_power*maxPower);
-                double BL = (biggerStick * Math.sin(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turn_power))) + (turn_power*maxPower);
-                double BR = (biggerStick * Math.cos(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turn_power))) - (turn_power*maxPower);
+                double FL = (biggerStick * Math.cos(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turnPower))) + (turnPower*maxPower);
+                double FR = (biggerStick * Math.sin(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turnPower))) - (turnPower*maxPower);
+                double BL = (biggerStick * Math.sin(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turnPower))) + (turnPower*maxPower);
+                double BR = (biggerStick * Math.cos(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turnPower))) - (turnPower*maxPower);
 
-                frontLeft.setPower(FL);
-                frontRight.setPower(FR);
-                backLeft.setPower(BL);
-                backRight.setPower(BR);
+                setClippedMotorPower(frontLeft, FL);
+                setClippedMotorPower(frontRight, FR);
+                setClippedMotorPower(backLeft, BL);
+                setClippedMotorPower(backRight, BR);
             }
             else{
                 frontLeft.setPower(0);
@@ -84,11 +91,11 @@ public class MechanumTele extends LinearOpMode {
             }
 
             //Lenny Control
-            if (lenny_back_power > dead_zone) {
-                lenny.setPower(-lenny_back_power);
+            if (lennyBackPower > deadZone) {
+                lenny.setPower(-lennyBackPower);
             }
-            else if(lenny_forward_power > dead_zone){
-                lenny.setPower(lenny_forward_power);
+            else if(lennyForwardPower > deadZone){
+                lenny.setPower(lennyForwardPower);
             }
             else lenny.setPower(0);
 
