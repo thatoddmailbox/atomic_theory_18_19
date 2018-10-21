@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class MechanumTele extends LinearOpMode {
 
     public void setClippedMotorPower(DcMotor motor, double power) {
-        if (power < 0.2) {
+        if (Math.abs(power) < 0.2) {
             motor.setPower(0);
         } else {
-            motor.setPower(Math.min(power, 1));
+            motor.setPower((power < 0 ? -1 : 1) * Math.min(Math.abs(power), 1));
         }
     }
 
@@ -41,7 +41,6 @@ public class MechanumTele extends LinearOpMode {
 
         george.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
 
         telemetry.addData("Status", "Ready to go");
         telemetry.update();
