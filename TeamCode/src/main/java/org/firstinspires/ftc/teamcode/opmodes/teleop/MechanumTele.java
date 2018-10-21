@@ -52,31 +52,29 @@ public class MechanumTele extends LinearOpMode {
             double lenny_forward_power = gamepad1.right_trigger;
 
 
-            double scale = 0.9;
+            double maxPower = 0.9;
             double dead_zone = 0.2;
 
             //Complete Directional Mecanum Driving
             if(Math.abs(drive_power)>dead_zone ||
-                    Math.abs(strafe_power) > dead_zone || Math.abs(turn_power) < dead_zone){
+                    Math.abs(strafe_power) > dead_zone || Math.abs(turn_power) > dead_zone){
 
                 //Sets up variables
-                double r = Math.hypot(strafe_power, drive_power);
                 double robotAngle = Math.atan2(drive_power, strafe_power) - Math.PI / 4;
 
+                double biggerStick = Math.max(Math.abs(strafe_power),Math.abs(drive_power));
+                double biggerValue = Math.max(Math.abs(Math.cos(robotAngle)),Math.abs(Math.sin(robotAngle)));
+
                 //Does triggy stuff
-                double FL = r * Math.cos(robotAngle) + turn_power;
-                double FR = r * Math.sin(robotAngle) - turn_power;
-                double BL = r * Math.sin(robotAngle) + turn_power;
-                double BR = r * Math.cos(robotAngle) - turn_power;
+                double FL = (biggerStick * Math.cos(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turn_power))) + (turn_power*maxPower);
+                double FR = (biggerStick * Math.sin(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turn_power))) - (turn_power*maxPower);
+                double BL = (biggerStick * Math.sin(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turn_power))) + (turn_power*maxPower);
+                double BR = (biggerStick * Math.cos(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turn_power))) - (turn_power*maxPower);
 
-                //Ensures no power will ever exceed that of scale
-                double max = Math.max(Math.max(Math.abs(FL),Math.abs(FR)),(Math.max(Math.abs(BL),Math.abs(BR))));
-
-                frontLeft.setPower(FL / max * scale);
-                frontRight.setPower(FR/max*scale);
-                backLeft.setPower(BL/max*scale);
-                backRight.setPower(BR/max*scale);
-
+                frontLeft.setPower(FL);
+                frontRight.setPower(FR);
+                backLeft.setPower(BL);
+                backRight.setPower(BR);
             }
             else{
                 frontLeft.setPower(0);
