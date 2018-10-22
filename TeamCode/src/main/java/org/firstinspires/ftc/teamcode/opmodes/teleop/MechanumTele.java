@@ -38,16 +38,22 @@ public class MechanumTele extends LinearOpMode {
                 //Sets up variables
                 double robotAngle = Math.atan2(drivePower, strafePower) - Math.PI / 4;
 
-                double biggerStick = Math.max(Math.abs(strafePower),Math.abs(drivePower));
+                double biggerStick = Math.max(Math.abs(turnPower),(Math.max(Math.abs(strafePower),Math.abs(drivePower))));
                 double biggerValue = Math.max(Math.abs(Math.cos(robotAngle)),Math.abs(Math.sin(robotAngle)));
 
                 //Does triggy stuff
-                double FL = (biggerStick * Math.cos(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turnPower))) + (turnPower*maxPower);
-                double FR = (biggerStick * Math.sin(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turnPower))) - (turnPower*maxPower);
-                double BL = (biggerStick * Math.sin(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turnPower))) + (turnPower*maxPower);
-                double BR = (biggerStick * Math.cos(robotAngle)/biggerValue * (maxPower-Math.abs(maxPower*turnPower))) - (turnPower*maxPower);
+                double FL = (Math.cos(robotAngle)/biggerValue) + (turnPower);
+                double FR = (Math.sin(robotAngle)/biggerValue) - (turnPower);
+                double BL = (Math.sin(robotAngle)/biggerValue) + (turnPower);
+                double BR = (Math.cos(robotAngle)/biggerValue) - (turnPower);
 
-                robot.driveMotorsClipped(FL, FR, BL, BR);
+                double biggerPower = Math.max(Math.max(Math.abs(FL),Math.abs(FR)),Math.max((Math.abs(BL),Math.abs(FR)));
+
+                robot.driveMotorsClipped(
+                        FL*biggerStick/biggerPower*maxPower,
+                        FR*biggerStick/biggerPower*maxPower,
+                        BL*biggerStick/biggerPower*maxPower,
+                        BR*biggerStick/biggerPower*maxPower);
             } else {
                 robot.driveMotors(0, 0, 0, 0);
             }
