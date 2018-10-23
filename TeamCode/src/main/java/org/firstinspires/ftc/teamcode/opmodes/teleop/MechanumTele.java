@@ -40,7 +40,7 @@ public class MechanumTele extends LinearOpMode {
                 double biggerStick = Math.max(Math.abs(turnPower),Math.max(Math.abs(strafePower),Math.abs(drivePower)));
                 double biggerDrive = Math.max(Math.abs(strafePower),Math.abs(drivePower));
                 double biggerValue = Math.max(Math.abs(Math.cos(robotAngle)),Math.abs(Math.sin(robotAngle)));
-                double stickTotal = (biggerDrive+(Math.abs(turnPower)))/2;
+                double stickTotal = (biggerDrive+(Math.abs(turnPower)));
 
                 //Does triggy stuff
                 double FL = (Math.cos(robotAngle)/biggerValue*biggerDrive/stickTotal) + (turnPower/stickTotal);
@@ -48,7 +48,7 @@ public class MechanumTele extends LinearOpMode {
                 double BL = (Math.sin(robotAngle)/biggerValue*biggerDrive/stickTotal) + (turnPower/stickTotal);
                 double BR = (Math.cos(robotAngle)/biggerValue*biggerDrive/stickTotal) - (turnPower/stickTotal);
 
-                double biggerPower = Math.max(Math.max(Math.abs(FL),Math.abs(FR)),Math.max((Math.abs(BL),Math.abs(FR)));
+                double biggerPower = Math.max(Math.max(Math.abs(FL),Math.abs(FR)),Math.max(Math.abs(BL),Math.abs(FR)));
 
                 robot.driveMotorsClipped(
                         FL*biggerStick/biggerPower*maxPower,
