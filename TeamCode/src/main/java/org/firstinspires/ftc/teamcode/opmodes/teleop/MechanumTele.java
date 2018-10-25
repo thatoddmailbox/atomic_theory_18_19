@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.robot.Robot;
 public class MechanumTele extends LinearOpMode {
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap);
 
         telemetry.addData("Status", "Ready to go");
