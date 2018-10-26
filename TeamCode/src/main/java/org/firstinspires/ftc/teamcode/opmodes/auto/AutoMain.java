@@ -32,12 +32,13 @@ public abstract class AutoMain extends LinearOpMode {
         AutoCorrect corrector = new AutoCorrect();
 
         while (opModeIsActive()) {
-            corrector.setCalibratedPower(new PowerSetting(0.4, 0.4, 0.4, 0.4), robot);
+            corrector.setCalibratedPower(new PowerSetting(0.6, 0.6, 0.6, 0.6), robot);
             telemetry.addData("Front Left Power", robot.frontLeft.getPower());
             telemetry.addData("Front Right Power", robot.frontRight.getPower());
             telemetry.addData("Back Left Power", robot.backLeft.getPower());
             telemetry.addData("Back Right Power", robot.backRight.getPower());
             telemetry.addData("Angular Orientation", robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
+            telemetry.addData("Correction", corrector.correction);
 
             telemetry.update();
 
