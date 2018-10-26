@@ -13,6 +13,7 @@ public class Robot {
 
     public DcMotor george;
     public DcMotor lenny;
+    public DcMotor latch;
 
     public BNO055IMU imu;
 
@@ -24,6 +25,7 @@ public class Robot {
 
         george = hardwareMap.dcMotor.get("george");
         lenny = hardwareMap.dcMotor.get("lenny");
+        latch = hardwareMap.dcMotor.get("latch");
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -32,6 +34,7 @@ public class Robot {
 
         george.setDirection(DcMotorSimple.Direction.FORWARD);
         lenny.setDirection(DcMotorSimple.Direction.FORWARD);
+        latch.setDirection(DcMotorSimple.Direction.FORWARD);
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -40,6 +43,7 @@ public class Robot {
 
         george.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        latch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
