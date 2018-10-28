@@ -23,15 +23,21 @@ public class MechanumTele extends LinearOpMode {
         telemetry.update();
 
         while (opModeIsActive()) {
-            double drivePower = -1 * gamepad1.left_stick_y;
-            double strafePower = gamepad1.left_stick_x;
-            double turnPower = gamepad1.right_stick_x;
+            double slowMode = gamepad1.left_bumper? .5:1.0;
 
-            double lennyBackPower = gamepad1.left_trigger;
-            double lennyForwardPower = gamepad1.right_trigger;
+            //Square values for finer slow control.
+            double drivePower = (-1) * Math.pow(gamepad1.left_stick_y,2);
+            double strafePower = Math.pow(gamepad1.left_stick_x,2);
+            double turnPower = Math.pow(gamepad1.right_stick_x,2);
 
-            double maxPower = 0.9;
-            double deadZone = 0.2;
+
+            //Scaled Lenny speed down
+            double lennyBackPower = gamepad2.left_trigger * 0.7;
+            double lennyForwardPower = gamepad2.right_trigger * 0.7;
+
+            //Controller doesn't report center as exactly 0.
+            //This is NOT stall correction, see robot.setClippedMotorPower
+            double deadZone = 0.13;
 
             //Complete Directional Mecanum Driving
             if(Math.abs(drivePower) > deadZone || Math.abs(strafePower) > deadZone || Math.abs(turnPower) > deadZone) {
@@ -49,7 +55,8 @@ public class MechanumTele extends LinearOpMode {
                 double BL = (biggerStick * Math.sin(robotAngle)/biggerValue * (biggerDrive/stickMax)) + (turnPower/stickMax);
                 double BR = (biggerStick * Math.cos(robotAngle)/biggerValue * (biggerDrive/stickMax)) - (turnPower/stickMax);
 
-                robot.driveMotorsClipped(FL, FR, BL, BR);
+                //Powers Motors
+                robot.driveMotorsClipped(FL*slowMode, FR*slowMode, BL*slowMode, BR*slowMode);
             } else {
                 robot.driveMotors(0, 0, 0, 0);
             }
@@ -64,14 +71,14 @@ public class MechanumTele extends LinearOpMode {
             }
 
             //George Control
-            if(gamepad1.x) robot.george.setPower(.9);
-            else if(gamepad1.y) robot.george.setPower(-.9);
+            if(gamepad2.x) robot.george.setPower(1);
+            else if(gamepad2.y) robot.george.setPower(-1);
             else robot.george.setPower(0);
 
             // latch control
-            if (gamepad1.b) {
+            if (gamepad2.b) {
                 robot.latch.setPower(-1);
-            } else if (gamepad1.a) {
+            } else if (gamepad2.a) {
                 robot.latch.setPower(1);
             } else {
                 robot.latch.setPower(0);
