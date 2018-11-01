@@ -31,8 +31,15 @@ public abstract class AutoMain extends LinearOpMode {
 
         AutoCorrect corrector = new AutoCorrect();
 
+        PowerSetting powerSetting;
+        if (getStartingPosition() == StartingPosition.DEPOT) {
+            powerSetting = new PowerSetting(0.6, -0.6, -0.6, 0.6);
+        } else {
+            powerSetting = new PowerSetting(0.6, 0.6, 0.6, 0.6);
+        }
+
         while (opModeIsActive()) {
-            corrector.setCalibratedPower(new PowerSetting(0.6, 0.6, 0.6, 0.6), robot);
+            corrector.setCalibratedPower(powerSetting, robot);
             telemetry.addData("Front Left Power", robot.frontLeft.getPower());
             telemetry.addData("Front Right Power", robot.frontRight.getPower());
             telemetry.addData("Back Left Power", robot.backLeft.getPower());
