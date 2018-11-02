@@ -38,8 +38,9 @@ android {
 
     defaultConfig {
         applicationId 'com.qualcomm.ftcrobotcontroller'
-        minSdkVersion 21
-        targetSdkVersion 21
+        minSdkVersion 23
+        targetSdkVersion 23
+        renderscriptTargetApi 23
 
         /**
          * We keep the versionCode and versionName of robot controller applications in sync with
