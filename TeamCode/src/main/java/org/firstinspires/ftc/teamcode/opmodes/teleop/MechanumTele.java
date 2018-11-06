@@ -12,7 +12,7 @@ public class MechanumTele extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(hardwareMap);
+        Robot robot = new Robot(this);
 
         telemetry.addData("Status", "Ready to go");
         telemetry.update();

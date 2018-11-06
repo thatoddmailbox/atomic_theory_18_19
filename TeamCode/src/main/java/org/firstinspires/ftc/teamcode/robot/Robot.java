@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.robot;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Robot {
     public DcMotor frontLeft;
@@ -19,16 +22,22 @@ public class Robot {
 
     public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
 
-    public Robot(HardwareMap hardwareMap) throws InterruptedException {
-        frontLeft = hardwareMap.dcMotor.get("front_left");
-        frontRight = hardwareMap.dcMotor.get("front_right");
-        backLeft = hardwareMap.dcMotor.get("back_left");
-        backRight = hardwareMap.dcMotor.get("back_right");
+    public Robot(LinearOpMode opMode) throws InterruptedException {
+        /*
+         * motor initialization
+        */
+        frontLeft = opMode.hardwareMap.dcMotor.get("front_left");
+        frontRight = opMode.hardwareMap.dcMotor.get("front_right");
+        backLeft = opMode.hardwareMap.dcMotor.get("back_left");
+        backRight = opMode.hardwareMap.dcMotor.get("back_right");
 
-        george = hardwareMap.dcMotor.get("george");
-        lenny = hardwareMap.dcMotor.get("lenny");
-        latch = hardwareMap.dcMotor.get("latch");
+        george = opMode.hardwareMap.dcMotor.get("george");
+        lenny = opMode.hardwareMap.dcMotor.get("lenny");
+        latch = opMode.hardwareMap.dcMotor.get("latch");
 
+        /*
+         * motor setup
+         */
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -44,6 +53,9 @@ public class Robot {
         lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         latch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        /*
+         * sensors
+         */
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
         parameters.mode                = BNO055IMU.SensorMode.NDOF;
@@ -51,15 +63,16 @@ public class Robot {
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled      = false;
 
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu = opMode.hardwareMap.get(BNO055IMU.class, "imu");
 
         imu.initialize(parameters);
 
 //        while (!imu.isGyroCalibrated()) {
+//            opMode.telemetry.addLine("Calibrating gyro...");
+//            opMode.telemetry.update();
+//
 //            Thread.sleep(50);
+//            opMode.idle();
 //        }
     }
 
