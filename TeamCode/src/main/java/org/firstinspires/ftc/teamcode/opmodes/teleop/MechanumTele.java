@@ -46,7 +46,7 @@ public class MechanumTele extends LinearOpMode {
             double deadZone = 0.13;
 
             //Complete Directional Mecanum Driving
-            if(Math.abs(drivePower) > deadZone || Math.abs(strafePower) > deadZone || Math.abs(turnPower) > deadZone) {
+            if(Math.abs(gamepad1.left_stick_y) > deadZone || Math.abs(gamepad1.left_stick_x) > deadZone || Math.abs(gamepad1.left_stick_x) > deadZone) {
                 //Sets up variables
                 double robotAngle = Math.atan2(drivePower, strafePower) - Math.PI / 4;
 
