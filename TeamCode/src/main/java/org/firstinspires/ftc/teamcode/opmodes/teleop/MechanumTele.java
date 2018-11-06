@@ -31,8 +31,8 @@ public class MechanumTele extends LinearOpMode {
             //double turnPower = Math.pow(gamepad1.right_stick_x,2)*Math.signum(gamepad1.right_stick_x);
 
             double drivePower = (-1) * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_y)) * Math.signum(gamepad1.left_stick_y);
-            double strafePower = (-1) * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_x)) * Math.signum(gamepad1.left_stick_x);
-            double turnPower = (-1) * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.right_stick_x)) * Math.signum(gamepad1.right_stick_x);
+            double strafePower = 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_x)) * Math.signum(gamepad1.left_stick_x);
+            double turnPower = 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.right_stick_x)) * Math.signum(gamepad1.right_stick_x);
 
 
             //Scaled Lenny speed down
