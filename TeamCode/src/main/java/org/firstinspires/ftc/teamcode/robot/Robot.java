@@ -17,6 +17,8 @@ public class Robot {
 
     public BNO055IMU imu;
 
+    public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
+
     public Robot(HardwareMap hardwareMap) throws InterruptedException {
         frontLeft = hardwareMap.dcMotor.get("front_left");
         frontRight = hardwareMap.dcMotor.get("front_right");
@@ -36,10 +38,7 @@ public class Robot {
         lenny.setDirection(DcMotorSimple.Direction.FORWARD);
         latch.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         george.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -62,6 +61,15 @@ public class Robot {
 //        while (!imu.isGyroCalibrated()) {
 //            Thread.sleep(50);
 //        }
+    }
+
+    public void setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior newBehavior) {
+        driveMotorZeroPowerBehavior = newBehavior;
+
+        frontLeft.setZeroPowerBehavior(newBehavior);
+        frontRight.setZeroPowerBehavior(newBehavior);
+        backLeft.setZeroPowerBehavior(newBehavior);
+        backRight.setZeroPowerBehavior(newBehavior);
     }
 
     public void setClippedMotorPower(DcMotor motor, double power) {

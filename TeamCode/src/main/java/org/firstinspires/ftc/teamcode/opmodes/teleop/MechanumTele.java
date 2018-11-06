@@ -22,6 +22,8 @@ public class MechanumTele extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
+        boolean lastRightBumper = false;
+
         while (opModeIsActive()) {
             double slowMode = gamepad1.left_bumper? .5:1.0;
 
@@ -65,6 +67,15 @@ public class MechanumTele extends LinearOpMode {
                 robot.driveMotors(0, 0, 0, 0);
             }
 
+            // zero power behavior toggling
+            if (gamepad1.right_bumper && !lastRightBumper) {
+                if (robot.driveMotorZeroPowerBehavior == DcMotor.ZeroPowerBehavior.BRAKE) {
+                    robot.setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                } else {
+                    robot.setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                }
+            }
+
             //Lenny Control
             if (lennyBackPower > deadZone) {
                 robot.lenny.setPower(-lennyBackPower);
@@ -87,6 +98,11 @@ public class MechanumTele extends LinearOpMode {
             } else {
                 robot.latch.setPower(0);
             }
+
+            telemetry.addData("Zero power", robot.driveMotorZeroPowerBehavior.toString());
+            telemetry.update();
+
+            lastRightBumper = gamepad1.right_bumper;
         }
     }
 }
