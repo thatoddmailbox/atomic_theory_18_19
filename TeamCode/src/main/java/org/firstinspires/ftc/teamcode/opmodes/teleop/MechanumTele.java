@@ -32,8 +32,8 @@ public class MechanumTele extends LinearOpMode {
             //double strafePower = Math.pow(gamepad1.left_stick_x,2)*Math.signum(gamepad1.left_stick_x);
             //double turnPower = Math.pow(gamepad1.right_stick_x,2)*Math.signum(gamepad1.right_stick_x);
 
-            double drivePower = (-1) * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_y)) * Math.signum(gamepad1.left_stick_y);
-            double strafePower = 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_x)) * Math.signum(gamepad1.left_stick_x);
+            double drivePower = 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_y)) * Math.signum(gamepad1.left_stick_y);
+            double strafePower = -1 * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_x)) * Math.signum(gamepad1.left_stick_x);
             double turnPower = 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.right_stick_x)) * Math.signum(gamepad1.right_stick_x);
 
 
@@ -46,7 +46,7 @@ public class MechanumTele extends LinearOpMode {
             double deadZone = 0.13;
 
             //Complete Directional Mecanum Driving
-            if(Math.abs(gamepad1.left_stick_y) > deadZone || Math.abs(gamepad1.left_stick_x) > deadZone || Math.abs(gamepad1.left_stick_x) > deadZone) {
+            if(Math.abs(gamepad1.left_stick_y) > deadZone || Math.abs(gamepad1.left_stick_x) > deadZone || Math.abs(gamepad1.right_stick_x  ) > deadZone) {
                 //Sets up variables
                 double robotAngle = Math.atan2(drivePower, strafePower) - Math.PI / 4;
 
@@ -86,12 +86,12 @@ public class MechanumTele extends LinearOpMode {
             }
 
             //George Control
-            if(gamepad2.x) robot.george.setPower(1);
-            else if(gamepad2.y) robot.george.setPower(-1);
+            if(gamepad2.dpad_up) robot.george.setPower(1);
+            else if(gamepad2.dpad_down) robot.george.setPower(-1);
             else robot.george.setPower(0);
 
             // latch control
-            if (gamepad2.b) {
+            if (gamepad2.y) {
                 robot.latch.setPower(-1);
             } else if (gamepad2.a) {
                 robot.latch.setPower(1);

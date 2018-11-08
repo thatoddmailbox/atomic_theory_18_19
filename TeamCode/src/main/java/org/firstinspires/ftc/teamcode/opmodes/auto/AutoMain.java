@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -29,26 +30,16 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
-        AutoCorrect corrector = new AutoCorrect();
+        robot.latch.setPower(-1);
+        sleep(8000);
+        robot.latch.setPower(0);
 
-        PowerSetting powerSetting;
-        if (getStartingPosition() == StartingPosition.DEPOT) {
-            powerSetting = new PowerSetting(0.6, -0.6, -0.6, 0.6);
-        } else {
-            powerSetting = new PowerSetting(0.6, 0.6, 0.6, 0.6);
-        }
+        robot.driveMotors(1, -1, -1, 1);
+        sleep(750);
+        robot.driveMotors(0, 0, 0, 0);
 
         while (opModeIsActive()) {
-            corrector.setCalibratedPower(powerSetting, robot);
-            telemetry.addData("Front Left Power", robot.frontLeft.getPower());
-            telemetry.addData("Front Right Power", robot.frontRight.getPower());
-            telemetry.addData("Back Left Power", robot.backLeft.getPower());
-            telemetry.addData("Back Right Power", robot.backRight.getPower());
-            telemetry.addData("Angular Orientation", robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
-            telemetry.addData("Correction", corrector.correction);
-
             telemetry.update();
-
             idle();
         }
     }
