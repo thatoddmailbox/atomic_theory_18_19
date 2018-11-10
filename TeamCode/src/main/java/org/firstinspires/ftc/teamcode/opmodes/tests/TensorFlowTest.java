@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.teamcode.Consts;
 
 import java.util.List;
 
@@ -27,20 +28,6 @@ public class TensorFlowTest extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
-
-    /*
-     * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
-     * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
-     * A Vuforia 'Development' license key, can be obtained free of charge from the Vuforia developer
-     * web site at https://developer.vuforia.com/license-manager.
-     *
-     * Vuforia license keys are always 380 characters long, and look as if they contain mostly
-     * random data. As an example, here is a example of a fragment of a valid key:
-     *      ... yIgIzTqZ4mWjk9wd3cZO9T1axEqzuhxoGlfOOI2dRzKS4T0hQ8kT ...
-     * Once you've obtained a license key, copy the string from the Vuforia web site
-     * and paste it in to your code on the next line, between the double quotes.
-     */
-    private static final String VUFORIA_KEY = "AQA7ccT/////AAABmcK7mEXtLkxwnRUcoQMquLxXZLwgrFL2l0L1RYkLBZ1LfTW7bXu+6DsIWpY2gory9lijjA1aBvf1TWKkyFY81RR6r6m/VgcLww7XPV0baoEH9+FcaxglmvSnX0lIOqO3njcRkJI2nTiAoLaRrRfk25b41DhOKbfmjl822cSETCCAz6OKA6EfzMES/vGmkfsJwXInH/4KTOHxtM0G/D8vT/93DJFy5Q9/KvNvsj29bi6j96XElmM8+F0xvDrbTiRVpfK38omVuGz2ak0wkF/BUor5I3xQbr7Hk3mmzjYvQX1fPLo4Xu/HJMUI5Qc9qWBF+GIKibhRrRmQ30kOTZ1tz92tPNNn0spy70Niep9OTrLH";
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
@@ -127,7 +114,7 @@ public class TensorFlowTest extends LinearOpMode {
          */
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.vuforiaLicenseKey = Consts.VUFORIA_KEY;
         parameters.cameraName = hardwareMap.get(WebcamName.class, "left_webcam");
 
         //  Instantiate the Vuforia engine

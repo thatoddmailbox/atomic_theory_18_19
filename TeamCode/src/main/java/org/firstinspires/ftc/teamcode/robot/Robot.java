@@ -6,7 +6,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.teamcode.Consts;
+import org.firstinspires.ftc.teamcode.utils.MineralPosition;
+
+import java.util.List;
 
 public class Robot {
     public DcMotor frontLeft;
@@ -20,7 +29,13 @@ public class Robot {
 
     public BNO055IMU imu;
 
+    public WebcamName leftWebcam;
+    public WebcamName rightWebcam;
+
     public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
+
+    public VuforiaLocalizer vuforia;
+    public TFObjectDetector tfod;
 
     public Robot(LinearOpMode opMode) throws InterruptedException {
         /*
@@ -56,16 +71,32 @@ public class Robot {
         /*
          * sensors
          */
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        BNO055IMU.Parameters imuParameters = new BNO055IMU.Parameters();
 
-        parameters.mode                = BNO055IMU.SensorMode.NDOF;
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled      = false;
+        imuParameters.mode                = BNO055IMU.SensorMode.NDOF;
+        imuParameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        imuParameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        imuParameters.loggingEnabled      = false;
 
         imu = opMode.hardwareMap.get(BNO055IMU.class, "imu");
 
-        imu.initialize(parameters);
+        imu.initialize(imuParameters);
+
+        leftWebcam = opMode.hardwareMap.get(WebcamName.class, "left_webcam");
+        rightWebcam = opMode.hardwareMap.get(WebcamName.class, "right_webcam");
+
+        /*
+         * initialize sensors
+         */
+        VuforiaLocalizer.Parameters vuforiaParameters = new VuforiaLocalizer.Parameters();
+        vuforiaParameters.vuforiaLicenseKey = Consts.VUFORIA_KEY;
+        vuforiaParameters.cameraName = leftWebcam;
+        vuforia = ClassFactory.getInstance().createVuforia(vuforiaParameters);
+
+        int tfodMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(Consts.TFOD_MODEL_FILE, Consts.TFOD_LABEL_GOLD, Consts.TFOD_LABEL_SILVER);
 
 //        while (!imu.isGyroCalibrated()) {
 //            opMode.telemetry.addLine("Calibrating gyro...");
@@ -76,6 +107,9 @@ public class Robot {
 //        }
     }
 
+    /*
+     * drive functions
+     */
     public void setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior newBehavior) {
         driveMotorZeroPowerBehavior = newBehavior;
 
@@ -105,5 +139,52 @@ public class Robot {
         setClippedMotorPower(frontRight, fr);
         setClippedMotorPower(backLeft, bl);
         setClippedMotorPower(backRight, br);
+    }
+
+    /*
+     * sensor functions - tensorflow
+     */
+    public void activateTfod() {
+        tfod.activate();
+    }
+
+    public void deactivateTfod() {
+        tfod.shutdown();
+    }
+
+    public MineralPosition findGoldMineral() {
+        List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+        if (updatedRecognitions == null || updatedRecognitions.size() != 3) {
+            return MineralPosition.UNKNOWN;
+        }
+
+        int goldX, silver1X, silver2X;
+        goldX = silver1X = silver2X = -1;
+
+        for (Recognition r : updatedRecognitions) {
+            if (r.getLabel().equals(Consts.TFOD_LABEL_GOLD)) {
+                goldX = (int) r.getLeft();
+            } else {
+                if (silver1X == -1) {
+                    silver1X = (int) r.getLeft();
+                } else {
+                    silver2X = (int) r.getLeft();
+                }
+            }
+        }
+
+        if (goldX == -1 || silver1X == -1 || silver2X == -1) {
+            // shouldn't happen, but if it does, give up
+            return MineralPosition.UNKNOWN;
+        }
+
+        if (goldX < silver1X && goldX < silver2X) {
+            return MineralPosition.LEFT;
+        } else if (goldX > silver1X && goldX > silver2X) {
+            return MineralPosition.RIGHT;
+        } else {
+            return MineralPosition.CENTER;
+        }
     }
 }
