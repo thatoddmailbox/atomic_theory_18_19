@@ -37,9 +37,10 @@ public class ATChannelChangeActivity extends Activity {
         channelListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ArrayAdapter<WifiDirectChannelAndDescription> adapter = (ArrayAdapter<WifiDirectChannelAndDescription>) parent.getAdapter();
-                WifiDirectChannelAndDescription item = adapter.getItem(position);
+                ArrayAdapter<?> adapter = (ArrayAdapter<?>) parent.getAdapter();
+                WifiDirectChannelAndDescription item = (WifiDirectChannelAndDescription) adapter.getItem(position);
 
+                assert item != null;
                 configurer.changeToChannel(item.getChannel());
 
                 finish();
