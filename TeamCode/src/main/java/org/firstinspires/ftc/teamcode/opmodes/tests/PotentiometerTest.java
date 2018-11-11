@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import org.firstinspires.ftc.teamcode.Consts;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
-@Autonomous(name="Potentiometer test")
+@Autonomous(name="Potentiometer test", group="Tests")
 public class PotentiometerTest extends LinearOpMode {
 
     AnalogInput elbowPotentiometer;

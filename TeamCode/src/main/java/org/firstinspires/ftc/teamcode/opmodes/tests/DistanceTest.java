@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
-@Autonomous(name="Distance test")
+@Autonomous(name="Distance test", group="Tests")
 public class DistanceTest extends LinearOpMode {
 
     Rev2mDistanceSensor distanceSensor;

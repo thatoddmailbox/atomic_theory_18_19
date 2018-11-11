@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode.opmodes.tests;
 import android.net.wifi.p2p.WifiP2pManager;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.internal.network.WifiDirectAgent;
 
-@Autonomous(name="Channel test")
+@Autonomous(name="Channel test", group="Tests")
+@Disabled
 public class ChannelTest extends LinearOpMode {
 
     @Override
