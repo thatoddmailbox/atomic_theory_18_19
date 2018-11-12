@@ -35,7 +35,7 @@ public class TurningTest extends LinearOpMode {
             e.printStackTrace();
         }
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.02, 0.01, 0));
+        PIDController pid = new PIDController(new PIDCoefficients(0.02, 0.01, 0), false, 1);
         Gamepad lastGamepad = new Gamepad();
         double targetHeading = 0;
         int newTarget = (int) targetHeading;
@@ -114,6 +114,10 @@ public class TurningTest extends LinearOpMode {
                 targetHeading = newTarget;
                 pid.reset();
             }
+            if (gamepad1.x && !lastGamepad.x) {
+                pid.enableAntiWindup = !pid.enableAntiWindup;
+                pid.reset();
+            }
 
             /*
              * telemetry
@@ -123,6 +127,8 @@ public class TurningTest extends LinearOpMode {
             telemetry.addData("Current", currentHeading);
             telemetry.addData("Output", output);
             telemetry.addData("Total error", pid.errorSum);
+            telemetry.addData("Anti-windup enabled", pid.enableAntiWindup);
+            telemetry.addData("Integration enabled", !pid.isIntegrationDisabled());
             telemetry.addData("Coefficients", pid.coefficients.toString());
             telemetry.addData("Selected parameter", "PIDH".charAt(selectedCoefficient));
             telemetry.addData("Gamepad step", step);
