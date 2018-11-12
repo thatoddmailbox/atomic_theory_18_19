@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -57,7 +59,12 @@ public class PIDController {
         _lastTime = _runtime.milliseconds();
 
         if (enableAntiWindup) {
-            _integrationDisabled = (Math.abs(output) == saturationMagnitude);
+            _integrationDisabled = (Math.abs(output) >= saturationMagnitude);
+        }
+
+        if (Math.abs(output) > saturationMagnitude) {
+            // clamp output
+            output = Math.signum(output) * saturationMagnitude;
         }
 
         return output;

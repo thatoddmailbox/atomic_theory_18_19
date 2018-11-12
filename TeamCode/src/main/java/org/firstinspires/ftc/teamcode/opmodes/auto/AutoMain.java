@@ -19,7 +19,10 @@ public abstract class AutoMain extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(this);
+        telemetry.addData("Status", "Starting...");
+        telemetry.update();
+
+        Robot robot = new Robot(this, true);
 
         telemetry.addData("Status", "Ready to go");
         telemetry.addData("Alliance", getCurrentAlliance());

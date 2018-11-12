@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.robot.Robot;
 
@@ -12,7 +14,7 @@ public class MechanumTele extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(this);
+        Robot robot = new Robot(this, false);
 
         telemetry.addData("Status", "Ready to go");
         telemetry.update();
@@ -23,6 +25,8 @@ public class MechanumTele extends LinearOpMode {
         telemetry.update();
 
         boolean lastRightBumper = false;
+        Gamepad lastGamepad2 = new Gamepad();
+        double nomPower = 0.7;
 
         while (opModeIsActive()) {
             double slowMode = gamepad1.left_bumper? .5:1.0;
@@ -86,9 +90,22 @@ public class MechanumTele extends LinearOpMode {
             }
 
             //George Control
-            if(gamepad2.dpad_up) robot.george.setPower(1);
-            else if(gamepad2.dpad_down) robot.george.setPower(-1);
+            if(gamepad2.dpad_up) robot.george.setPower(nomPower);
+            else if(gamepad2.dpad_down) robot.george.setPower(-nomPower);
             else robot.george.setPower(0);
+
+            // nom speed control
+            if (gamepad2.dpad_left && !lastGamepad2.dpad_left) {
+                nomPower -= 0.1;
+                if (nomPower < 0) {
+                    nomPower = 0;
+                }
+            } else if (gamepad2.dpad_right && !lastGamepad2.dpad_right) {
+                nomPower += 0.1;
+                if (nomPower > 1) {
+                    nomPower = 1;
+                }
+            }
 
             // latch control
             if (gamepad2.y) {
@@ -100,9 +117,15 @@ public class MechanumTele extends LinearOpMode {
             }
 
             telemetry.addData("Zero power", robot.driveMotorZeroPowerBehavior.toString());
+            telemetry.addData("Nom power", nomPower);
             telemetry.update();
 
             lastRightBumper = gamepad1.right_bumper;
+            try {
+                lastGamepad2.copy(gamepad2);
+            } catch (RobotCoreException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

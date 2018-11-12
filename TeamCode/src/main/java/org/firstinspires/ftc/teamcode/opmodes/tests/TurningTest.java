@@ -24,7 +24,7 @@ import java.net.UnknownHostException;
 public class TurningTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(this);
+        Robot robot = new Robot(this, false);
 
         waitForStart();
 
@@ -35,7 +35,7 @@ public class TurningTest extends LinearOpMode {
             e.printStackTrace();
         }
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.02, 0.01, 0), false, 1);
+        PIDController pid = new PIDController(new PIDCoefficients(0.05, 0.00, 0), false, 0.5);
         Gamepad lastGamepad = new Gamepad();
         double targetHeading = 0;
         int newTarget = (int) targetHeading;
@@ -64,13 +64,13 @@ public class TurningTest extends LinearOpMode {
              */
             double currentHeading = robot.imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
 
-            double output = pid.step(currentHeading, targetHeading);
-
-            if (Math.abs(output) > 1) {
-                output = Math.signum(output);
+            if (Math.abs(currentHeading - targetHeading) < 0.25) {
+                currentHeading = targetHeading;
             }
 
-            robot.driveMotors(output, -output, output, -output);
+            double output = pid.step(currentHeading, targetHeading);
+
+            robot.driveMotors(-output, output, -output, output);
 
             /*
              * gamepad input
@@ -92,7 +92,7 @@ public class TurningTest extends LinearOpMode {
                 if (selectedCoefficient == 0) {
                     pid.coefficients.p -= step;
                 } else if (selectedCoefficient == 1) {
-                    pid.coefficients.i -= step;
+                    pid.coefficients.i -= step / 10;
                 } else if (selectedCoefficient == 2) {
                     pid.coefficients.d -= step;
                 } else if (selectedCoefficient == 3) {
@@ -102,7 +102,7 @@ public class TurningTest extends LinearOpMode {
                 if (selectedCoefficient == 0) {
                     pid.coefficients.p += step;
                 } else if (selectedCoefficient == 1) {
-                    pid.coefficients.i += step;
+                    pid.coefficients.i += step / 10;
                 } else if (selectedCoefficient == 2) {
                     pid.coefficients.d += step;
                 } else if (selectedCoefficient == 3) {
@@ -116,6 +116,9 @@ public class TurningTest extends LinearOpMode {
             }
             if (gamepad1.x && !lastGamepad.x) {
                 pid.enableAntiWindup = !pid.enableAntiWindup;
+                pid.reset();
+            }
+            if (gamepad1.y && !lastGamepad.y) {
                 pid.reset();
             }
 
@@ -134,7 +137,7 @@ public class TurningTest extends LinearOpMode {
             telemetry.addData("Gamepad step", step);
             telemetry.update();
 
-            pidLogger.sendPacket(targetHeading, currentHeading, output);
+//            pidLogger.sendPacket(targetHeading, currentHeading, output);
 
             try {
                 lastGamepad.copy(gamepad1);

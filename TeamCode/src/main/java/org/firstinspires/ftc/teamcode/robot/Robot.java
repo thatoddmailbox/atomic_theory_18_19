@@ -37,7 +37,7 @@ public class Robot {
     public VuforiaLocalizer vuforia;
     public TFObjectDetector tfod;
 
-    public Robot(LinearOpMode opMode) throws InterruptedException {
+    public Robot(LinearOpMode opMode, boolean enableVision) throws InterruptedException {
         /*
          * motor initialization
         */
@@ -88,15 +88,17 @@ public class Robot {
         /*
          * initialize sensors
          */
-        VuforiaLocalizer.Parameters vuforiaParameters = new VuforiaLocalizer.Parameters();
-        vuforiaParameters.vuforiaLicenseKey = Consts.VUFORIA_KEY;
-        vuforiaParameters.cameraName = leftWebcam;
-        vuforia = ClassFactory.getInstance().createVuforia(vuforiaParameters);
+        if (enableVision) {
+            VuforiaLocalizer.Parameters vuforiaParameters = new VuforiaLocalizer.Parameters();
+            vuforiaParameters.vuforiaLicenseKey = Consts.VUFORIA_KEY;
+            vuforiaParameters.cameraName = leftWebcam;
+            vuforia = ClassFactory.getInstance().createVuforia(vuforiaParameters);
 
-        int tfodMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(Consts.TFOD_MODEL_FILE, Consts.TFOD_LABEL_GOLD, Consts.TFOD_LABEL_SILVER);
+            int tfodMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
+            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+            tfod.loadModelFromAsset(Consts.TFOD_MODEL_FILE, Consts.TFOD_LABEL_GOLD, Consts.TFOD_LABEL_SILVER);
+        }
 
 //        while (!imu.isGyroCalibrated()) {
 //            opMode.telemetry.addLine("Calibrating gyro...");
