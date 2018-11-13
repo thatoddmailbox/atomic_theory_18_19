@@ -90,22 +90,22 @@ public class MechanumTele extends LinearOpMode {
             }
 
             //George Control
-            if(gamepad2.dpad_up) robot.george.setPower(nomPower);
+            if(gamepad2.dpad_up) robot.george.setPower(.9);
             else if(gamepad2.dpad_down) robot.george.setPower(.4);
             else robot.george.setPower(0);
 
             // nom speed control
-            if (gamepad2.dpad_left && !lastGamepad2.dpad_left) {
-                nomPower -= 0.1;
-                if (nomPower < 0) {
-                    nomPower = 0;
-                }
-            } else if (gamepad2.dpad_right && !lastGamepad2.dpad_right) {
-                nomPower += 0.1;
-                if (nomPower > 1) {
-                    nomPower = 1;
-                }
-            }
+//            if (gamepad2.dpad_left && !lastGamepad2.dpad_left) {
+//                nomPower -= 0.1;
+//                if (nomPower < 0) {
+//                    nomPower = 0;
+//                }
+//            } else if (gamepad2.dpad_right && !lastGamepad2.dpad_right) {
+//                nomPower += 0.1;
+//                if (nomPower > 1) {
+//                    nomPower = 1;
+//                }
+//            }
 
             // latch control
             if (gamepad2.y) {
