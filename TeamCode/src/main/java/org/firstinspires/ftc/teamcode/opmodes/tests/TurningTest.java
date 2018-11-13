@@ -30,7 +30,7 @@ public class TurningTest extends LinearOpMode {
 
         PIDLogger pidLogger = null;
         try {
-            pidLogger = new PIDLogger("192.168.0.28");
+            pidLogger = new PIDLogger("192.168.49.2");
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
         }
@@ -55,6 +55,7 @@ public class TurningTest extends LinearOpMode {
          *   positive heading = clockwise
          *   therefore (sp - pv) > 0 => clockwise turn
          *   clockwise turn = fl, bl positive and fr, br negative
+         *   except flipped
          *
          */
 
@@ -91,10 +92,19 @@ public class TurningTest extends LinearOpMode {
             if (gamepad1.dpad_left && !lastGamepad.dpad_left) {
                 if (selectedCoefficient == 0) {
                     pid.coefficients.p -= step;
+                    if (pid.coefficients.p < 0) {
+                        pid.coefficients.p = 0;
+                    }
                 } else if (selectedCoefficient == 1) {
                     pid.coefficients.i -= step / 10;
+                    if (pid.coefficients.i < 0) {
+                        pid.coefficients.i = 0;
+                    }
                 } else if (selectedCoefficient == 2) {
                     pid.coefficients.d -= step;
+                    if (pid.coefficients.d < 0) {
+                        pid.coefficients.d = 0;
+                    }
                 } else if (selectedCoefficient == 3) {
                     newTarget -= (fineMode ? 1 : 5);
                 }
