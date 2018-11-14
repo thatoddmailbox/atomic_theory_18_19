@@ -84,6 +84,9 @@ public class TensorFlowTest extends LinearOpMode {
                             silverMineral2X = (int) recognition.getLeft();
                           }
                         }
+                          telemetry.addData("Gold", goldMineralX);
+                          telemetry.addData("Silver 1", silverMineral1X);
+                          telemetry.addData("Silver 2", silverMineral2X);
                         if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                           if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
                             telemetry.addData("Gold Mineral Position", "Left");

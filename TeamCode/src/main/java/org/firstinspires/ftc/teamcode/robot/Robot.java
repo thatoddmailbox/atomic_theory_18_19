@@ -2,12 +2,17 @@ package org.firstinspires.ftc.teamcode.robot;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.vuforia.Frame;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.function.Consumer;
+import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -26,6 +31,8 @@ public class Robot {
     public DcMotor george;
     public DcMotor lenny;
     public DcMotor latch;
+
+    public Servo teamMarker;
 
     public BNO055IMU imu;
 
@@ -49,6 +56,8 @@ public class Robot {
         george = opMode.hardwareMap.dcMotor.get("george");
         lenny = opMode.hardwareMap.dcMotor.get("lenny");
         latch = opMode.hardwareMap.dcMotor.get("latch");
+
+        teamMarker = opMode.hardwareMap.servo.get("team_marker");
 
         /*
          * motor setup
@@ -188,5 +197,28 @@ public class Robot {
         } else {
             return MineralPosition.CENTER;
         }
+    }
+
+    public MineralPosition findGoldMineralDifferent() {
+        List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+        if (updatedRecognitions == null) {
+            return MineralPosition.UNKNOWN;
+        }
+
+        for (Recognition r : updatedRecognitions) {
+            if (r.getLabel().equals(Consts.TFOD_LABEL_GOLD)) {
+                if (r.getLeft() > 200 && r.getLeft() < 400) {
+                    return MineralPosition.CENTER;
+                } else if (r.getLeft() <= 200) {
+                    return MineralPosition.LEFT;
+                } else if (r.getLeft() >= 400) {
+                    return MineralPosition.RIGHT;
+                }
+            }
+
+        }
+
+        return MineralPosition.UNKNOWN;
     }
 }
