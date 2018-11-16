@@ -26,7 +26,7 @@ public class MechanumTele extends LinearOpMode {
 
         boolean lastRightBumper = false;
         Gamepad lastGamepad2 = new Gamepad();
-        double nomPower = 0.7;
+        double nomPower = 1;
 
         while (opModeIsActive()) {
             double slowMode = gamepad1.left_bumper? .5:1.0;
@@ -38,7 +38,7 @@ public class MechanumTele extends LinearOpMode {
 
             double drivePower = 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_y)) * Math.signum(gamepad1.left_stick_y);
             double strafePower = -1 * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_x)) * Math.signum(gamepad1.left_stick_x);
-            double turnPower = 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.right_stick_x)) * Math.signum(gamepad1.right_stick_x);
+            double turnPower = .5 * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.right_stick_x)) * Math.signum(gamepad1.right_stick_x);
 
 
             //Scaled Lenny speed down
@@ -90,8 +90,8 @@ public class MechanumTele extends LinearOpMode {
             }
 
             //George Control
-            if(gamepad2.dpad_up) robot.george.setPower(.9);
-            else if(gamepad2.dpad_down) robot.george.setPower(.4);
+            if(gamepad2.dpad_up) robot.george.setPower(1);
+            else if(gamepad2.dpad_down) robot.george.setPower(-1);
             else robot.george.setPower(0);
 
             // nom speed control
