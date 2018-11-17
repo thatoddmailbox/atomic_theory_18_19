@@ -29,6 +29,8 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("Starting position", getStartingPosition());
         telemetry.update();
 
+        robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
+
         waitForStart();
 
         telemetry.addData("Status", "Running");
@@ -41,14 +43,23 @@ public abstract class AutoMain extends LinearOpMode {
 
         sleep(100);
 
+        telemetry.addData("Heading - unlatch", robot.getHeading());
+        telemetry.update();
+
         // strafe away from lander
-        robot.driveMotors(1, -1, -1, 1);
-        sleep(200);
-        robot.driveMotors(0, 0, 0, 0);
+        if (getStartingPosition() == StartingPosition.CRATER) {
+            robot.driveMotors(0.4, -0.4, -0.4, 0.4);
+            sleep(200);
+            robot.driveMotors(0, 0, 0, 0);
+        } else {
+            robot.driveMotors(1, -1, -1, 1);
+            sleep(200);
+            robot.driveMotors(0, 0, 0, 0);
+        }
 
         // move forward to have all minerals in view
         robot.driveMotors(0.4, 0.4, 0.4, 0.4);
-        sleep(100);
+        sleep((getStartingPosition() == StartingPosition.CRATER ? 100 : 100));
         robot.driveMotors(0, 0, 0, 0);
 
         // detect mineral
@@ -57,68 +68,72 @@ public abstract class AutoMain extends LinearOpMode {
 
         MineralPosition goldMineral = robot.findGoldMineralDifferent();
         telemetry.addData("Gold mineral position", goldMineral.toString());
+        telemetry.addData("Heading - mineral", robot.getHeading());
         telemetry.update();
 
-        // Move left/right depending on mineral position
-        if (goldMineral == MineralPosition.CENTER) {
-        } else if (goldMineral == MineralPosition.LEFT) {
-            robot.driveMotors(0.5, 0.5, 0.5, 0.5);
-            sleep(360);
-            robot.driveMotors(0, 0, 0, 0);
-        } else if (goldMineral == MineralPosition.RIGHT) {
-            robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
-            sleep(360);
-            robot.driveMotors(0, 0, 0, 0);
-        }
-
-        int pushTime = 2000;
-        if (getStartingPosition() == StartingPosition.CRATER) {
-            pushTime = 1500;
-        }
-
-        // Push mineral
-        robot.driveMotors(0.6, -0.6, -0.6, 0.6);
-        sleep(pushTime);
+        // come out from lander
+        robot.driveMotors(0.4, -0.4, -0.4, 0.4);
+        sleep(1000);
         robot.driveMotors(0, 0, 0, 0);
 
-        // Go back towards lander if at crater
-        if (getStartingPosition() == StartingPosition.CRATER) {
-            robot.driveMotors(-0.6, 0.6, 0.6, -0.6);
-            sleep(pushTime);
-            robot.driveMotors(0, 0, 0, 0);
-        }
-
-        // Move back to center
-        if (goldMineral == MineralPosition.CENTER) {
-        } else if (goldMineral == MineralPosition.LEFT) {
-            robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
-            sleep(360);
+        // Move left/right depending on mineral position
+        if (goldMineral == MineralPosition.LEFT) {
+            robot.driveMotors(0.5, 0.5, 0.5, 0.5);
+            sleep(500);
             robot.driveMotors(0, 0, 0, 0);
         } else if (goldMineral == MineralPosition.RIGHT) {
-            robot.driveMotors(0.5, 0.5, 0.5, 0.5);
-            sleep(360);
-            robot.driveMotors(0, 0, 0, 0);
-        }
-
-        // Drop team marker
-        if (getStartingPosition() == StartingPosition.DEPOT) {
-            robot.teamMarker.setPosition(1);
+            robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
             sleep(500);
-            robot.teamMarker.setPosition(0.5);
+            robot.driveMotors(0, 0, 0, 0);
         }
 
-        // Go left (towards depot/wall) if at crater
+        // if at crater, try to go in
         if (getStartingPosition() == StartingPosition.CRATER) {
-            robot.driveMotors(-0.7, -0.7, -0.7, -0.7);
-            sleep(1500);
+            // turn 90
+            robot.lessBadTurn(90);
+
+            // attack
+            robot.driveMotors(-0.8, -0.8, -0.8, -0.8);
+            sleep(700);
             robot.driveMotors(0, 0, 0, 0);
-            // Turn left (maybe) 45 degrees to align with wall
-            robot.driveMotors(0.5, -0.5, 0.5, -0.5);
-            sleep(400);
+        } else {
+            // turn 90
+            robot.lessBadTurn(90);
+
+            // Push mineral
+            robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
+            sleep(1200);
             robot.driveMotors(0, 0, 0, 0);
+
+            robot.lessBadTurn(0);
+
+            if (goldMineral == MineralPosition.LEFT) {
+                robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
+                sleep(500);
+                robot.driveMotors(0, 0, 0, 0);
+            } else if (goldMineral == MineralPosition.RIGHT) {
+                robot.driveMotors(0.5, 0.5, 0.5, 0.5);
+                sleep(500);
+                robot.driveMotors(0, 0, 0, 0);
+            }
+
+            // Drop team marker
+            if (getStartingPosition() == StartingPosition.DEPOT) {
+                robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
+                sleep(1000);
+            }
+
+            robot.lessBadTurn(45);
+
+            robot.driveMotors(-1, -1, -1, -1);
+            sleep(3000);
+            robot.driveMotors(0, 0, 0, 0);
+
+//            robot.lessBadTurn(270);
         }
 
         robot.deactivateTfod();
+        robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
 
         while (opModeIsActive()) {
             telemetry.update();

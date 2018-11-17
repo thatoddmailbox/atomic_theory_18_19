@@ -22,9 +22,9 @@ public class MarkerTest extends LinearOpMode {
             if (gamepad1.dpad_up) {
                 robot.teamMarker.setPosition(1);
             } else if (gamepad1.dpad_down) {
-                robot.teamMarker.setPosition(0);
+                robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
             } else {
-                robot.teamMarker.setPosition(0.5);
+                robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
             }
         }
     }

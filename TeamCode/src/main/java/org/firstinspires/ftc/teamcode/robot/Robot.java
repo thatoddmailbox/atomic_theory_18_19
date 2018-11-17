@@ -6,7 +6,9 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.vuforia.Frame;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -14,15 +16,22 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.Consts;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
+import org.firstinspires.ftc.teamcode.utils.PIDController;
 
 import java.util.List;
 
 public class Robot {
+    public static final double SERVO_TEAM_MARKER_DEPOSIT = 0.0;
+    public static final double SERVO_TEAM_MARKER_HELD = 0.8;
+
     public DcMotor frontLeft;
     public DcMotor frontRight;
     public DcMotor backLeft;
@@ -44,7 +53,11 @@ public class Robot {
     public VuforiaLocalizer vuforia;
     public TFObjectDetector tfod;
 
+    private LinearOpMode _opMode;
+
     public Robot(LinearOpMode opMode, boolean enableVision) throws InterruptedException {
+        _opMode = opMode;
+
         /*
          * motor initialization
         */
@@ -150,6 +163,67 @@ public class Robot {
         setClippedMotorPower(frontRight, fr);
         setClippedMotorPower(backLeft, bl);
         setClippedMotorPower(backRight, br);
+    }
+
+    public void driveTicks(int ticks, double power) {
+        int targetPosition = frontRight.getCurrentPosition() + ticks;
+        while ((targetPosition - frontRight.getCurrentPosition()) > 10) {
+            double currentPower = power;
+            driveMotors(power, power, power, power);
+        }
+        driveMotors(0, 0, 0, 0);
+    }
+
+    /*
+     * sensor functions - imu
+     */
+    public double getHeading() {
+        return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+    }
+
+    public void badTurn(double heading, double power) {
+//        while ()
+    }
+
+    public void lessBadTurn(double targetHeading) {
+        PIDController pid = new PIDController(new PIDCoefficients(0.05, 0, 0.3), false, 0.5);
+
+        ElapsedTime timer = new ElapsedTime();
+        int correctFrames = 0;
+
+        timer.reset();
+
+        while (_opMode.opModeIsActive() && timer.seconds() < 2.5) {
+            /*
+             * pid control loop
+             */
+            double currentHeading = getHeading();
+
+            if (Math.abs(currentHeading - targetHeading) < 0.25) {
+                currentHeading = targetHeading;
+            }
+
+            if (Math.abs(currentHeading - targetHeading) < 0.5) {
+                correctFrames += 1;
+                if (correctFrames > 20) {
+                    break;
+                }
+            } else {
+                correctFrames = 0;
+            }
+
+            double output = pid.step(currentHeading, targetHeading);
+
+            driveMotors(-output, output, -output, output);
+
+            _opMode.telemetry.addData("Target", targetHeading);
+            _opMode.telemetry.addData("Current", currentHeading);
+            _opMode.telemetry.addData("Output", output);
+            _opMode.telemetry.addData("Correct frames", correctFrames);
+            _opMode.telemetry.update();
+        }
+
+        driveMotors(0, 0, 0,0);
     }
 
     /*

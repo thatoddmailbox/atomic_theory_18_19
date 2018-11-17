@@ -119,6 +119,10 @@ public class MechanumTele extends LinearOpMode {
             telemetry.addData("Zero power", robot.driveMotorZeroPowerBehavior.toString());
             telemetry.addData("Nom power", nomPower);
             telemetry.addData("Latch position", robot.latch.getCurrentPosition());
+            telemetry.addData("FL position", robot.frontLeft.getCurrentPosition());
+            telemetry.addData("FR position", robot.frontRight.getCurrentPosition());
+            telemetry.addData("BL position", robot.backLeft.getCurrentPosition());
+            telemetry.addData("BR position", robot.backRight.getCurrentPosition());
             telemetry.update();
 
             lastRightBumper = gamepad1.right_bumper;

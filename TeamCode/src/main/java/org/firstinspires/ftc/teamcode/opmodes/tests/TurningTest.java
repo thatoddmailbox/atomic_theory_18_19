@@ -35,7 +35,7 @@ public class TurningTest extends LinearOpMode {
             e.printStackTrace();
         }
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.05, 0.00, 0), false, 0.5);
+        PIDController pid = new PIDController(new PIDCoefficients(0.05, 0.005, 0.3), false, 0.5);
         Gamepad lastGamepad = new Gamepad();
         double targetHeading = 0;
         int newTarget = (int) targetHeading;
@@ -63,7 +63,7 @@ public class TurningTest extends LinearOpMode {
             /*
              * pid control loop
              */
-            double currentHeading = robot.imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+            double currentHeading = robot.getHeading();
 
             if (Math.abs(currentHeading - targetHeading) < 0.25) {
                 currentHeading = targetHeading;
