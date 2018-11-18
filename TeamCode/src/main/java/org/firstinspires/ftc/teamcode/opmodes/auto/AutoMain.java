@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -128,16 +129,21 @@ public abstract class AutoMain extends LinearOpMode {
             robot.driveMotors(-1, -1, -1, -1);
             sleep(3000);
             robot.driveMotors(0, 0, 0, 0);
-
-//            robot.lessBadTurn(270);
         }
 
         robot.deactivateTfod();
         robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
 
-        while (opModeIsActive()) {
+        // lower latch
+        robot.latch.setPower(1);
+        ElapsedTime timer = new ElapsedTime();
+
+        while (opModeIsActive() && timer.seconds() < 6) {
+            telemetry.addData("Time", timer.seconds());
             telemetry.update();
             idle();
         }
+
+        robot.latch.setPower(0);
     }
 }
