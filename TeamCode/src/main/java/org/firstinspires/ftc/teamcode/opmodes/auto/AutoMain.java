@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.Alliance;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
+import org.firstinspires.ftc.teamcode.utils.PersistentHeading;
 import org.firstinspires.ftc.teamcode.utils.PowerSetting;
 import org.firstinspires.ftc.teamcode.utils.StartingPosition;
 
@@ -22,6 +23,8 @@ public abstract class AutoMain extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Status", "Starting...");
         telemetry.update();
+
+        PersistentHeading.clearSavedHeading();
 
         Robot robot = new Robot(this, true);
 
@@ -145,5 +148,8 @@ public abstract class AutoMain extends LinearOpMode {
         }
 
         robot.latch.setPower(0);
+
+        // save heading
+        PersistentHeading.saveHeading(robot.getHeading());
     }
 }

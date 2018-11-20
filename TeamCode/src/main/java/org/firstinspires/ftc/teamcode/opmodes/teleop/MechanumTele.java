@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.robot.Robot;
+import org.firstinspires.ftc.teamcode.utils.PersistentHeading;
 
 @TeleOp(name="Mechanum Tele-op")
 public class MechanumTele extends LinearOpMode {
@@ -16,7 +17,13 @@ public class MechanumTele extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(this, false);
 
+        boolean haveSavedHeading = PersistentHeading.haveSavedHeading();
+        if (haveSavedHeading) {
+            robot.headingOffset = PersistentHeading.getSavedHeading();
+        }
+
         telemetry.addData("Status", "Ready to go");
+        telemetry.addData("Heading offset", robot.headingOffset);
         telemetry.update();
 
         waitForStart();
@@ -24,22 +31,18 @@ public class MechanumTele extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
-        boolean lastRightBumper = false;
+        Gamepad lastGamepad1 = new Gamepad();
         Gamepad lastGamepad2 = new Gamepad();
         double nomPower = 1;
+        boolean turnCompensation = true;
 
         while (opModeIsActive()) {
             double slowMode = gamepad1.left_bumper? .5:1.0;
 
             //Square values for finer slow control.
-            //double drivePower = (-1) * Math.pow(gamepad1.left_stick_y,2)*Math.signum(gamepad1.left_stick_y);
-            //double strafePower = Math.pow(gamepad1.left_stick_x,2)*Math.signum(gamepad1.left_stick_x);
-            //double turnPower = Math.pow(gamepad1.right_stick_x,2)*Math.signum(gamepad1.right_stick_x);
-
             double drivePower = 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_y)) * Math.signum(gamepad1.left_stick_y);
             double strafePower = -1 * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_x)) * Math.signum(gamepad1.left_stick_x);
             double turnPower = .5 * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.right_stick_x)) * Math.signum(gamepad1.right_stick_x);
-
 
             //Scaled Lenny speed down
             double lennyBackPower = gamepad2.left_trigger * 0.7;
@@ -53,6 +56,10 @@ public class MechanumTele extends LinearOpMode {
             if(Math.abs(gamepad1.left_stick_y) > deadZone || Math.abs(gamepad1.left_stick_x) > deadZone || Math.abs(gamepad1.right_stick_x  ) > deadZone) {
                 //Sets up variables
                 double robotAngle = Math.atan2(drivePower, strafePower) - Math.PI / 4;
+
+                if (turnCompensation) {
+                    robotAngle += Math.toRadians(robot.getHeading());
+                }
 
                 double biggerStick = Math.max(Math.abs(turnPower),Math.max(Math.abs(strafePower),Math.abs(drivePower)));
                 double biggerDrive = Math.max(Math.abs(strafePower),Math.abs(drivePower));
@@ -72,12 +79,17 @@ public class MechanumTele extends LinearOpMode {
             }
 
             // zero power behavior toggling
-            if (gamepad1.right_bumper && !lastRightBumper) {
+            if (gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                 if (robot.driveMotorZeroPowerBehavior == DcMotor.ZeroPowerBehavior.BRAKE) {
                     robot.setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 } else {
                     robot.setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 }
+            }
+
+            // turn-compensated driving
+            if (gamepad1.left_stick_button && !lastGamepad1.left_stick_button) {
+                turnCompensation = !turnCompensation;
             }
 
             //Lenny Control
@@ -119,14 +131,16 @@ public class MechanumTele extends LinearOpMode {
             telemetry.addData("Zero power", robot.driveMotorZeroPowerBehavior.toString());
             telemetry.addData("Nom power", nomPower);
             telemetry.addData("Latch position", robot.latch.getCurrentPosition());
+            telemetry.addData("Turn compensation", turnCompensation);
+            telemetry.addData("Heading offset", robot.headingOffset);
             telemetry.addData("FL position", robot.frontLeft.getCurrentPosition());
             telemetry.addData("FR position", robot.frontRight.getCurrentPosition());
             telemetry.addData("BL position", robot.backLeft.getCurrentPosition());
             telemetry.addData("BR position", robot.backRight.getCurrentPosition());
             telemetry.update();
 
-            lastRightBumper = gamepad1.right_bumper;
             try {
+                lastGamepad1.copy(gamepad1);
                 lastGamepad2.copy(gamepad2);
             } catch (RobotCoreException e) {
                 e.printStackTrace();

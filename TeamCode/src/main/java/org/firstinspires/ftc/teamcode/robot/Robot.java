@@ -53,6 +53,8 @@ public class Robot {
     public VuforiaLocalizer vuforia;
     public TFObjectDetector tfod;
 
+    public double headingOffset = 0;
+
     private LinearOpMode _opMode;
 
     public Robot(LinearOpMode opMode, boolean enableVision) throws InterruptedException {
@@ -178,7 +180,7 @@ public class Robot {
      * sensor functions - imu
      */
     public double getHeading() {
-        return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle - headingOffset;
     }
 
     public void badTurn(double heading, double power) {
