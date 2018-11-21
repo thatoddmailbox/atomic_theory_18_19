@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.robot;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.lynx.LynxNackException;
+import com.qualcomm.hardware.lynx.LynxUnsupportedCommandException;
+import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataCommand;
+import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -32,6 +37,14 @@ public class Robot {
     public static final double SERVO_TEAM_MARKER_DEPOSIT = 0.0;
     public static final double SERVO_TEAM_MARKER_HELD = 0.8;
 
+    public static final int MOTOR_PORT_FRONT_LEFT = 0;
+    public static final int MOTOR_PORT_FRONT_RIGHT = 1;
+    public static final int MOTOR_PORT_BACK_LEFT = 2;
+    public static final int MOTOR_PORT_BACK_RIGHT = 3;
+
+    public LynxModule expansionHub1;
+    public LynxModule expansionHub2;
+
     public DcMotor frontLeft;
     public DcMotor frontRight;
     public DcMotor backLeft;
@@ -59,6 +72,12 @@ public class Robot {
 
     public Robot(LinearOpMode opMode, boolean enableVision) throws InterruptedException {
         _opMode = opMode;
+
+        /*
+         * hub initialization
+         */
+        expansionHub1 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 1");
+        expansionHub2 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 2");
 
         /*
          * motor initialization
@@ -131,6 +150,9 @@ public class Robot {
 //            Thread.sleep(50);
 //            opMode.idle();
 //        }
+
+        opMode.telemetry.addData("Hub 1", expansionHub1.getFirmwareVersionString());
+        opMode.telemetry.addData("Hub 2", expansionHub2.getFirmwareVersionString());
     }
 
     /*
@@ -177,14 +199,23 @@ public class Robot {
     }
 
     /*
+     * sensor functions - hub
+     */
+    public LynxGetBulkInputDataResponse getBulkData(LynxModule hub) {
+        LynxGetBulkInputDataCommand bulkInputDataCommand = new LynxGetBulkInputDataCommand(hub);
+        try {
+            return bulkInputDataCommand.sendReceive();
+        } catch (InterruptedException | LynxNackException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /*
      * sensor functions - imu
      */
     public double getHeading() {
         return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle - headingOffset;
-    }
-
-    public void badTurn(double heading, double power) {
-//        while ()
     }
 
     public void lessBadTurn(double targetHeading) {

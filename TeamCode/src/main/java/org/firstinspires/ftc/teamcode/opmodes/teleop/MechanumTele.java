@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
@@ -128,15 +129,17 @@ public class MechanumTele extends LinearOpMode {
                 robot.latch.setPower(0);
             }
 
+            LynxGetBulkInputDataResponse bulkData = robot.getBulkData(robot.expansionHub1);
+
             telemetry.addData("Zero power", robot.driveMotorZeroPowerBehavior.toString());
             telemetry.addData("Nom power", nomPower);
             telemetry.addData("Latch position", robot.latch.getCurrentPosition());
             telemetry.addData("Turn compensation", turnCompensation);
             telemetry.addData("Heading offset", robot.headingOffset);
-            telemetry.addData("FL position", robot.frontLeft.getCurrentPosition());
-            telemetry.addData("FR position", robot.frontRight.getCurrentPosition());
-            telemetry.addData("BL position", robot.backLeft.getCurrentPosition());
-            telemetry.addData("BR position", robot.backRight.getCurrentPosition());
+            telemetry.addData("FL position", bulkData.getEncoder(Robot.MOTOR_PORT_FRONT_LEFT));
+            telemetry.addData("FR position", bulkData.getEncoder(Robot.MOTOR_PORT_FRONT_RIGHT));
+            telemetry.addData("BL position", bulkData.getEncoder(Robot.MOTOR_PORT_BACK_LEFT));
+            telemetry.addData("BR position", bulkData.getEncoder(Robot.MOTOR_PORT_BACK_RIGHT));
             telemetry.update();
 
             try {
