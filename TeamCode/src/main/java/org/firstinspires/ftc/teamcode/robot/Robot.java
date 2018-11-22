@@ -158,9 +158,6 @@ public class Robot {
 //            Thread.sleep(50);
 //            opMode.idle();
 //        }
-
-        opMode.telemetry.addData("Hub 1", expansionHub1.getFirmwareVersionString());
-        opMode.telemetry.addData("Hub 2", expansionHub2.getFirmwareVersionString());
     }
 
     /*
