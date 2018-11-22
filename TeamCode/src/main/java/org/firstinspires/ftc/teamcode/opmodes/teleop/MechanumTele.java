@@ -58,9 +58,13 @@ public class MechanumTele extends LinearOpMode {
                 //Sets up variables
                 double robotAngle = Math.atan2(drivePower, strafePower) - Math.PI / 4;
 
+                telemetry.addData("Robot angle", Math.toDegrees(robotAngle));
+
                 if (turnCompensation) {
-                    robotAngle += Math.toRadians(robot.getHeading());
+                    robotAngle -= Math.toRadians(robot.getHeading());
                 }
+
+                telemetry.addData("Robot angle new", Math.toDegrees(robotAngle));
 
                 double biggerStick = Math.max(Math.abs(turnPower),Math.max(Math.abs(strafePower),Math.abs(drivePower)));
                 double biggerDrive = Math.max(Math.abs(strafePower),Math.abs(drivePower));
@@ -136,6 +140,7 @@ public class MechanumTele extends LinearOpMode {
             telemetry.addData("Latch position", robot.latch.getCurrentPosition());
             telemetry.addData("Turn compensation", turnCompensation);
             telemetry.addData("Heading offset", robot.headingOffset);
+            telemetry.addData("Heading", robot.getHeading());
             telemetry.addData("FL position", bulkData.getEncoder(Robot.MOTOR_PORT_FRONT_LEFT));
             telemetry.addData("FR position", bulkData.getEncoder(Robot.MOTOR_PORT_FRONT_RIGHT));
             telemetry.addData("BL position", bulkData.getEncoder(Robot.MOTOR_PORT_BACK_LEFT));

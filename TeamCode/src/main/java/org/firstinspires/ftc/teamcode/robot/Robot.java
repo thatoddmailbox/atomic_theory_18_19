@@ -6,10 +6,12 @@ import com.qualcomm.hardware.lynx.LynxNackException;
 import com.qualcomm.hardware.lynx.LynxUnsupportedCommandException;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataCommand;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -61,6 +63,9 @@ public class Robot {
     public WebcamName leftWebcam;
     public WebcamName rightWebcam;
 
+    public Rev2mDistanceSensor distanceLeft;
+    public Rev2mDistanceSensor distanceRight;
+
     public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
 
     public VuforiaLocalizer vuforia;
@@ -92,6 +97,9 @@ public class Robot {
         latch = opMode.hardwareMap.dcMotor.get("latch");
 
         teamMarker = opMode.hardwareMap.servo.get("team_marker");
+
+        distanceLeft = opMode.hardwareMap.get(Rev2mDistanceSensor.class, "distance_left");
+        distanceRight = opMode.hardwareMap.get(Rev2mDistanceSensor.class, "distance_right");
 
         /*
          * motor setup
