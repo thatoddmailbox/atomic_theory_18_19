@@ -46,7 +46,7 @@ public class AutoAligner {
     }
 
     // Drives robot forward/backward while aligning on a corner (untested) (called once)
-    public void driveAlignCornerRobot(Robot robot, double motorPower) {
+    public void cornerAlignRobot(Robot robot) {
         double leftDistance = robot.distanceLeft.getDistance(DistanceUnit.MM);
         double rightDistance = robot.distanceRight.getDistance(DistanceUnit.MM);
         while (leftDistance + 2 < rightDistance || leftDistance - 2 > rightDistance) {
