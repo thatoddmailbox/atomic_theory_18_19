@@ -11,6 +11,7 @@ public class NativeTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         telemetry.addData("getOKString", NativeCore.getOKString());
+        telemetry.addData("OpenCV version", NativeCore.getOpenCVVersion());
         telemetry.addData("Native code version", BuildConfig.VERSION_NAME);
         telemetry.update();
 
