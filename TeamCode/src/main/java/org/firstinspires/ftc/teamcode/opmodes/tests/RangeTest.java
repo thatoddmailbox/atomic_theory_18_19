@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.tests;
 
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -8,23 +7,24 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 
-@Autonomous(name="Distance test", group="Tests")
-public class DistanceTest extends LinearOpMode {
+@Autonomous(name="Range test", group="Tests")
+public class RangeTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
         waitForStart();
 
         Robot robot = new Robot(this, false);
-        AutoAligner aligner = new AutoAligner();
 
         while (opModeIsActive()) {
-            telemetry.addData("range left", robot.rangeLeft.cmUltrasonic() * 10);
-            telemetry.addData("range right", robot.rangeRight.cmUltrasonic() * 10);
+            telemetry.addData("range left optical (cm)", robot.rangeLeft.cmOptical());
+            telemetry.addData("range left ultrasonic (cm)", robot.rangeLeft.cmUltrasonic());
+
+            telemetry.addData("range right optical (cm)", robot.rangeRight.cmOptical());
+            telemetry.addData("range right ultrasonic (cm)", robot.rangeRight.cmUltrasonic());
 
             telemetry.update();
 
-            aligner.driveAlignDistanceRobot(robot, 0.85, 300);
             idle();
         }
     }

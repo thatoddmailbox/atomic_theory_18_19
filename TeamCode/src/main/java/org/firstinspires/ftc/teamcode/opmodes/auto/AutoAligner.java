@@ -19,8 +19,8 @@ public class AutoAligner {
 
     // Aligns robot on wall by turning in place (called once)
     public void alignRobot(Robot robot) {
-        double leftDistance = robot.distanceLeft.getDistance(DistanceUnit.MM);
-        double rightDistance = robot.distanceRight.getDistance(DistanceUnit.MM);
+        double leftDistance = robot.rangeLeft.cmUltrasonic() * 10;
+        double rightDistance = robot.rangeRight.cmUltrasonic() * 10;
         while (leftDistance + 2 < rightDistance || leftDistance - 2 > rightDistance) {
             double distanceDiff = leftDistance-rightDistance;
             int distanceSign = distanceDiff > 0 ? 1 : -1;
@@ -28,43 +28,50 @@ public class AutoAligner {
 
             robot.driveMotors(-1*impulsePower, -1*impulsePower, impulsePower, impulsePower);
 
-            leftDistance = robot.distanceLeft.getDistance(DistanceUnit.MM);
-            rightDistance = robot.distanceRight.getDistance(DistanceUnit.MM);
+            leftDistance = robot.rangeLeft.cmUltrasonic() * 10;
+            rightDistance = robot.rangeRight.cmUltrasonic() * 10;
         }
     }
 
     // Drives robot forward/backward while aligning on the wall (called in a loop)
     public void driveAlignRobot(Robot robot, double motorPower) {
-        double leftDistance = robot.distanceLeft.getDistance(DistanceUnit.MM);
-        double rightDistance = robot.distanceRight.getDistance(DistanceUnit.MM);
+        double leftDistance = robot.rangeLeft.cmUltrasonic() * 10;
+        double rightDistance = robot.rangeRight.cmUltrasonic() * 10;
         // Difference between two sensor readings for wall alignment
         double distanceDiff = leftDistance-rightDistance;
-        // Scale to change motor power;
-        distanceDiff = distanceDiff/500;
+
+        // Scale to change motor power
+        double correctionToPowerScaling = motorPower/0.5;
+        distanceDiff = correctionToPowerScaling * distanceDiff/500;
+
+        if (rightDistance == 2550 || leftDistance == 2550) {
+            distanceDiff = 0;
+        }
 
         robot.driveMotors(motorPower + distanceDiff, motorPower - distanceDiff,motorPower + distanceDiff, motorPower - distanceDiff);
     }
 
     // Drives robot forward/backward while aligning on a corner (untested) (called once)
     public void cornerAlignRobot(Robot robot) {
-        double leftDistance = robot.distanceLeft.getDistance(DistanceUnit.MM);
-        double rightDistance = robot.distanceRight.getDistance(DistanceUnit.MM);
+        double leftDistance = robot.rangeLeft.cmUltrasonic() * 10;
+        double rightDistance = robot.rangeRight.cmUltrasonic() * 10;
         while (leftDistance + 2 < rightDistance || leftDistance - 2 > rightDistance) {
             double distanceDiff = leftDistance-rightDistance;
             int distanceSign = distanceDiff > 0 ? 1 : -1;
+
             double impulsePower = distanceSign * (0.4 + Math.abs(distanceDiff/500));
 
             robot.driveMotors(impulsePower, impulsePower, impulsePower, impulsePower);
 
-            leftDistance = robot.distanceLeft.getDistance(DistanceUnit.MM);
-            rightDistance = robot.distanceRight.getDistance(DistanceUnit.MM);
+            leftDistance = robot.rangeLeft.cmUltrasonic() * 10;
+            rightDistance = robot.rangeRight.cmUltrasonic() * 10;
         }
     }
 
     // Drives robot forward/backward while aligning on the wall and maintaining a target distance (mm) (called in a loop)
     public void driveAlignDistanceRobot(Robot robot, double motorPower, double targetDistance) {
-        double leftDistance = robot.distanceLeft.getDistance(DistanceUnit.MM);
-        double rightDistance = robot.distanceRight.getDistance(DistanceUnit.MM);
+        double leftDistance = robot.rangeLeft.cmUltrasonic() * 10;
+        double rightDistance = robot.rangeRight.cmUltrasonic() * 10;
         // Difference between two sensor readings for wall alignment
         double distanceDiff = leftDistance-rightDistance;
         // Difference between target distance and actual distance to set perpendicular distance
@@ -74,8 +81,17 @@ public class AutoAligner {
         }
 
         // Scale to change motor power;
-        distanceDiff = distanceDiff/500;
-        distanceError = distanceError/500;
+        double correctionToPowerScaling = motorPower/0.5;
+        distanceDiff = correctionToPowerScaling * distanceDiff/500;
+        distanceError = correctionToPowerScaling * distanceError/500;
+
+        if (rightDistance == 2550 || leftDistance == 2550) {
+            distanceDiff = 0;
+        }
+
+        if (rightDistance == 2550 && leftDistance == 2550) {
+            distanceError = 0;
+        }
 
         robot.driveMotors(motorPower + distanceDiff - distanceError, motorPower - distanceDiff + distanceError,motorPower + distanceDiff + distanceError, motorPower - distanceDiff - distanceError);
     }

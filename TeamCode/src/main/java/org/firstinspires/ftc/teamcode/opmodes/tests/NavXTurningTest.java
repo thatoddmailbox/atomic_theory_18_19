@@ -1,79 +1,81 @@
 package org.firstinspires.ftc.teamcode.opmodes.tests;
 
+import android.util.Log;
+
+import com.kauailabs.navx.ftc.navXPIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.exception.RobotCoreException;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.util.RobotLog;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PIDLogger;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Locale;
 
-@Autonomous(name="Turning test", group="Tests")
-public class TurningTest extends LinearOpMode {
+@Autonomous(name="navX turning test", group="Tests")
+public class NavXTurningTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(this, false);
 
-        robot.resetHeading();
-
         waitForStart();
 
         PIDLogger pidLogger = null;
-        try {
-            pidLogger = new PIDLogger("192.168.49.2");
-        } catch (SocketException | UnknownHostException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            pidLogger = new PIDLogger("192.168.49.2");
+//        } catch (SocketException | UnknownHostException e) {
+//            e.printStackTrace();
+//        }
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.05, 0.005, 0.3), false, 0.5);
+        navXPIDController yawPIDController = null;
         Gamepad lastGamepad = new Gamepad();
         double targetHeading = 0;
         int newTarget = (int) targetHeading;
         int selectedCoefficient = 0;
 
-        pid.reset();
+        double p = 0.05;
+        double i = 0.005;
+        double d = 0.3;
 
-        /*
-         *
-         *   fl ---- fr
-         *   |        |
-         *   |        |
-         *   |        |
-         *   |        |
-         *   bl ---- br
-         *
-         *   positive heading = clockwise
-         *   therefore (sp - pv) > 0 => clockwise turn
-         *   clockwise turn = fl, bl positive and fr, br negative
-         *   except flipped
-         *
-         */
+        waitForStart();
+
+        yawPIDController = new navXPIDController(robot.navX, navXPIDController.navXTimestampedDataSource.YAW);
+
+        /* Configure the PID controller */
+        yawPIDController.setSetpoint(targetHeading);
+        yawPIDController.setContinuous(true);
+        yawPIDController.setOutputRange(-1, 1);
+        yawPIDController.setTolerance(navXPIDController.ToleranceType.ABSOLUTE, 2);
+        yawPIDController.setPID(p, i, d);
+        yawPIDController.enable(true);
+
+        yawPIDController.reset();
+
+        navXPIDController.PIDResult yawPIDResult = new navXPIDController.PIDResult();
 
         while (opModeIsActive()) {
             /*
              * pid control loop
              */
-            double currentHeading = robot.getHeading();
+            double output = 0.0;
 
-            if (Math.abs(currentHeading - targetHeading) < 0.25) {
-                currentHeading = targetHeading;
+            if (yawPIDController.isNewUpdateAvailable(yawPIDResult)) {
+                if (yawPIDResult.isOnTarget()) {
+                    robot.setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    robot.driveMotors(0, 0, 0, 0);
+                } else {
+                    output = yawPIDResult.getOutput();
+                }
+            } else {
+
             }
-
-            double output = pid.step(currentHeading, targetHeading);
-
-            robot.driveMotors(-output, output, -output, output);
 
             /*
              * gamepad input
@@ -93,45 +95,45 @@ public class TurningTest extends LinearOpMode {
 
             if (gamepad1.dpad_left && !lastGamepad.dpad_left) {
                 if (selectedCoefficient == 0) {
-                    pid.coefficients.p -= step;
-                    if (pid.coefficients.p < 0) {
-                        pid.coefficients.p = 0;
+                    p -= step;
+                    if (p < 0) {
+                        p = 0;
                     }
                 } else if (selectedCoefficient == 1) {
-                    pid.coefficients.i -= step / 10;
-                    if (pid.coefficients.i < 0) {
-                        pid.coefficients.i = 0;
+                    i -= step / 10;
+                    if (i < 0) {
+                        i = 0;
                     }
                 } else if (selectedCoefficient == 2) {
-                    pid.coefficients.d -= step;
-                    if (pid.coefficients.d < 0) {
-                        pid.coefficients.d = 0;
+                    d -= step;
+                    if (d < 0) {
+                        d = 0;
                     }
                 } else if (selectedCoefficient == 3) {
                     newTarget -= (fineMode ? 1 : 5);
+                    yawPIDController.setSetpoint(newTarget);
                 }
+                yawPIDController.setPID(p, i, d);
             } else if (gamepad1.dpad_right && !lastGamepad.dpad_right) {
                 if (selectedCoefficient == 0) {
-                    pid.coefficients.p += step;
+                    p += step;
                 } else if (selectedCoefficient == 1) {
-                    pid.coefficients.i += step / 10;
+                    i += step / 10;
                 } else if (selectedCoefficient == 2) {
-                    pid.coefficients.d += step;
+                    d += step;
                 } else if (selectedCoefficient == 3) {
                     newTarget += (fineMode ? 1 : 5);
+                    yawPIDController.setSetpoint(newTarget);
                 }
+                yawPIDController.setPID(p, i, d);
             }
 
             if (gamepad1.a && !lastGamepad.a) {
                 targetHeading = newTarget;
-                pid.reset();
-            }
-            if (gamepad1.x && !lastGamepad.x) {
-                pid.enableAntiWindup = !pid.enableAntiWindup;
-                pid.reset();
+                yawPIDController.reset();
             }
             if (gamepad1.y && !lastGamepad.y) {
-                pid.reset();
+                yawPIDController.reset();
             }
 
             /*
@@ -139,12 +141,10 @@ public class TurningTest extends LinearOpMode {
              */
             telemetry.addData("New target", newTarget);
             telemetry.addData("Target", targetHeading);
-            telemetry.addData("Current", currentHeading);
+//            telemetry.addData("Current", robot.navX.getYaw());
             telemetry.addData("Output", output);
-            telemetry.addData("Total error", pid.errorSum);
-            telemetry.addData("Anti-windup enabled", pid.enableAntiWindup);
-            telemetry.addData("Integration enabled", !pid.isIntegrationDisabled());
-            telemetry.addData("Coefficients", pid.coefficients.toString());
+            telemetry.addData("Total error", yawPIDController.getError());
+            telemetry.addData("Coefficients", String.format(Locale.US, "%f, %f, %f", p, i, d));
             telemetry.addData("Selected parameter", "PIDH".charAt(selectedCoefficient));
             telemetry.addData("Gamepad step", step);
             telemetry.update();

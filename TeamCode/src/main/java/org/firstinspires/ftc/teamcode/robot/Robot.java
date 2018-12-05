@@ -1,16 +1,20 @@
 package org.firstinspires.ftc.teamcode.robot;
 
+import com.kauailabs.navx.ftc.AHRS;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxNackException;
 import com.qualcomm.hardware.lynx.LynxUnsupportedCommandException;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataCommand;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
@@ -44,8 +48,19 @@ public class Robot {
     public static final int MOTOR_PORT_BACK_LEFT = 2;
     public static final int MOTOR_PORT_BACK_RIGHT = 3;
 
+    public static final int NAVX_DIM_I2C_PORT = 0;
+
+    /*
+     * control modules
+     */
+
     public LynxModule expansionHub1;
     public LynxModule expansionHub2;
+    public DeviceInterfaceModule dim;
+
+    /*
+     * motors
+     */
 
     public DcMotor frontLeft;
     public DcMotor frontRight;
@@ -56,7 +71,15 @@ public class Robot {
     public DcMotor lenny;
     public DcMotor latch;
 
+    /*
+     * servos
+     */
+
     public Servo teamMarker;
+
+    /*
+     * sensors
+     */
 
     public BNO055IMU imu;
 
@@ -65,6 +88,14 @@ public class Robot {
 
     public Rev2mDistanceSensor distanceLeft;
     public Rev2mDistanceSensor distanceRight;
+
+    public AnalogInput sonarLeft;
+    public AnalogInput sonarRight;
+
+    public ModernRoboticsI2cRangeSensor rangeLeft;
+    public ModernRoboticsI2cRangeSensor rangeRight;
+
+    public AHRS navX;
 
     public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
 
@@ -79,10 +110,11 @@ public class Robot {
         _opMode = opMode;
 
         /*
-         * hub initialization
+         * control module initialization
          */
         expansionHub1 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 1");
         expansionHub2 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 2");
+        dim = opMode.hardwareMap.deviceInterfaceModule.get("dim");
 
         /*
          * motor initialization
@@ -98,8 +130,8 @@ public class Robot {
 
         teamMarker = opMode.hardwareMap.servo.get("team_marker");
 
-        distanceLeft = opMode.hardwareMap.get(Rev2mDistanceSensor.class, "distance_left");
-        distanceRight = opMode.hardwareMap.get(Rev2mDistanceSensor.class, "distance_right");
+//        distanceLeft = opMode.hardwareMap.get(Rev2mDistanceSensor.class, "distance_left");
+//        distanceRight = opMode.hardwareMap.get(Rev2mDistanceSensor.class, "distance_right");
 
         /*
          * motor setup
@@ -136,6 +168,15 @@ public class Robot {
         leftWebcam = opMode.hardwareMap.get(WebcamName.class, "left_webcam");
         rightWebcam = opMode.hardwareMap.get(WebcamName.class, "right_webcam");
 
+        sonarLeft = opMode.hardwareMap.get(AnalogInput.class, "sonar_left");
+        sonarRight = opMode.hardwareMap.get(AnalogInput.class, "sonar_right");
+
+        rangeLeft = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_left");
+        rangeRight = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_right");
+
+        navX = AHRS.getInstance(dim, NAVX_DIM_I2C_PORT, AHRS.DeviceDataType.kProcessedData, (byte)50);
+        navX.zeroYaw();
+
         /*
          * initialize sensors
          */
@@ -151,13 +192,16 @@ public class Robot {
             tfod.loadModelFromAsset(Consts.TFOD_MODEL_FILE, Consts.TFOD_LABEL_GOLD, Consts.TFOD_LABEL_SILVER);
         }
 
-//        while (!imu.isGyroCalibrated()) {
-//            opMode.telemetry.addLine("Calibrating gyro...");
+//        while (navX.isCalibrating() && opMode.opModeIsActive()) {
+//            opMode.telemetry.addLine("Calibrating navX...");
 //            opMode.telemetry.update();
 //
-//            Thread.sleep(50);
+//            Thread.sleep(100);
 //            opMode.idle();
 //        }
+//
+//        opMode.telemetry.addLine("Calibrated navX");
+//        opMode.telemetry.update();
     }
 
     /*
@@ -220,7 +264,11 @@ public class Robot {
      * sensor functions - imu
      */
     public double getHeading() {
-        return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle - headingOffset;
+        return navX.getYaw() - headingOffset; //imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle - headingOffset;
+    }
+
+    public void resetHeading() {
+        headingOffset = navX.getYaw();
     }
 
     public void lessBadTurn(double targetHeading) {

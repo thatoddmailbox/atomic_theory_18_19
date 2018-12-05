@@ -34,6 +34,7 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.update();
 
         robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
+        robot.resetHeading();
 
         waitForStart();
 
