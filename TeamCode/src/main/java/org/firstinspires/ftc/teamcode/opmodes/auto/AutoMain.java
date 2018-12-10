@@ -38,7 +38,7 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
-        // unlatch
+        // unlatch TODO: make this an encoder value
         robot.latch.setPower(-1);
         sleep(7200);
         robot.latch.setPower(0);
@@ -48,7 +48,9 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("Heading - unlatch", robot.getHeading());
         telemetry.update();
 
-        // strafe away from lander
+        //TODO: Do a gyro turn back to center in case we swiveled when landing
+
+        // strafe away from lander //TODO: These two shouldn't be different times + ENCODE
         if (getStartingPosition() == StartingPosition.CRATER) {
             robot.driveMotors(0.4, -0.4, -0.4, 0.4);
             sleep(200);
@@ -59,7 +61,7 @@ public abstract class AutoMain extends LinearOpMode {
             robot.driveMotors(0, 0, 0, 0);
         }
 
-        // move forward to have all minerals in view
+        // move forward to have all minerals in view TODO: ENCODE ME
         robot.driveMotors(0.4, 0.4, 0.4, 0.4);
         sleep((getStartingPosition() == StartingPosition.CRATER ? 100 : 100));
         robot.driveMotors(0, 0, 0, 0);
@@ -73,12 +75,12 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("Heading - mineral", robot.getHeading());
         telemetry.update();
 
-        // come out from lander
+        // come out from lander TODO: ENCODE ME
         robot.driveMotors(0.4, -0.4, -0.4, 0.4);
         sleep(1000);
         robot.driveMotors(0, 0, 0, 0);
 
-        // Move left/right depending on mineral position
+        // Move left/right depending on mineral position TODO: ENCODE ME
         if (goldMineral == MineralPosition.LEFT) {
             robot.driveMotors(0.5, 0.5, 0.5, 0.5);
             sleep(500);
@@ -92,7 +94,7 @@ public abstract class AutoMain extends LinearOpMode {
         // if at crater, try to go in
         if (getStartingPosition() == StartingPosition.CRATER) {
             // turn 90
-            robot.lessBadTurn(90);
+            robot.lessBadTurn(90); //TODO: New plate, don't need turn
 
             // attack
             robot.driveMotors(-0.8, -0.8, -0.8, -0.8);
@@ -100,7 +102,7 @@ public abstract class AutoMain extends LinearOpMode {
             robot.driveMotors(0, 0, 0, 0);
         } else {
             // turn 90
-            robot.lessBadTurn(90);
+            robot.lessBadTurn(90); //TODO: New plate, don't need turn
 
             // Push mineral
             robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
