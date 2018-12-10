@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.utils.StartingPosition;
 
 public abstract class AutoMain extends LinearOpMode {
 
-    public abstract Alliance getCurrentAlliance();
     public abstract StartingPosition getStartingPosition();
 
     @Override
@@ -29,7 +28,6 @@ public abstract class AutoMain extends LinearOpMode {
         Robot robot = new Robot(this, true);
 
         telemetry.addData("Status", "Ready to go");
-        telemetry.addData("Alliance", getCurrentAlliance());
         telemetry.addData("Starting position", getStartingPosition());
         telemetry.update();
 
