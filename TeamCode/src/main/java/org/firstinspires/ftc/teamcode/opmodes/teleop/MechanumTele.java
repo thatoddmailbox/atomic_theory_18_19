@@ -46,8 +46,8 @@ public class MechanumTele extends LinearOpMode {
             double turnPower = .5 * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.right_stick_x)) * Math.signum(gamepad1.right_stick_x);
 
             //Scaled Lenny speed down
-            double lennyBackPower = gamepad2.left_trigger * 0.7;
-            double lennyForwardPower = gamepad2.right_trigger * 0.7;
+            double lennyBackPower = gamepad2.left_trigger;
+            double lennyForwardPower = gamepad2.right_trigger;
 
             //Controller doesn't report center as exactly 0.
             //This is NOT stall correction, see robot.setClippedMotorPower
