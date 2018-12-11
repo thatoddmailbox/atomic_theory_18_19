@@ -41,7 +41,7 @@ import java.util.List;
 
 public class Robot {
     public static final double SERVO_TEAM_MARKER_DEPOSIT = 0.0;
-    public static final double SERVO_TEAM_MARKER_HELD = 0.8;
+    public static final double SERVO_TEAM_MARKER_HELD = 0.4;
 
     public static final int MOTOR_PORT_FRONT_LEFT = 0;
     public static final int MOTOR_PORT_FRONT_RIGHT = 1;
@@ -264,11 +264,11 @@ public class Robot {
      * sensor functions - imu
      */
     public double getHeading() {
-        return navX.getYaw() - headingOffset; //imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle - headingOffset;
+        return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle; // - headingOffset; // navX.getYaw() - headingOffset; //
     }
 
     public void resetHeading() {
-        headingOffset = navX.getYaw();
+//        headingOffset = navX.getYaw();
     }
 
     public void lessBadTurn(double targetHeading) {

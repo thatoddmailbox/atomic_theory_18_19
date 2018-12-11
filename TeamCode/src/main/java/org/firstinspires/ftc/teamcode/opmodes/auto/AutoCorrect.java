@@ -30,7 +30,7 @@ public class AutoCorrect {
      * @return Angle in degrees. + = left, - = right?
      */
     private double getDeltaAngle(Robot robot) {
-        double angle = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        double angle = robot.getHeading();
 
         if (firstAngle > 360) {
             firstAngle = angle;

@@ -48,7 +48,8 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("Heading - unlatch", robot.getHeading());
         telemetry.update();
 
-        //TODO: Do a gyro turn back to center in case we swiveled when landing
+        // turn to realign
+        robot.lessBadTurn(0);
 
         // strafe away from lander //TODO: These two shouldn't be different times + ENCODE
         if (getStartingPosition() == StartingPosition.CRATER) {
@@ -61,10 +62,16 @@ public abstract class AutoMain extends LinearOpMode {
             robot.driveMotors(0, 0, 0, 0);
         }
 
+        // turn to realign
+        robot.lessBadTurn(0);
+
         // move forward to have all minerals in view TODO: ENCODE ME
         robot.driveMotors(0.4, 0.4, 0.4, 0.4);
         sleep((getStartingPosition() == StartingPosition.CRATER ? 100 : 100));
         robot.driveMotors(0, 0, 0, 0);
+
+        // turn to realign
+        robot.lessBadTurn(0);
 
         // detect mineral
         robot.activateTfod();
@@ -77,17 +84,20 @@ public abstract class AutoMain extends LinearOpMode {
 
         // come out from lander TODO: ENCODE ME
         robot.driveMotors(0.4, -0.4, -0.4, 0.4);
-        sleep(1000);
+        sleep(1200);
         robot.driveMotors(0, 0, 0, 0);
+
+        // turn to realign
+        robot.lessBadTurn(0);
 
         // Move left/right depending on mineral position TODO: ENCODE ME
         if (goldMineral == MineralPosition.LEFT) {
             robot.driveMotors(0.5, 0.5, 0.5, 0.5);
-            sleep(500);
+            sleep(800);
             robot.driveMotors(0, 0, 0, 0);
         } else if (goldMineral == MineralPosition.RIGHT) {
             robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
-            sleep(500);
+            sleep(800);
             robot.driveMotors(0, 0, 0, 0);
         }
 
@@ -96,43 +106,82 @@ public abstract class AutoMain extends LinearOpMode {
             // turn 90
             robot.lessBadTurn(90); //TODO: New plate, don't need turn
 
-            // attack
+            // hit mineral
             robot.driveMotors(-0.8, -0.8, -0.8, -0.8);
-            sleep(700);
+            sleep(300);
+            // back up a little
+            robot.driveMotors(0.8, 0.8, 0.8, 0.8);
+            sleep(200);
             robot.driveMotors(0, 0, 0, 0);
+
+            // go back to OG position
+            if (goldMineral == MineralPosition.LEFT) {
+                robot.driveMotors(-0.5, 0.5, 0.5, -0.5);
+                sleep(800);
+                robot.driveMotors(0, 0, 0, 0);
+            } else if (goldMineral == MineralPosition.RIGHT) {
+                robot.driveMotors(0.5, -0.5, -0.5, 0.5);
+                sleep(800);
+                robot.driveMotors(0, 0, 0, 0);
+            }
+
+            // Head towards depot diagonally
+            robot.driveMotors(0.8, -0.8, -0.8, 0.8);
+            sleep(1500);
+            robot.driveMotors(0, 0, 0, 0);
+
+            // Rotate right by 45 degrees so we're pointed straight
+            robot.lessBadTurn(-45);
+
+            long timeToDepot = 1200;
+            if (false) {
+                AutoAligner aligner = new AutoAligner();
+                boolean notThereYet = true;
+                ElapsedTime elapsedTime = new ElapsedTime();
+                while (opModeIsActive() && elapsedTime.milliseconds() < timeToDepot+100) {
+                    aligner.driveAlignDistanceRobot(robot, 0.8, 20);
+                    idle();
+                }
+            } else {
+                // Drive forwards into depot
+                robot.driveMotors(0.8, 0.8, 0.8, 0.8);
+                sleep(timeToDepot);
+                robot.driveMotors(0, 0, 0, 0);
+            }
         } else {
             // turn 90
             robot.lessBadTurn(90); //TODO: New plate, don't need turn
 
             // Push mineral
             robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
-            sleep(1200);
+            sleep(1400);
             robot.driveMotors(0, 0, 0, 0);
 
             robot.lessBadTurn(0);
 
             if (goldMineral == MineralPosition.LEFT) {
                 robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
-                sleep(500);
+                sleep(800);
                 robot.driveMotors(0, 0, 0, 0);
             } else if (goldMineral == MineralPosition.RIGHT) {
                 robot.driveMotors(0.5, 0.5, 0.5, 0.5);
-                sleep(500);
+                sleep(800);
                 robot.driveMotors(0, 0, 0, 0);
             }
-
-            // Drop team marker
-            if (getStartingPosition() == StartingPosition.DEPOT) {
-                robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
-                sleep(1000);
-            }
-
-            robot.lessBadTurn(45);
-
-            robot.driveMotors(-1, -1, -1, -1);
-            sleep(3000);
-            robot.driveMotors(0, 0, 0, 0);
         }
+
+        // Drop team marker
+        robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
+        sleep(1000);
+        robot.lessBadTurn(getStartingPosition() == StartingPosition.CRATER ? 45 : -45);
+
+        robot.driveMotors(0.5, -0.5, -0.5, 0.5);
+        sleep(250);
+        robot.driveMotors(0, 0, 0, 0);
+
+        robot.driveMotors(-0.8, -0.8, -0.8, -0.8);
+        sleep(3000);
+        robot.driveMotors(0, 0, 0, 0);
 
         robot.deactivateTfod();
         robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
