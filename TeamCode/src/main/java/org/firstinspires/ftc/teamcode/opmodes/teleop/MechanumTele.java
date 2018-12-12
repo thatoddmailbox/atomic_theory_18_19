@@ -18,10 +18,10 @@ public class MechanumTele extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(this, false);
 
-        boolean haveSavedHeading = PersistentHeading.haveSavedHeading();
-        if (haveSavedHeading) {
-            robot.headingOffset = PersistentHeading.getSavedHeading();
-        }
+//        boolean haveSavedHeading = PersistentHeading.haveSavedHeading();
+//        if (haveSavedHeading) {
+//            robot.headingOffset = PersistentHeading.getSavedHeading();
+//        }
 
         telemetry.addData("Status", "Ready to go");
         telemetry.addData("Heading offset", robot.headingOffset);
@@ -35,7 +35,7 @@ public class MechanumTele extends LinearOpMode {
         Gamepad lastGamepad1 = new Gamepad();
         Gamepad lastGamepad2 = new Gamepad();
         double nomPower = 1;
-        boolean turnCompensation = true;
+        boolean turnCompensation = false;
 
         while (opModeIsActive()) {
             double slowMode = gamepad1.left_bumper? .5:1.0;

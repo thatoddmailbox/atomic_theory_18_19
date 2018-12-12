@@ -114,7 +114,7 @@ public class Robot {
          */
         expansionHub1 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 1");
         expansionHub2 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 2");
-        dim = opMode.hardwareMap.deviceInterfaceModule.get("dim");
+//        dim = opMode.hardwareMap.deviceInterfaceModule.get("dim");
 
         /*
          * motor initialization
@@ -174,8 +174,8 @@ public class Robot {
         rangeLeft = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_left");
         rangeRight = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_right");
 
-        navX = AHRS.getInstance(dim, NAVX_DIM_I2C_PORT, AHRS.DeviceDataType.kProcessedData, (byte)50);
-        navX.zeroYaw();
+//        navX = AHRS.getInstance(dim, NAVX_DIM_I2C_PORT, AHRS.DeviceDataType.kProcessedData, (byte)50);
+//        navX.zeroYaw();
 
         /*
          * initialize sensors
