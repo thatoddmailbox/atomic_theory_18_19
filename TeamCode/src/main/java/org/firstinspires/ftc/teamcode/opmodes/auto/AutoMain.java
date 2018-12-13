@@ -114,31 +114,33 @@ public abstract class AutoMain extends LinearOpMode {
             sleep(150);
             robot.driveMotors(0, 0, 0, 0);
 
+            robot.lessBadTurn(0); //TODO: New plate, don't need turn
+
             // go back to OG position
             if (goldMineral == MineralPosition.LEFT) {
-                robot.driveMotors(-0.5, 0.5, 0.5, -0.5);
+                robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
                 sleep(700);
                 robot.driveMotors(0, 0, 0, 0);
             } else if (goldMineral == MineralPosition.RIGHT) {
-                robot.driveMotors(0.5, -0.5, -0.5, 0.5);
+                robot.driveMotors(0.5, 0.5, 0.5, 0.5);
                 sleep(700);
                 robot.driveMotors(0, 0, 0, 0);
             }
 
             // Head towards depot diagonally
-            robot.driveMotors(0.8, -0.8, -0.8, 0.8);
+            robot.driveMotors(0.8, 0.8, 0.8, 0.8);
             sleep(1000);
             robot.driveMotors(0, 0, 0, 0);
 
-            // Rotate right by 45 degrees so we're pointed straight
-            robot.lessBadTurn(-45);
+            // Rotate left by 45 degrees so we're pointed straight
+            robot.lessBadTurn(45);
 
             // Strafe towards wall
-            robot.driveMotors(0.5, -0.5, -0.5, 0.5);
-            sleep(250);
+            robot.driveMotors(0.8, -0.8, -0.8, 0.8);
+            sleep(200);
             robot.driveMotors(0, 0, 0, 0);
 
-            long timeToDepot = 1200;
+            long timeToDepot = 1000;
             if (false) {
                 AutoAligner aligner = new AutoAligner();
                 boolean notThereYet = true;
@@ -153,6 +155,8 @@ public abstract class AutoMain extends LinearOpMode {
                 sleep(timeToDepot);
                 robot.driveMotors(0, 0, 0, 0);
             }
+
+            robot.lessBadTurn(135);
         } else {
             // turn 90
             robot.lessBadTurn(90); //TODO: New plate, don't need turn
@@ -183,8 +187,8 @@ public abstract class AutoMain extends LinearOpMode {
 
         // Strafe towards wall if at depot to avoid mineral
         if (getStartingPosition() == StartingPosition.DEPOT) {
-            robot.driveMotors(0.5, -0.5, -0.5, 0.5);
-            sleep(400);
+            robot.driveMotors(0.8, -0.8, -0.8, 0.8);
+            sleep(250);
             robot.driveMotors(0, 0, 0, 0);
         }
 
