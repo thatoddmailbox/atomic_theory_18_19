@@ -63,19 +63,19 @@ public abstract class AutoMain extends LinearOpMode {
 //        }
 
         // turn to realign
-        robot.lessBadTurn(0);
+        robot.lessBadTurn(0, 0.5);
 
         // move forward to have all minerals in view TODO: ENCODE ME
         robot.driveMotors(0.4, 0.4, 0.4, 0.4);
         sleep((getStartingPosition() == StartingPosition.CRATER ? 100 : 100));
         robot.driveMotors(0, 0, 0, 0);
 
-        // turn to realign
-        robot.lessBadTurn(0);
+//        // turn to realign
+//        robot.lessBadTurn(0);
 
         // detect mineral
         robot.activateTfod();
-        sleep(2000); // TODO: how long of a delay is needed? is any?
+        sleep(1000); // TODO: how long of a delay is needed? is any?
 
         MineralPosition goldMineral = robot.findGoldMineralDifferent();
         telemetry.addData("Gold mineral position", goldMineral.toString());
@@ -88,7 +88,7 @@ public abstract class AutoMain extends LinearOpMode {
         robot.driveMotors(0, 0, 0, 0);
 
         // turn to realign
-        robot.lessBadTurn(0);
+        robot.lessBadTurn(0, 0.5);
 
         // Move left/right depending on mineral position TODO: ENCODE ME
         if (goldMineral == MineralPosition.LEFT) {
@@ -97,7 +97,7 @@ public abstract class AutoMain extends LinearOpMode {
             robot.driveMotors(0, 0, 0, 0);
         } else if (goldMineral == MineralPosition.RIGHT) {
             robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
-            sleep(700);
+            sleep(500);
             robot.driveMotors(0, 0, 0, 0);
         }
 
@@ -108,10 +108,10 @@ public abstract class AutoMain extends LinearOpMode {
 
             // hit mineral
             robot.driveMotors(-0.8, -0.8, -0.8, -0.8);
-            sleep(400);
+            sleep(350);
             // back up a little
             robot.driveMotors(0.8, 0.8, 0.8, 0.8);
-            sleep(150);
+            sleep(450);
             robot.driveMotors(0, 0, 0, 0);
 
             robot.lessBadTurn(0); //TODO: New plate, don't need turn
@@ -123,13 +123,16 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.driveMotors(0, 0, 0, 0);
             } else if (goldMineral == MineralPosition.RIGHT) {
                 robot.driveMotors(0.5, 0.5, 0.5, 0.5);
-                sleep(700);
+                sleep(500);
                 robot.driveMotors(0, 0, 0, 0);
             }
 
+            //Give it a rest boi
+            sleep(300);
+
             // Head towards depot diagonally
-            robot.driveMotors(0.8, 0.8, 0.8, 0.8);
-            sleep(1000);
+            robot.driveMotors(1.0, 1.0, 1.0, 1.0);
+            sleep(650);
             robot.driveMotors(0, 0, 0, 0);
 
             // Rotate left by 45 degrees so we're pointed straight
@@ -137,10 +140,10 @@ public abstract class AutoMain extends LinearOpMode {
 
             // Strafe towards wall
             robot.driveMotors(0.8, -0.8, -0.8, 0.8);
-            sleep(200);
+            sleep(400);
             robot.driveMotors(0, 0, 0, 0);
 
-            long timeToDepot = 1000;
+            long timeToDepot = 850;
             if (false) {
                 AutoAligner aligner = new AutoAligner();
                 boolean notThereYet = true;
@@ -151,7 +154,7 @@ public abstract class AutoMain extends LinearOpMode {
                 }
             } else {
                 // Drive forwards into depot
-                robot.driveMotors(0.8, 0.8, 0.8, 0.8);
+                robot.driveMotors(1.0, 1.0, 1.0, 1.0);
                 sleep(timeToDepot);
                 robot.driveMotors(0, 0, 0, 0);
             }
@@ -163,7 +166,7 @@ public abstract class AutoMain extends LinearOpMode {
 
             // Push mineral
             robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
-            sleep(1200);
+            sleep(1500);
             robot.driveMotors(0, 0, 0, 0);
 
             robot.lessBadTurn(0);
@@ -174,49 +177,45 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.driveMotors(0, 0, 0, 0);
             } else if (goldMineral == MineralPosition.RIGHT) {
                 robot.driveMotors(0.5, 0.5, 0.5, 0.5);
-                sleep(700);
+                sleep(500);
                 robot.driveMotors(0, 0, 0, 0);
             }
         }
 
+        ElapsedTime timer = new ElapsedTime();
+        robot.latch.setPower(1);
+
         // Drop team marker
         robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
-        sleep(1000);
+        sleep(500);
 
         robot.lessBadTurn(getStartingPosition() == StartingPosition.CRATER ? 45 : -45);
 
         // Strafe towards wall if at depot to avoid mineral
-        if (getStartingPosition() == StartingPosition.DEPOT) {
-            robot.driveMotors(0.8, -0.8, -0.8, 0.8);
-            sleep(250);
-            robot.driveMotors(0, 0, 0, 0);
-        }
+        robot.driveMotors(0.8, -0.8, -0.8, 0.8);
+        sleep(300);
+        robot.driveMotors(0, 0, 0, 0);
 
 
-        long timeToDepot = 3000;
-        if (false) {
-            AutoAligner aligner = new AutoAligner();
-            boolean notThereYet = true;
-            ElapsedTime elapsedTime = new ElapsedTime();
-            while (opModeIsActive() && elapsedTime.milliseconds() < timeToDepot) {
-                aligner.driveAlignDistanceRobot(robot, -0.8, 10);
-                idle();
-            }
-        } else {
-            // Drive backwards into crater
-            robot.driveMotors(-0.8, -0.8, -0.8, -0.8);
-            sleep(timeToDepot);
-            robot.driveMotors(0, 0, 0, 0);
-        }
+        // Drive hard towards crater
+        robot.driveMotors(-1, -1, -1, -1);
+        sleep(1000);
+        robot.driveMotors(0, 0, 0, 0);
+
+//        robot.driveMotors(1, -1, -1, 1);
+//        sleep(150);
+//        robot.driveMotors(0, 0, 0, 0);
+
+        // Glide into crater
+        robot.driveMotors(-0.6, -0.6, -0.6, -0.6);
+        sleep(500);
+        robot.driveMotors(0, 0, 0, 0);
 
         robot.deactivateTfod();
         robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
 
         // lower latch
-        robot.latch.setPower(1);
-        ElapsedTime timer = new ElapsedTime();
-
-        while (opModeIsActive() && timer.seconds() < 6) {
+        while (opModeIsActive() && timer.seconds() < 7) {
             telemetry.addData("Time", timer.seconds());
             telemetry.update();
             idle();

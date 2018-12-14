@@ -41,7 +41,7 @@ import java.util.List;
 
 public class Robot {
     public static final double SERVO_TEAM_MARKER_DEPOSIT = 0.0;
-    public static final double SERVO_TEAM_MARKER_HELD = 0.4;
+    public static final double SERVO_TEAM_MARKER_HELD = 0.6;
 
     public static final int MOTOR_PORT_FRONT_LEFT = 0;
     public static final int MOTOR_PORT_FRONT_RIGHT = 1;
@@ -272,6 +272,10 @@ public class Robot {
     }
 
     public void lessBadTurn(double targetHeading) {
+        lessBadTurn(targetHeading, 2);
+    }
+
+    public void lessBadTurn(double targetHeading, double timeout) {
         PIDController pid = new PIDController(new PIDCoefficients(0.05, 0, 0.3), false, 0.5);
 
         ElapsedTime timer = new ElapsedTime();
@@ -279,7 +283,7 @@ public class Robot {
 
         timer.reset();
 
-        while (_opMode.opModeIsActive() && timer.seconds() < 2.5) {
+        while (_opMode.opModeIsActive() && timer.seconds() < timeout) {
             /*
              * pid control loop
              */
