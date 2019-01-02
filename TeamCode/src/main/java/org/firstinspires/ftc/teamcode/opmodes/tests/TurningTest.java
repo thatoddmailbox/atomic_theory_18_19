@@ -37,7 +37,7 @@ public class TurningTest extends LinearOpMode {
             e.printStackTrace();
         }
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.05, 0.005, 0.3), false, 0.5);
+        PIDController pid = new PIDController(new PIDCoefficients(0.062, 0.00001, 0.36), false, 1);
         Gamepad lastGamepad = new Gamepad();
         double targetHeading = 0;
         int newTarget = (int) targetHeading;
@@ -79,7 +79,7 @@ public class TurningTest extends LinearOpMode {
              * gamepad input
              */
             boolean fineMode = gamepad1.right_bumper;
-            double step = (fineMode ? 0.001 : 0.01);
+            double step = (selectedCoefficient == 1 ? (fineMode ? 0.0001 : 0.001) : (fineMode ? 0.001 : 0.01));
 
             if (gamepad1.dpad_up && !lastGamepad.dpad_up) {
                 if (selectedCoefficient != 0) {

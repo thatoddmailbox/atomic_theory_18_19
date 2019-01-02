@@ -94,7 +94,7 @@ public class MechanumTele extends LinearOpMode {
 
             // turn-compensated driving
             if (gamepad1.left_stick_button && !lastGamepad1.left_stick_button) {
-                turnCompensation = !turnCompensation;
+//                turnCompensation = !turnCompensation;
             }
 
             //Lenny Control

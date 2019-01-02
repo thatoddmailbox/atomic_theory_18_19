@@ -276,7 +276,7 @@ public class Robot {
     }
 
     public void lessBadTurn(double targetHeading, double timeout) {
-        PIDController pid = new PIDController(new PIDCoefficients(0.05, 0, 0.3), false, 0.5);
+        PIDController pid = new PIDController(new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
 
         ElapsedTime timer = new ElapsedTime();
         int correctFrames = 0;
