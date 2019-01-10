@@ -40,9 +40,11 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.update();
 
         // unlatch TODO: make this an encoder value
-        robot.latch.setPower(-1);
+        robot.latchLeft.setPower(-1);
+        robot.latchRight.setPower(-1);
         sleep(7200);
-        robot.latch.setPower(0);
+        robot.latchLeft.setPower(0);
+        robot.latchRight.setPower(0);
 
         sleep(100);
 
@@ -197,7 +199,8 @@ public abstract class AutoMain extends LinearOpMode {
         }
 
         ElapsedTime timer = new ElapsedTime();
-        robot.latch.setPower(1);
+        robot.latchLeft.setPower(1);
+        robot.latchRight.setPower(1);
 
         if (goForDepot) {
             // Drop team marker
@@ -237,7 +240,8 @@ public abstract class AutoMain extends LinearOpMode {
             idle();
         }
 
-        robot.latch.setPower(0);
+        robot.latchLeft.setPower(0);
+        robot.latchRight.setPower(0);
 
         // save heading
         PersistentHeading.saveHeading(robot.getHeading());

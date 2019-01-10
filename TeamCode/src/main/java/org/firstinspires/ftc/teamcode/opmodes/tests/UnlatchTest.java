@@ -28,7 +28,8 @@ public class UnlatchTest extends LinearOpMode {
 
         waitForStart();
 
-        robot.latch.setPower(1);
+        robot.latchLeft.setPower(1);
+        robot.latchRight.setPower(1);
         ElapsedTime timer = new ElapsedTime();
 
         while (opModeIsActive() && timer.seconds() < 6) {
@@ -37,6 +38,7 @@ public class UnlatchTest extends LinearOpMode {
             idle();
         }
 
-        robot.latch.setPower(0);
+        robot.latchLeft.setPower(0);
+        robot.latchRight.setPower(0);
     }
 }
