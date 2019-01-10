@@ -126,18 +126,21 @@ public class MechanumTele extends LinearOpMode {
 
             // latch control
             if (gamepad2.y) {
-                robot.latch.setPower(-1);
+                robot.latchLeft.setPower(-1);
+                robot.latchRight.setPower(-1);
             } else if (gamepad2.a) {
-                robot.latch.setPower(1);
+                robot.latchLeft.setPower(1);
+                robot.latchRight.setPower(1);
             } else {
-                robot.latch.setPower(0);
+                robot.latchLeft.setPower(0);
+                robot.latchRight.setPower(0);
             }
 
             LynxGetBulkInputDataResponse bulkData = robot.getBulkData(robot.expansionHub1);
 
             telemetry.addData("Zero power", robot.driveMotorZeroPowerBehavior.toString());
             telemetry.addData("Nom power", nomPower);
-            telemetry.addData("Latch position", robot.latch.getCurrentPosition());
+            telemetry.addData("Latch position", robot.latchLeft.getCurrentPosition());
             telemetry.addData("Turn compensation", turnCompensation);
             telemetry.addData("Heading offset", robot.headingOffset);
             telemetry.addData("Heading", robot.getHeading());

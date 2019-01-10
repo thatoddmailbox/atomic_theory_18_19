@@ -69,7 +69,8 @@ public class Robot {
 
     public DcMotor george;
     public DcMotor lenny;
-    public DcMotor latch;
+    public DcMotor latchLeft;
+    public DcMotor latchRight;
 
     /*
      * servos
@@ -126,7 +127,8 @@ public class Robot {
 
         george = opMode.hardwareMap.dcMotor.get("george");
         lenny = opMode.hardwareMap.dcMotor.get("lenny");
-        latch = opMode.hardwareMap.dcMotor.get("latch");
+        latchLeft = opMode.hardwareMap.dcMotor.get("latch_left");
+        latchRight = opMode.hardwareMap.dcMotor.get("latch_right");
 
         teamMarker = opMode.hardwareMap.servo.get("team_marker");
 
@@ -143,13 +145,15 @@ public class Robot {
 
         george.setDirection(DcMotorSimple.Direction.FORWARD);
         lenny.setDirection(DcMotorSimple.Direction.FORWARD);
-        latch.setDirection(DcMotorSimple.Direction.FORWARD);
+        latchLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        latchRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
         setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         george.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        latch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        latchLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        latchRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         /*
          * sensors
