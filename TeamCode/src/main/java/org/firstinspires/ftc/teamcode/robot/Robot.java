@@ -73,6 +73,12 @@ public class Robot {
     public DcMotor latchRight;
 
     /*
+     * vex motors
+     */
+    public CRServo nomLeft;
+    public CRServo nomRight;
+
+    /*
      * servos
      */
 
@@ -130,10 +136,14 @@ public class Robot {
         latchLeft = opMode.hardwareMap.dcMotor.get("latch_left");
         latchRight = opMode.hardwareMap.dcMotor.get("latch_right");
 
-        teamMarker = opMode.hardwareMap.servo.get("team_marker");
+        /*
+         * vex motor/servo initialization
+         */
 
-//        distanceLeft = opMode.hardwareMap.get(Rev2mDistanceSensor.class, "distance_left");
-//        distanceRight = opMode.hardwareMap.get(Rev2mDistanceSensor.class, "distance_right");
+        nomLeft = opMode.hardwareMap.crservo.get("nom_left");
+        nomRight = opMode.hardwareMap.crservo.get("nom_right");
+
+        teamMarker = opMode.hardwareMap.servo.get("team_marker");
 
         /*
          * motor setup

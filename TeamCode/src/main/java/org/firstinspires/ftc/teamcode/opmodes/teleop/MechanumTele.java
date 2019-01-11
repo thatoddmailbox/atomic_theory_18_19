@@ -106,10 +106,24 @@ public class MechanumTele extends LinearOpMode {
                 robot.lenny.setPower(0);
             }
 
-            //George Control
-            if(gamepad2.dpad_up) robot.george.setPower(1);
-            else if(gamepad2.dpad_down) robot.george.setPower(-1);
-            else robot.george.setPower(0);
+//            //George Control
+//            if(gamepad2.dpad_up) robot.george.setPower(1);
+//            else if(gamepad2.dpad_down) robot.george.setPower(-1);
+//            else robot.george.setPower(0);
+
+            // nom control
+            if (gamepad2.dpad_up) {
+                robot.nomLeft.setPower(1);
+                robot.nomRight.setPower(1);
+            }
+            else if (gamepad2.dpad_down) {
+                robot.nomLeft.setPower(-1);
+                robot.nomRight.setPower(-1);
+            }
+            else {
+                robot.nomLeft.setPower(0);
+                robot.nomRight.setPower(0);
+            }
 
             // nom speed control
 //            if (gamepad2.dpad_left && !lastGamepad2.dpad_left) {
