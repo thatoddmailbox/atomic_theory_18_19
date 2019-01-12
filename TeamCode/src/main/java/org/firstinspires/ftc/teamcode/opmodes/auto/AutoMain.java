@@ -24,7 +24,7 @@ public abstract class AutoMain extends LinearOpMode {
 
         PersistentHeading.clearSavedHeading();
 
-        Robot robot = new Robot(this, true);
+        Robot robot = new Robot(this, false);
 
         telemetry.addData("Status", "Ready to go");
         telemetry.addData("Starting position", getStartingPosition());
@@ -38,10 +38,12 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
+
         // unlatch TODO: make this an encoder value
-        robot.latch.setPower(-1);
-        sleep(7200);
-        robot.latch.setPower(0);
+        // UNCOMMENT THIS DUMMY
+        //robot.latch.setPower(-1);
+        //sleep(7200);
+        //robot.latch.setPower(0);
 
         sleep(100);
 
@@ -52,22 +54,50 @@ public abstract class AutoMain extends LinearOpMode {
         robot.lessBadTurn(0);
 
         // strafe away from lander //TODO: These two shouldn't be different times + ENCODE
-//        if (getStartingPosition() == StartingPosition.CRATER) {
-//            robot.driveMotors(0.4, -0.4, -0.4, 0.4);
-//            sleep(200);
-//            robot.driveMotors(0, 0, 0, 0);
-//        } else {
         robot.driveMotors(1, -1, -1, 1);
         sleep(200);
         robot.driveMotors(0, 0, 0, 0);
-//        }
 
         // turn to realign
         robot.lessBadTurn(0, 0.5);
 
+        // NEW AUTO (UNTESTED)
+        if (true) {
+            AutoAligner aligner = new AutoAligner();
+
+            // Get centered on minerals/lander
+            aligner.cornerCenterRobot(robot);
+
+            sleep(1000);
+
+            // Get close to minerals (away from lander)
+            aligner.driveToDistance(robot, AutoAligner.Direction.RIGHT, 130);
+
+            sleep(1000);
+
+            // Get in front of cube
+            aligner.driveToDistance(robot, AutoAligner.Direction.FORWARD, 87);
+
+            sleep(1000);
+
+            // Hit cube
+            aligner.driveToDistance(robot, AutoAligner.Direction.RIGHT, 40);
+
+            sleep(1000);
+
+            robot.lessBadTurn(0, 0.5);
+
+            sleep(1000);
+
+            aligner.cornerCenterRobot(robot);
+
+            return;
+        }
+
+
         // move forward to have all minerals in view TODO: ENCODE ME
         robot.driveMotors(0.4, 0.4, 0.4, 0.4);
-        sleep((getStartingPosition() == StartingPosition.CRATER ? 100 : 100));
+        sleep(100);
         robot.driveMotors(0, 0, 0, 0);
 
 //        // turn to realign
@@ -144,20 +174,13 @@ public abstract class AutoMain extends LinearOpMode {
             robot.driveMotors(0, 0, 0, 0);
 
             long timeToDepot = 850;
-            if (false) {
-                AutoAligner aligner = new AutoAligner();
-                boolean notThereYet = true;
-                ElapsedTime elapsedTime = new ElapsedTime();
-                while (opModeIsActive() && elapsedTime.milliseconds() < timeToDepot) {
-                    aligner.driveAlignDistanceRobot(robot, 0.8, 10);
-                    idle();
-                }
-            } else {
-                // Drive forwards into depot
-                robot.driveMotors(1.0, 1.0, 1.0, 1.0);
-                sleep(timeToDepot);
-                robot.driveMotors(0, 0, 0, 0);
-            }
+//            // Drive forwards into depot
+//            robot.driveMotors(1.0, 1.0, 1.0, 1.0);
+//            sleep(timeToDepot);
+//            robot.driveMotors(0, 0, 0, 0);
+
+            AutoAligner aligner = new AutoAligner();
+            aligner.driveAlignDistanceRobotTime(robot, 1.0, 10, timeToDepot);
 
             robot.lessBadTurn(135);
         } else {
@@ -197,21 +220,23 @@ public abstract class AutoMain extends LinearOpMode {
         robot.driveMotors(0, 0, 0, 0);
 
 
+        AutoAligner aligner = new AutoAligner();
         // Drive hard towards crater
-        robot.driveMotors(-1, -1, -1, -1);
-        sleep(1000);
-        robot.driveMotors(0, 0, 0, 0);
 
-//        robot.driveMotors(1, -1, -1, 1);
-//        sleep(150);
+        aligner.driveAlignDistanceRobotTime(robot, -1.0, 5, 1000);
+
+//        robot.driveMotors(-1, -1, -1, -1);
+//        sleep(1000);
 //        robot.driveMotors(0, 0, 0, 0);
 
         // Glide into crater
-        robot.driveMotors(-0.6, -0.6, -0.6, -0.6);
-        sleep(500);
-        robot.driveMotors(0, 0, 0, 0);
+        aligner.driveAlignDistanceRobotTime(robot, -0.6, 5, 500);
 
-        robot.deactivateTfod();
+//        robot.driveMotors(-0.6, -0.6, -0.6, -0.6);
+//        sleep(500);
+//        robot.driveMotors(0, 0, 0, 0);
+
+//        robot.deactivateTfod();
         robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
 
         // lower latch
