@@ -189,32 +189,11 @@ public abstract class AutoMain extends LinearOpMode {
                 sleep(400);
                 robot.driveMotors(0, 0, 0, 0);
 
-<<<<<<< HEAD
-            long timeToDepot = 850;
-//            // Drive forwards into depot
-//            robot.driveMotors(1.0, 1.0, 1.0, 1.0);
-//            sleep(timeToDepot);
-//            robot.driveMotors(0, 0, 0, 0);
-
-            AutoAligner aligner = new AutoAligner();
-            aligner.driveAlignDistanceRobotTime(robot, 1.0, 10, timeToDepot);
-=======
                 long timeToDepot = 850;
-                if (false) {
-                    AutoAligner aligner = new AutoAligner();
-                    boolean notThereYet = true;
-                    ElapsedTime elapsedTime = new ElapsedTime();
-                    while (opModeIsActive() && elapsedTime.milliseconds() < timeToDepot) {
-                        aligner.driveAlignDistanceRobot(robot, 0.8, 10);
-                        idle();
-                    }
-                } else {
-                    // Drive forwards into depot
-                    robot.driveMotors(1.0, 1.0, 1.0, 1.0);
-                    sleep(timeToDepot);
-                    robot.driveMotors(0, 0, 0, 0);
-                }
->>>>>>> cf30247b4f04d683af7cb4f0f4bec0db5718477f
+    //            // Drive forwards into depot
+                robot.driveMotors(1.0, 1.0, 1.0, 1.0);
+                sleep(timeToDepot);
+                robot.driveMotors(0, 0, 0, 0);
 
                 robot.lessBadTurn(135);
             }
@@ -252,25 +231,6 @@ public abstract class AutoMain extends LinearOpMode {
             if (goForCrater) {
                 robot.lessBadTurn(getStartingPosition() == StartingPosition.CRATER ? 45 : -45);
 
-<<<<<<< HEAD
-        AutoAligner aligner = new AutoAligner();
-        // Drive hard towards crater
-
-        aligner.driveAlignDistanceRobotTime(robot, -1.0, 5, 1000);
-
-//        robot.driveMotors(-1, -1, -1, -1);
-//        sleep(1000);
-//        robot.driveMotors(0, 0, 0, 0);
-
-        // Glide into crater
-        aligner.driveAlignDistanceRobotTime(robot, -0.6, 5, 500);
-
-//        robot.driveMotors(-0.6, -0.6, -0.6, -0.6);
-//        sleep(500);
-//        robot.driveMotors(0, 0, 0, 0);
-
-//        robot.deactivateTfod();
-=======
                 // Strafe towards wall if at depot to avoid mineral
                 robot.driveMotors(0.8, -0.8, -0.8, 0.8);
                 sleep(300);
@@ -292,7 +252,6 @@ public abstract class AutoMain extends LinearOpMode {
 
         robot.deactivateTfod();
 
->>>>>>> cf30247b4f04d683af7cb4f0f4bec0db5718477f
         robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
 
         // lower latch
