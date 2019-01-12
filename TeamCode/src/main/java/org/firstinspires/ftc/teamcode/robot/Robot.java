@@ -165,6 +165,13 @@ public class Robot {
         latchLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         latchRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        latchLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        latchRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // Alternative to consider: based on velocity
+        //latchLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //latchRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
         /*
          * sensors
          */

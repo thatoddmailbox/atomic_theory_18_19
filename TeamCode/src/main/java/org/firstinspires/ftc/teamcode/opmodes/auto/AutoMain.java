@@ -43,11 +43,11 @@ public abstract class AutoMain extends LinearOpMode {
         // unlatch TODO: make this an encoder value
 
         // UNCOMMENT THIS DUMMY
-        robot.latchLeft.setPower(-1);
-        robot.latchRight.setPower(-1);
-        sleep(7200);
-        robot.latchLeft.setPower(0);
-        robot.latchRight.setPower(0);
+        //robot.latchLeft.setPower(-1);
+        //robot.latchRight.setPower(-1);
+        //sleep(7200);
+        //robot.latchLeft.setPower(0);
+        //robot.latchRight.setPower(0);
 
         sleep(100);
 

@@ -38,12 +38,12 @@ public class MechanumTele extends LinearOpMode {
         boolean turnCompensation = false;
 
         while (opModeIsActive()) {
-            double slowMode = gamepad1.left_bumper? .5:1.0;
+            double slowMode = gamepad1.left_bumper ? .5 : 1.0;
 
             //Square values for finer slow control.
-            double drivePower = 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_y)) * Math.signum(gamepad1.left_stick_y);
-            double strafePower = -1 * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.left_stick_x)) * Math.signum(gamepad1.left_stick_x);
-            double turnPower = .5 * 0.1572 * Math.pow(6.3594,Math.abs(gamepad1.right_stick_x)) * Math.signum(gamepad1.right_stick_x);
+            double drivePower = 0.1572 * Math.pow(6.3594, Math.abs(gamepad1.left_stick_y)) * Math.signum(gamepad1.left_stick_y);
+            double strafePower = -1 * 0.1572 * Math.pow(6.3594, Math.abs(gamepad1.left_stick_x)) * Math.signum(gamepad1.left_stick_x);
+            double turnPower = .5 * 0.1572 * Math.pow(6.3594, Math.abs(gamepad1.right_stick_x)) * Math.signum(gamepad1.right_stick_x);
 
             //Scaled Lenny speed down
             double lennyBackPower = gamepad2.left_trigger;
@@ -54,7 +54,7 @@ public class MechanumTele extends LinearOpMode {
             double deadZone = 0.13;
 
             //Complete Directional Mecanum Driving
-            if(Math.abs(gamepad1.left_stick_y) > deadZone || Math.abs(gamepad1.left_stick_x) > deadZone || Math.abs(gamepad1.right_stick_x  ) > deadZone) {
+            if (Math.abs(gamepad1.left_stick_y) > deadZone || Math.abs(gamepad1.left_stick_x) > deadZone || Math.abs(gamepad1.right_stick_x) > deadZone) {
                 //Sets up variables
                 double robotAngle = Math.atan2(drivePower, strafePower) - Math.PI / 4;
 
@@ -66,19 +66,19 @@ public class MechanumTele extends LinearOpMode {
 
                 telemetry.addData("Robot angle new", Math.toDegrees(robotAngle));
 
-                double biggerStick = Math.max(Math.abs(turnPower),Math.max(Math.abs(strafePower),Math.abs(drivePower)));
-                double biggerDrive = Math.max(Math.abs(strafePower),Math.abs(drivePower));
-                double biggerValue = Math.max(Math.abs(Math.cos(robotAngle)),Math.abs(Math.sin(robotAngle)));
-                double stickMax = biggerDrive+Math.abs(turnPower);
+                double biggerStick = Math.max(Math.abs(turnPower), Math.max(Math.abs(strafePower), Math.abs(drivePower)));
+                double biggerDrive = Math.max(Math.abs(strafePower), Math.abs(drivePower));
+                double biggerValue = Math.max(Math.abs(Math.cos(robotAngle)), Math.abs(Math.sin(robotAngle)));
+                double stickMax = biggerDrive + Math.abs(turnPower);
 
                 //Does triggy stuff
-                double FL = biggerStick * ((Math.cos(robotAngle)/biggerValue * (biggerDrive/stickMax)) + (turnPower/stickMax));
-                double FR = biggerStick * ((Math.sin(robotAngle)/biggerValue * (biggerDrive/stickMax)) - (turnPower/stickMax));
-                double BL = biggerStick * ((Math.sin(robotAngle)/biggerValue * (biggerDrive/stickMax)) + (turnPower/stickMax));
-                double BR = biggerStick * ((Math.cos(robotAngle)/biggerValue * (biggerDrive/stickMax)) - (turnPower/stickMax));
+                double FL = biggerStick * ((Math.cos(robotAngle) / biggerValue * (biggerDrive / stickMax)) + (turnPower / stickMax));
+                double FR = biggerStick * ((Math.sin(robotAngle) / biggerValue * (biggerDrive / stickMax)) - (turnPower / stickMax));
+                double BL = biggerStick * ((Math.sin(robotAngle) / biggerValue * (biggerDrive / stickMax)) + (turnPower / stickMax));
+                double BR = biggerStick * ((Math.cos(robotAngle) / biggerValue * (biggerDrive / stickMax)) - (turnPower / stickMax));
 
                 //Powers Motors
-                robot.driveMotorsClipped(FL*slowMode, FR*slowMode, BL*slowMode, BR*slowMode);
+                robot.driveMotorsClipped(FL * slowMode, FR * slowMode, BL * slowMode, BR * slowMode);
             } else {
                 robot.driveMotors(0, 0, 0, 0);
             }
@@ -115,12 +115,10 @@ public class MechanumTele extends LinearOpMode {
             if (gamepad2.dpad_up) {
                 robot.nomLeft.setPower(1);
                 robot.nomRight.setPower(1);
-            }
-            else if (gamepad2.dpad_down) {
+            } else if (gamepad2.dpad_down) {
                 robot.nomLeft.setPower(-1);
                 robot.nomRight.setPower(-1);
-            }
-            else {
+            } else {
                 robot.nomLeft.setPower(0);
                 robot.nomRight.setPower(0);
             }
@@ -138,17 +136,29 @@ public class MechanumTele extends LinearOpMode {
 //                }
 //            }
 
-            // latch control
+            // latch control: press AND HOLD
             if (gamepad2.y) {
-                robot.latchLeft.setPower(-1);
-                robot.latchRight.setPower(-1);
+                robot.latchLeft.setPower(-0.8);
+                robot.latchLeft.setTargetPosition(-10000);
+                robot.latchRight.setPower(-1.0);
+                robot.latchRight.setTargetPosition(robot.latchLeft.getCurrentPosition());
+
+                //Alternative
+                //robot.latchLeft.setPower(-0.9);
+                //robot.latchRight.setPower(-0.9);
             } else if (gamepad2.a) {
-                robot.latchLeft.setPower(1);
-                robot.latchRight.setPower(1);
-            } else {
-                robot.latchLeft.setPower(0);
-                robot.latchRight.setPower(0);
-            }
+                robot.latchLeft.setPower(0.8);
+                robot.latchLeft.setTargetPosition(0);
+                robot.latchRight.setPower(1.0);
+                robot.latchRight.setTargetPosition(robot.latchLeft.getCurrentPosition());
+
+                //Alternative
+                //robot.latchLeft.setPower(0.9);
+                //robot.latchRight.setPower(0.9);
+            } // Alternative: else {
+                //robot.latchLeft.setPower(0);
+                //robot.latchRight.setPower(0);
+            //}
 
             LynxGetBulkInputDataResponse bulkData = robot.getBulkData(robot.expansionHub1);
 
