@@ -14,31 +14,22 @@ import org.firstinspires.ftc.teamcode.utils.PIDLogger;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-@Autonomous(name="Unlatch test", group="Tests")
-public class UnlatchTest extends LinearOpMode {
+@Autonomous(name="Super turning test", group="Tests")
+public class SuperTurningTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        telemetry.addData("Status", "Starting...");
-        telemetry.update();
-
         Robot robot = new Robot(this, false);
 
-        telemetry.addData("Status", "Ready to go");
-        telemetry.update();
+        robot.resetHeading();
 
         waitForStart();
 
-        robot.latchLeft.setPower(1);
-        robot.latchRight.setPower(1);
         ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        robot.lessBadTurn(90);
+        telemetry.addData("Turn length", timer.milliseconds() / 1000);
+        telemetry.update();
 
-        while (opModeIsActive() && timer.seconds() < 6) {
-            telemetry.addData("Time", timer.seconds());
-            telemetry.update();
-            idle();
-        }
-
-        robot.latchLeft.setPower(0);
-        robot.latchRight.setPower(0);
+        sleep(2000);
     }
 }

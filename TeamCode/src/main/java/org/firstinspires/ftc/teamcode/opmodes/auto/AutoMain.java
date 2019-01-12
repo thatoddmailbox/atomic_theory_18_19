@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.utils.StartingPosition;
 public abstract class AutoMain extends LinearOpMode {
 
     public abstract StartingPosition getStartingPosition();
+    public abstract boolean isSafeAuto();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -40,10 +41,13 @@ public abstract class AutoMain extends LinearOpMode {
 
 
         // unlatch TODO: make this an encoder value
+
         // UNCOMMENT THIS DUMMY
-        //robot.latch.setPower(-1);
-        //sleep(7200);
-        //robot.latch.setPower(0);
+        robot.latchLeft.setPower(-1);
+        robot.latchRight.setPower(-1);
+        sleep(7200);
+        robot.latchLeft.setPower(0);
+        robot.latchRight.setPower(0);
 
         sleep(100);
 
@@ -131,6 +135,17 @@ public abstract class AutoMain extends LinearOpMode {
             robot.driveMotors(0, 0, 0, 0);
         }
 
+        boolean goForCrater = true;
+        boolean goForDepot = true;
+
+        if (isSafeAuto()) {
+            if (getStartingPosition() == StartingPosition.CRATER) {
+                goForDepot = false;
+            } else if (getStartingPosition() == StartingPosition.DEPOT) {
+                goForCrater = false;
+            }
+        }
+
         // if at crater, try to go in
         if (getStartingPosition() == StartingPosition.CRATER) {
             // turn 90
@@ -160,19 +175,21 @@ public abstract class AutoMain extends LinearOpMode {
             //Give it a rest boi
             sleep(300);
 
-            // Head towards depot diagonally
-            robot.driveMotors(1.0, 1.0, 1.0, 1.0);
-            sleep(650);
-            robot.driveMotors(0, 0, 0, 0);
+            if (goForDepot) {
+                // Head towards depot diagonally
+                robot.driveMotors(1.0, 1.0, 1.0, 1.0);
+                sleep(650);
+                robot.driveMotors(0, 0, 0, 0);
 
-            // Rotate left by 45 degrees so we're pointed straight
-            robot.lessBadTurn(45);
+                // Rotate left by 45 degrees so we're pointed straight
+                robot.lessBadTurn(45);
 
-            // Strafe towards wall
-            robot.driveMotors(0.8, -0.8, -0.8, 0.8);
-            sleep(400);
-            robot.driveMotors(0, 0, 0, 0);
+                // Strafe towards wall
+                robot.driveMotors(0.8, -0.8, -0.8, 0.8);
+                sleep(400);
+                robot.driveMotors(0, 0, 0, 0);
 
+<<<<<<< HEAD
             long timeToDepot = 850;
 //            // Drive forwards into depot
 //            robot.driveMotors(1.0, 1.0, 1.0, 1.0);
@@ -181,9 +198,27 @@ public abstract class AutoMain extends LinearOpMode {
 
             AutoAligner aligner = new AutoAligner();
             aligner.driveAlignDistanceRobotTime(robot, 1.0, 10, timeToDepot);
+=======
+                long timeToDepot = 850;
+                if (false) {
+                    AutoAligner aligner = new AutoAligner();
+                    boolean notThereYet = true;
+                    ElapsedTime elapsedTime = new ElapsedTime();
+                    while (opModeIsActive() && elapsedTime.milliseconds() < timeToDepot) {
+                        aligner.driveAlignDistanceRobot(robot, 0.8, 10);
+                        idle();
+                    }
+                } else {
+                    // Drive forwards into depot
+                    robot.driveMotors(1.0, 1.0, 1.0, 1.0);
+                    sleep(timeToDepot);
+                    robot.driveMotors(0, 0, 0, 0);
+                }
+>>>>>>> cf30247b4f04d683af7cb4f0f4bec0db5718477f
 
-            robot.lessBadTurn(135);
-        } else {
+                robot.lessBadTurn(135);
+            }
+        } else if (getStartingPosition() == StartingPosition.DEPOT) {
             // turn 90
             robot.lessBadTurn(90); //TODO: New plate, don't need turn
 
@@ -206,20 +241,18 @@ public abstract class AutoMain extends LinearOpMode {
         }
 
         ElapsedTime timer = new ElapsedTime();
-        robot.latch.setPower(1);
+        robot.latchLeft.setPower(1);
+        robot.latchRight.setPower(1);
 
-        // Drop team marker
-        robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
-        sleep(500);
+        if (goForDepot) {
+            // Drop team marker
+            robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
+            sleep(500);
 
-        robot.lessBadTurn(getStartingPosition() == StartingPosition.CRATER ? 45 : -45);
+            if (goForCrater) {
+                robot.lessBadTurn(getStartingPosition() == StartingPosition.CRATER ? 45 : -45);
 
-        // Strafe towards wall if at depot to avoid mineral
-        robot.driveMotors(0.8, -0.8, -0.8, 0.8);
-        sleep(300);
-        robot.driveMotors(0, 0, 0, 0);
-
-
+<<<<<<< HEAD
         AutoAligner aligner = new AutoAligner();
         // Drive hard towards crater
 
@@ -237,6 +270,29 @@ public abstract class AutoMain extends LinearOpMode {
 //        robot.driveMotors(0, 0, 0, 0);
 
 //        robot.deactivateTfod();
+=======
+                // Strafe towards wall if at depot to avoid mineral
+                robot.driveMotors(0.8, -0.8, -0.8, 0.8);
+                sleep(300);
+                robot.driveMotors(0, 0, 0, 0);
+
+                // Drive hard towards crater
+                robot.driveMotors(-1, -1, -1, -1);
+                sleep(1000);
+                robot.driveMotors(0, 0, 0, 0);
+            }
+        }
+
+        if (goForCrater) {
+            // Glide into crater
+            robot.driveMotors(-0.6, -0.6, -0.6, -0.6);
+            sleep(500);
+            robot.driveMotors(0, 0, 0, 0);
+        }
+
+        robot.deactivateTfod();
+
+>>>>>>> cf30247b4f04d683af7cb4f0f4bec0db5718477f
         robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
 
         // lower latch
@@ -246,7 +302,8 @@ public abstract class AutoMain extends LinearOpMode {
             idle();
         }
 
-        robot.latch.setPower(0);
+        robot.latchLeft.setPower(0);
+        robot.latchRight.setPower(0);
 
         // save heading
         PersistentHeading.saveHeading(robot.getHeading());

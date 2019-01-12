@@ -69,7 +69,14 @@ public class Robot {
 
     public DcMotor george;
     public DcMotor lenny;
-    public DcMotor latch;
+    public DcMotor latchLeft;
+    public DcMotor latchRight;
+
+    /*
+     * vex motors
+     */
+    public CRServo nomLeft;
+    public CRServo nomRight;
 
     /*
      * servos
@@ -126,12 +133,17 @@ public class Robot {
 
         george = opMode.hardwareMap.dcMotor.get("george");
         lenny = opMode.hardwareMap.dcMotor.get("lenny");
-        latch = opMode.hardwareMap.dcMotor.get("latch");
+        latchLeft = opMode.hardwareMap.dcMotor.get("latch_left");
+        latchRight = opMode.hardwareMap.dcMotor.get("latch_right");
+
+        /*
+         * vex motor/servo initialization
+         */
+
+        nomLeft = opMode.hardwareMap.crservo.get("nom_left");
+        nomRight = opMode.hardwareMap.crservo.get("nom_right");
 
         teamMarker = opMode.hardwareMap.servo.get("team_marker");
-
-//        distanceLeft = opMode.hardwareMap.get(Rev2mDistanceSensor.class, "distance_left");
-//        distanceRight = opMode.hardwareMap.get(Rev2mDistanceSensor.class, "distance_right");
 
         /*
          * motor setup
@@ -143,13 +155,15 @@ public class Robot {
 
         george.setDirection(DcMotorSimple.Direction.FORWARD);
         lenny.setDirection(DcMotorSimple.Direction.FORWARD);
-        latch.setDirection(DcMotorSimple.Direction.FORWARD);
+        latchLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        latchRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
         setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         george.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        latch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        latchLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        latchRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         /*
          * sensors
@@ -276,7 +290,7 @@ public class Robot {
     }
 
     public void lessBadTurn(double targetHeading, double timeout) {
-        PIDController pid = new PIDController(new PIDCoefficients(0.05, 0, 0.3), false, 0.5);
+        PIDController pid = new PIDController(new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
 
         ElapsedTime timer = new ElapsedTime();
         int correctFrames = 0;

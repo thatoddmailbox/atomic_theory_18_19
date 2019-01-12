@@ -94,7 +94,7 @@ public class MechanumTele extends LinearOpMode {
 
             // turn-compensated driving
             if (gamepad1.left_stick_button && !lastGamepad1.left_stick_button) {
-                turnCompensation = !turnCompensation;
+//                turnCompensation = !turnCompensation;
             }
 
             //Lenny Control
@@ -106,10 +106,24 @@ public class MechanumTele extends LinearOpMode {
                 robot.lenny.setPower(0);
             }
 
-            //George Control
-            if(gamepad2.dpad_up) robot.george.setPower(1);
-            else if(gamepad2.dpad_down) robot.george.setPower(-1);
-            else robot.george.setPower(0);
+//            //George Control
+//            if(gamepad2.dpad_up) robot.george.setPower(1);
+//            else if(gamepad2.dpad_down) robot.george.setPower(-1);
+//            else robot.george.setPower(0);
+
+            // nom control
+            if (gamepad2.dpad_up) {
+                robot.nomLeft.setPower(1);
+                robot.nomRight.setPower(1);
+            }
+            else if (gamepad2.dpad_down) {
+                robot.nomLeft.setPower(-1);
+                robot.nomRight.setPower(-1);
+            }
+            else {
+                robot.nomLeft.setPower(0);
+                robot.nomRight.setPower(0);
+            }
 
             // nom speed control
 //            if (gamepad2.dpad_left && !lastGamepad2.dpad_left) {
@@ -126,18 +140,21 @@ public class MechanumTele extends LinearOpMode {
 
             // latch control
             if (gamepad2.y) {
-                robot.latch.setPower(-1);
+                robot.latchLeft.setPower(-1);
+                robot.latchRight.setPower(-1);
             } else if (gamepad2.a) {
-                robot.latch.setPower(1);
+                robot.latchLeft.setPower(1);
+                robot.latchRight.setPower(1);
             } else {
-                robot.latch.setPower(0);
+                robot.latchLeft.setPower(0);
+                robot.latchRight.setPower(0);
             }
 
             LynxGetBulkInputDataResponse bulkData = robot.getBulkData(robot.expansionHub1);
 
             telemetry.addData("Zero power", robot.driveMotorZeroPowerBehavior.toString());
             telemetry.addData("Nom power", nomPower);
-            telemetry.addData("Latch position", robot.latch.getCurrentPosition());
+            telemetry.addData("Latch position", robot.latchLeft.getCurrentPosition());
             telemetry.addData("Turn compensation", turnCompensation);
             telemetry.addData("Heading offset", robot.headingOffset);
             telemetry.addData("Heading", robot.getHeading());
