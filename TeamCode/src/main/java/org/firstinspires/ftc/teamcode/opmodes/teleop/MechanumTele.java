@@ -113,14 +113,14 @@ public class MechanumTele extends LinearOpMode {
 
             // nom control
             if (gamepad2.dpad_up) {
-                robot.nomLeft.setPower(1);
-                robot.nomRight.setPower(1);
+                robot.nomLeft.setPosition(Robot.SERVO_VEX_FORWARD);
+                robot.nomRight.setPosition(Robot.SERVO_VEX_FORWARD);
             } else if (gamepad2.dpad_down) {
-                robot.nomLeft.setPower(-1);
-                robot.nomRight.setPower(-1);
+                robot.nomLeft.setPosition(Robot.SERVO_VEX_REVERSE);
+                robot.nomRight.setPosition(Robot.SERVO_VEX_REVERSE);
             } else {
-                robot.nomLeft.setPower(0);
-                robot.nomRight.setPower(0);
+                robot.nomLeft.setPosition(Robot.SERVO_VEX_NEUTRAL);
+                robot.nomRight.setPosition(Robot.SERVO_VEX_NEUTRAL);
             }
 
             // nom speed control
