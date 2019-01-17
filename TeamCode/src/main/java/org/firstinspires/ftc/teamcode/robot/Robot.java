@@ -35,9 +35,15 @@ public class Robot {
     public static final double SERVO_TEAM_MARKER_DEPOSIT = 0.0;
     public static final double SERVO_TEAM_MARKER_HELD = 0.6;
 
+
     public static final double SENSOR_SERVO_ZERO = 0.25;
     public static final double SENSOR_SERVO_HALF = 0.5;
     public static final double SENSOR_SERVO_FULL = 0.75;
+
+    public static final double SERVO_VEX_REVERSE = 0.25; // (1000-500)/2000
+    public static final double SERVO_VEX_NEUTRAL = 0.5; // (1500-500)/2000
+    public static final double SERVO_VEX_FORWARD = 0.75; // (2000-500)/2000
+
 
     public static final int MOTOR_PORT_FRONT_LEFT = 0;
     public static final int MOTOR_PORT_FRONT_RIGHT = 1;
@@ -71,8 +77,8 @@ public class Robot {
     /*
      * vex motors
      */
-    public CRServo nomLeft;
-    public CRServo nomRight;
+    public Servo nomLeft;
+    public Servo nomRight;
 
     /*
      * servos
@@ -141,8 +147,8 @@ public class Robot {
          * vex motor/servo initialization
          */
 
-        //nomLeft = opMode.hardwareMap.crservo.get("nom_left");
-        //nomRight = opMode.hardwareMap.crservo.get("nom_right");
+        nomLeft = opMode.hardwareMap.servo.get("nom_left");
+        nomRight = opMode.hardwareMap.servo.get("nom_right");
 
         teamMarker = opMode.hardwareMap.servo.get("team_marker");
 
