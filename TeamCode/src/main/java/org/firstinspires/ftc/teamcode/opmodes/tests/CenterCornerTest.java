@@ -2,11 +2,14 @@ package org.firstinspires.ftc.teamcode.opmodes.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.robot.Robot;
+import org.firstinspires.ftc.teamcode.utils.PIDController;
 
-@Autonomous(name="Distance test", group="Tests")
+@Autonomous(name="Center corner test", group="Tests")
 public class CenterCornerTest extends LinearOpMode {
 
     @Override
@@ -14,18 +17,8 @@ public class CenterCornerTest extends LinearOpMode {
         waitForStart();
 
         Robot robot = new Robot(this, false);
-        AutoAligner aligner = new AutoAligner();
+        AutoAligner aligner = new AutoAligner(this);
 
-        aligner.cornerCenterRobot(robot);
-//        aligner.pidCornerCenterRobot(robot);
-
-        while (opModeIsActive()) {
-            telemetry.addData("range left", robot.rangeLeft.cmUltrasonic() * 10);
-            telemetry.addData("range right", robot.rangeRight.cmUltrasonic() * 10);
-            telemetry.addData("distance diff", robot.rangeLeft.cmUltrasonic() * 10 - robot.rangeLeft.cmUltrasonic() * 10);
-
-            telemetry.update();
-            idle();
-        }
+        aligner.pidCornerCenterRobot(robot, 2, true);
     }
 }

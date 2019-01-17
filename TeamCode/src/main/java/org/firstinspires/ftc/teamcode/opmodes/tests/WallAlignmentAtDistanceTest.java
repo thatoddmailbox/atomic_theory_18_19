@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.tests;
 
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 
@@ -16,11 +14,13 @@ public class WallAlignmentAtDistanceTest extends LinearOpMode {
         waitForStart();
 
         Robot robot = new Robot(this, false);
-        AutoAligner aligner = new AutoAligner();
+        AutoAligner aligner = new AutoAligner(this);
+
+        robot.setupSimpleServos(Robot.Direction.RIGHT);
 
         while (opModeIsActive()) {
-            telemetry.addData("range left", robot.rangeLeft.cmUltrasonic() * 10);
-            telemetry.addData("range right", robot.rangeRight.cmUltrasonic() * 10);
+            telemetry.addData("range front right", robot.rangeFrontRight.cmUltrasonic() * 10);
+            telemetry.addData("range back right", robot.rangeBackRight.cmUltrasonic() * 10);
 
             telemetry.update();
 

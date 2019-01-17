@@ -4,28 +4,20 @@ import com.kauailabs.navx.ftc.AHRS;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxNackException;
-import com.qualcomm.hardware.lynx.LynxUnsupportedCommandException;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataCommand;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.vuforia.Frame;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.function.Consumer;
-import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -42,6 +34,10 @@ import java.util.List;
 public class Robot {
     public static final double SERVO_TEAM_MARKER_DEPOSIT = 0.0;
     public static final double SERVO_TEAM_MARKER_HELD = 0.6;
+
+    public static final double SENSOR_SERVO_ZERO = 0.25;
+    public static final double SENSOR_SERVO_HALF = 0.5;
+    public static final double SENSOR_SERVO_FULL = 0.75;
 
     public static final int MOTOR_PORT_FRONT_LEFT = 0;
     public static final int MOTOR_PORT_FRONT_RIGHT = 1;
@@ -84,6 +80,12 @@ public class Robot {
 
     public Servo teamMarker;
 
+    public Servo frontRightServo;
+    public Servo backRightServo;
+    public Servo frontLeftServo;
+    public Servo backLeftServo;
+
+
     /*
      * sensors
      */
@@ -93,14 +95,13 @@ public class Robot {
     public WebcamName leftWebcam;
     public WebcamName rightWebcam;
 
-    public Rev2mDistanceSensor distanceLeft;
-    public Rev2mDistanceSensor distanceRight;
-
     public AnalogInput sonarLeft;
     public AnalogInput sonarRight;
 
-    public ModernRoboticsI2cRangeSensor rangeLeft;
-    public ModernRoboticsI2cRangeSensor rangeRight;
+    public ModernRoboticsI2cRangeSensor rangeFrontRight;
+    public ModernRoboticsI2cRangeSensor rangeBackRight;
+    public ModernRoboticsI2cRangeSensor rangeFrontLeft;
+    public ModernRoboticsI2cRangeSensor rangeBackLeft;
 
     public AHRS navX;
 
@@ -140,10 +141,15 @@ public class Robot {
          * vex motor/servo initialization
          */
 
-        nomLeft = opMode.hardwareMap.crservo.get("nom_left");
-        nomRight = opMode.hardwareMap.crservo.get("nom_right");
+        //nomLeft = opMode.hardwareMap.crservo.get("nom_left");
+        //nomRight = opMode.hardwareMap.crservo.get("nom_right");
 
         teamMarker = opMode.hardwareMap.servo.get("team_marker");
+
+        frontRightServo = opMode.hardwareMap.servo.get("front_right_servo");
+        backRightServo = opMode.hardwareMap.servo.get("back_right_servo");
+//        frontLeftServo = opMode.hardwareMap.servo.get("front_left_servo");
+//        backLeftServo = opMode.hardwareMap.servo.get("back_left_servo");
 
         /*
          * motor setup
@@ -192,8 +198,10 @@ public class Robot {
         sonarLeft = opMode.hardwareMap.get(AnalogInput.class, "sonar_left");
         sonarRight = opMode.hardwareMap.get(AnalogInput.class, "sonar_right");
 
-        rangeLeft = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_left");
-        rangeRight = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_right");
+        rangeFrontRight = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_left");
+        rangeBackRight = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_right");
+        //rangeFrontLeft = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_front_left");
+        //rangeBackLeft = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_back_left");
 
 //        navX = AHRS.getInstance(dim, NAVX_DIM_I2C_PORT, AHRS.DeviceDataType.kProcessedData, (byte)50);
 //        navX.zeroYaw();
@@ -405,5 +413,76 @@ public class Robot {
         }
 
         return MineralPosition.UNKNOWN;
+    }
+
+    // UTILITES
+    public enum Direction {
+        FORWARD, BACKWARD, LEFT, RIGHT;
+    }
+
+    public double rightDistance(Direction direction) {
+        switch (direction) {
+            case FORWARD:
+                return rangeFrontRight.cmUltrasonic() * 10;
+            case RIGHT:
+                return rangeBackRight.cmUltrasonic() * 10;
+            case LEFT:
+                return rangeFrontLeft.cmUltrasonic() * 10;
+            case BACKWARD:
+                return rangeBackLeft.cmUltrasonic() * 10;
+        }
+        return 0;
+    }
+    public double leftDistance(Direction direction) {
+        switch (direction) {
+            case FORWARD:
+                return rangeFrontLeft.cmUltrasonic() * 10;
+            case RIGHT:
+                return rangeFrontRight.cmUltrasonic() * 10;
+            case LEFT:
+                return rangeBackLeft.cmUltrasonic() * 10;
+            case BACKWARD:
+                return rangeBackRight.cmUltrasonic() * 10;
+        }
+        return 0;
+    }
+    public void setupSimpleServos(Direction direction) throws InterruptedException {
+        double maxDif = 0;
+        switch (direction) {
+            case FORWARD:
+                maxDif = Math.max(Math.abs(frontRightServo.getPosition()-SENSOR_SERVO_ZERO), Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_ZERO));
+                frontRightServo.setPosition(SENSOR_SERVO_ZERO);
+                frontLeftServo.setPosition(SENSOR_SERVO_ZERO);
+            case RIGHT:
+                maxDif = Math.max(Math.abs(frontRightServo.getPosition()-SENSOR_SERVO_FULL), Math.abs(backRightServo.getPosition()-SENSOR_SERVO_FULL));
+                frontRightServo.setPosition(SENSOR_SERVO_FULL);
+                backRightServo.setPosition(SENSOR_SERVO_FULL);
+            case LEFT:
+                maxDif = Math.max(Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_FULL), Math.abs(backLeftServo.getPosition()-SENSOR_SERVO_FULL));
+                frontLeftServo.setPosition(SENSOR_SERVO_FULL);
+                backLeftServo.setPosition(SENSOR_SERVO_FULL);
+            case BACKWARD:
+                maxDif = Math.max(Math.abs(backRightServo.getPosition()-SENSOR_SERVO_ZERO), Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_ZERO));
+                backRightServo.setPosition(SENSOR_SERVO_ZERO);
+                backLeftServo.setPosition(SENSOR_SERVO_ZERO);
+        }
+        double sleepTime = 210*(maxDif/Math.abs(SENSOR_SERVO_FULL - SENSOR_SERVO_ZERO))+50;
+        Thread.sleep((long) sleepTime);
+    }
+
+    public void logSensors() {
+        _opMode.telemetry.addData("range front right optical (cm)", rangeFrontRight.cmOptical());
+        _opMode.telemetry.addData("range front right ultrasonic (cm)", rangeFrontRight.cmUltrasonic());
+
+        _opMode.telemetry.addData("range back right optical (cm)", rangeBackRight.cmOptical());
+        _opMode.telemetry.addData("range back right ultrasonic (cm)", rangeBackRight.cmUltrasonic());
+
+        //_opMode.telemetry.addData("range front left optical (cm)", rangeFrontLeft.cmOptical());
+        //_opMode.telemetry.addData("range front left ultrasonic (cm)", rangeFrontLeft.cmUltrasonic());
+
+        //_opMode.telemetry.addData("range back left optical (cm)", rangeBackLeft.cmOptical());
+        //_opMode.telemetry.addData("range back left ultrasonic (cm)", rangeBackLeft.cmUltrasonic());
+
+        _opMode.telemetry.update();
     }
 }

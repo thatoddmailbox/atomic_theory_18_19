@@ -67,25 +67,25 @@ public abstract class AutoMain extends LinearOpMode {
 
         // NEW AUTO (UNTESTED)
         if (true) {
-            AutoAligner aligner = new AutoAligner();
+            AutoAligner aligner = new AutoAligner(this);
 
             // Get centered on minerals/lander
-            aligner.cornerCenterRobot(robot);
+            aligner.pidCornerCenterRobot(robot, 2, true);
 
             sleep(1000);
 
             // Get close to minerals (away from lander)
-            aligner.driveToDistance(robot, AutoAligner.Direction.RIGHT, 130);
+            aligner.driveToDistance(robot, Robot.Direction.RIGHT, 130, 2, true);
 
             sleep(1000);
 
             // Get in front of cube
-            aligner.driveToDistance(robot, AutoAligner.Direction.FORWARD, 87);
+            aligner.driveToDistance(robot, Robot.Direction.FORWARD, 87, 2, true);
 
             sleep(1000);
 
             // Hit cube
-            aligner.driveToDistance(robot, AutoAligner.Direction.RIGHT, 40);
+            aligner.driveToDistance(robot, Robot.Direction.RIGHT, 40, 2, true);
 
             sleep(1000);
 
@@ -93,7 +93,7 @@ public abstract class AutoMain extends LinearOpMode {
 
             sleep(1000);
 
-            aligner.cornerCenterRobot(robot);
+            aligner.pidCornerCenterRobot(robot, 2, true);
 
             return;
         }

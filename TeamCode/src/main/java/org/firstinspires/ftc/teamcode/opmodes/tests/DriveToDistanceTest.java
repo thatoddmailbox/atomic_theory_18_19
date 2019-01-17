@@ -3,10 +3,11 @@ package org.firstinspires.ftc.teamcode.opmodes.tests;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 
-@Autonomous(name="Range test", group="Tests")
-public class RangeTest extends LinearOpMode {
+@Autonomous(name="Drive to distance test", group="Tests")
+public class DriveToDistanceTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -14,8 +15,7 @@ public class RangeTest extends LinearOpMode {
 
         Robot robot = new Robot(this, false);
 
-        while (opModeIsActive()) {
-            robot.logSensors();
-        }
+        AutoAligner autoAligner = new AutoAligner(this);
+        autoAligner.driveToDistance(robot, Robot.Direction.FORWARD, 50, 2, true);
     }
 }
