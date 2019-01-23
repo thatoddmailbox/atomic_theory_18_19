@@ -15,7 +15,6 @@ public class AlignWallTest extends LinearOpMode {
 
         Robot robot = new Robot(this, false);
 
-        AutoAligner autoAligner = new AutoAligner(this);
-        autoAligner.alignRobot(robot, Robot.Direction.RIGHT, true);
+        robot.aligner.align(Robot.Direction.RIGHT, true);
     }
 }

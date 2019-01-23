@@ -15,7 +15,6 @@ public class DriveToDistanceTest extends LinearOpMode {
 
         Robot robot = new Robot(this, false);
 
-        AutoAligner autoAligner = new AutoAligner(this);
-        autoAligner.driveToDistance(robot, Robot.Direction.FORWARD, 50, 2, true);
+        robot.aligner.driveToDistance(Robot.Direction.FORWARD, false,300, 2, true);
     }
 }

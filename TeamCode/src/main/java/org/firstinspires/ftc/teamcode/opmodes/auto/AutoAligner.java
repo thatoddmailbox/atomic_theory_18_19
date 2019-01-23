@@ -9,8 +9,10 @@ import org.firstinspires.ftc.teamcode.utils.PIDController;
 
 public class AutoAligner {
     LinearOpMode opmode;
+    Robot robot;
 
-    public AutoAligner(LinearOpMode opmode) {
+    public AutoAligner(Robot robot, LinearOpMode opmode) {
+        this.robot = robot;
         this.opmode = opmode;
     }
 
@@ -32,7 +34,7 @@ public class AutoAligner {
     //
 
     // Aligns robot on wall by turning in place (called once)
-    public void alignRobot(Robot robot, Robot.Direction direction, boolean shouldLog) throws InterruptedException {
+    public void align(Robot.Direction direction, boolean shouldLog) throws InterruptedException {
         robot.setupSimpleServos(direction);
 
         double leftDistance = robot.leftDistance(direction);
@@ -60,7 +62,7 @@ public class AutoAligner {
         }
     }
 
-    public void pidAlignRobot(Robot robot) {
+    public void pidAlign() {
         double leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;
         double rightDistance = robot.rangeBackRight.cmUltrasonic() * 10;
         double distanceDiff = leftDistance-rightDistance;
@@ -75,7 +77,7 @@ public class AutoAligner {
     }
 
     // Drives robot forward/backward while aligning on the wall (called in a loop)
-    public void driveAlignRobot(Robot robot, double motorPower) {
+    public void driveAlign(double motorPower) {
         double leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;
         double rightDistance = robot.rangeBackRight.cmUltrasonic() * 10;
         // Difference between two sensor readings for wall alignment
@@ -92,7 +94,7 @@ public class AutoAligner {
         robot.driveMotors(motorPower + distanceDiff, motorPower - distanceDiff,motorPower + distanceDiff, motorPower - distanceDiff);
     }
 
-    public void pidCornerCenterRobot(Robot robot, double timeout, boolean shouldLog) throws InterruptedException {
+    public void centerInCorner(double timeout, boolean shouldLog) throws InterruptedException {
         robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
         robot.backRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
 
@@ -102,7 +104,7 @@ public class AutoAligner {
         double rightDistance;
         double distanceDiff;
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.005, 0.000005, 0.75), true, 0.8);
+        PIDController pid = new PIDController(new PIDCoefficients(0.002, 0.00000000005, 0.1), true, 0.8);
 
         PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
         double targetHeading = robot.getHeading();
@@ -153,15 +155,15 @@ public class AutoAligner {
     }
 
     // Drives robot forward/backward while aligning on the wall and maintaining a target distance (mm) (called in a loop)
-    public void driveAlignDistanceRobot(Robot robot, double motorPower, double targetDistance) {
-        double leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;
-        double rightDistance = robot.rangeBackRight.cmUltrasonic() * 10;
+    public void driveAlignDistance(double motorPower, double targetWallDistance) {
+        double leftDistance = robot.leftDistance(Robot.Direction.RIGHT);
+        double rightDistance = robot.rightDistance(Robot.Direction.RIGHT);
         // Difference between two sensor readings for wall alignment
         double distanceDiff = leftDistance-rightDistance;
         // Difference between target distance and actual distance to set perpendicular distance
-        double distanceError = targetDistance - leftDistance;
+        double distanceError = targetWallDistance - leftDistance;
         if (leftDistance > rightDistance) {
-            distanceError = targetDistance - rightDistance;
+            distanceError = targetWallDistance - rightDistance;
         }
 
         // Scale to change motor power;
@@ -180,25 +182,96 @@ public class AutoAligner {
         robot.driveMotors(motorPower + distanceDiff - distanceError, motorPower - distanceDiff + distanceError,motorPower + distanceDiff + distanceError, motorPower - distanceDiff - distanceError);
     }
 
-    public void driveToDistance(Robot robot, Robot.Direction direction, double targetDistance, double timeout, boolean shouldLog) throws InterruptedException {
+    //NOTE: Supply a negative targetOrthogonalWallDistance to go backwards, and a positive one to go forwards
+    public void driveAlignDistance(double targetWallDistance, double targetOrthogonalWallDistance, double timeout, boolean shouldLog) {
+        double leftDistance;
+
+        double orthogonalWallDistanceDiff;
+
+        PIDController pid = new PIDController(new PIDCoefficients(0.005, 0.000005, 0.75), true, 0.8);
+
+        ElapsedTime timer = new ElapsedTime();
+        int correctFrames = 0;
+
+        timer.reset();
+
+        while (timer.seconds() < timeout && opmode.opModeIsActive()) {
+            leftDistance = robot.leftDistance(targetOrthogonalWallDistance > 0 ? Robot.Direction.FORWARD : Robot.Direction.BACKWARD);
+            orthogonalWallDistanceDiff = leftDistance - Math.abs(targetOrthogonalWallDistance);
+
+            if (shouldLog) {
+                opmode.telemetry.addData("orthogonal wall distance diff", orthogonalWallDistanceDiff);
+                robot.logSensors();
+            }
+
+            if (leftDistance == 2550) {
+                continue;
+            }
+
+            if (Math.abs(orthogonalWallDistanceDiff) < 20) {
+                correctFrames += 1;
+                if (correctFrames > 20) {
+                    break;
+                }
+            } else {
+                correctFrames = 0;
+            }
+
+            double output = pid.step(-orthogonalWallDistanceDiff, 0);
+
+            this.driveAlignDistance(Math.signum(targetOrthogonalWallDistance)*output, targetWallDistance);
+
+            opmode.idle();
+        }
+
+    }
+
+    public void driveToDistance(Robot.Direction direction, Robot.Direction sensorChoice, boolean half, double targetDistance, double timeout, boolean shouldLog) throws InterruptedException {
         switch (direction) {
             case FORWARD:
-                robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_ZERO);
+                if (!half) {
+                    robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_ZERO);
+                    //robot.frontLeftServo.setPosition(Robot.SENSOR_SERVO_ZERO);
+                } else {
+                    robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+                    //robot.frontLeftServo.setPosition(Robot.SENSOR_SERVO_HALF);
+                }
+                break;
             case RIGHT:
-                robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL);
+                if (!half) {
+                    robot.backRightServo.setPosition(Robot.SENSOR_SERVO_FULL);
+                    robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL);
+                } else {
+                    robot.backRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+                    robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+                }
+                break;
             case LEFT:
-                robot.frontLeftServo.setPosition(Robot.SENSOR_SERVO_FULL);
+                if (!half) {
+                    //robot.frontLeftServo.setPosition(Robot.SENSOR_SERVO_FULL);
+                    //robot.backLeftServo.setPosition(Robot.SENSOR_SERVO_FULL);
+                } else {
+                    //robot.frontLeftServo.setPosition(Robot.SENSOR_SERVO_HALF);
+                    //robot.backLeftServo.setPosition(Robot.SENSOR_SERVO_HALF);
+                }
+                break;
             case BACKWARD:
-                robot.frontLeftServo.setPosition(Robot.SENSOR_SERVO_ZERO);
-
+                if (!half) {
+                    //robot.backLeftServo.setPosition(Robot.SENSOR_SERVO_ZERO);
+                    robot.backRightServo.setPosition(Robot.SENSOR_SERVO_ZERO);
+                } else {
+                    //robot.backLeftServo.setPosition(Robot.SENSOR_SERVO_HALF);
+                    robot.backRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+                }
+                break;
         }
         Thread.sleep(210);
 
-        double leftDistance = robot.leftDistance(direction);
+        double distance;
 
-        double distanceDiff =  leftDistance - targetDistance;
+        double distanceDiff;
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.005, 0.000005, 0.75), true, 0.8);
+        PIDController pid = new PIDController(new PIDCoefficients(0.003, 0.000002, 0.25), true, 0.8);
 
         PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
         double targetHeading = robot.getHeading();
@@ -213,10 +286,15 @@ public class AutoAligner {
                 robot.logSensors();
             }
 
-            leftDistance = robot.leftDistance(direction);
-            distanceDiff =  leftDistance - targetDistance;
+            if (sensorChoice == Robot.Direction.RIGHT) {
+                distance = robot.rightDistance(direction);
+            } else {
+                distance = robot.leftDistance(direction);
+            }
+            distanceDiff =  distance - targetDistance;
 
-            if (leftDistance == 2550) {
+            if (distance == 2550) {
+                opmode.idle();
                 continue;
             }
 
@@ -251,15 +329,4 @@ public class AutoAligner {
         }
     }
 
-    public void driveAlignDistanceRobotTime(Robot robot, double motorPower, double targetDistance, double time, boolean shouldLog) {
-        ElapsedTime elapsedTime = new ElapsedTime();
-        while (elapsedTime.milliseconds() < time && opmode.opModeIsActive()) {
-            driveAlignDistanceRobot(robot, motorPower, targetDistance);
-
-            if (shouldLog) {
-                robot.logSensors();
-            }
-            opmode.idle();
-        }
-    }
 }

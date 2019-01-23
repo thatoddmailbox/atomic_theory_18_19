@@ -26,6 +26,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.Consts;
+import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
@@ -120,6 +121,8 @@ public class Robot {
 
     private LinearOpMode _opMode;
 
+    public AutoAligner aligner;
+
     public Robot(LinearOpMode opMode, boolean enableVision) throws InterruptedException {
         _opMode = opMode;
 
@@ -147,8 +150,8 @@ public class Robot {
          * vex motor/servo initialization
          */
 
-        nomLeft = opMode.hardwareMap.servo.get("nom_left");
-        nomRight = opMode.hardwareMap.servo.get("nom_right");
+        //nomLeft = opMode.hardwareMap.servo.get("nom_left");
+        //nomRight = opMode.hardwareMap.servo.get("nom_right");
 
         teamMarker = opMode.hardwareMap.servo.get("team_marker");
 
@@ -156,7 +159,8 @@ public class Robot {
         backRightServo = opMode.hardwareMap.servo.get("back_right_servo");
 //        frontLeftServo = opMode.hardwareMap.servo.get("front_left_servo");
 //        backLeftServo = opMode.hardwareMap.servo.get("back_left_servo");
-
+        frontRightServo.setDirection(Servo.Direction.REVERSE);
+//        frontLeftServo.setDirection(Servo.Direction.REVERSE);
         /*
          * motor setup
          */
@@ -211,6 +215,8 @@ public class Robot {
 
 //        navX = AHRS.getInstance(dim, NAVX_DIM_I2C_PORT, AHRS.DeviceDataType.kProcessedData, (byte)50);
 //        navX.zeroYaw();
+
+        aligner = new AutoAligner(this, this._opMode);
 
         /*
          * initialize sensors
@@ -426,29 +432,109 @@ public class Robot {
         FORWARD, BACKWARD, LEFT, RIGHT;
     }
 
+    ElapsedTime timer = new ElapsedTime();
+    double rangeFrontRightTime = timer.seconds();
+    double lastRangeFrontRight;
+    double rangeBackRightTime = timer.seconds();
+    double lastRangeBackRight;
+    double rangeFrontLeftTime = timer.seconds();
+    double lastRangeFrontLeft;
+    double rangeBackLeftTime = timer.seconds();
+    double lastRangeBackLeft;
+
+
     public double rightDistance(Direction direction) {
         switch (direction) {
             case FORWARD:
-                return rangeFrontRight.cmUltrasonic() * 10;
+                double reading = rangeFrontRight.cmUltrasonic() * 10;
+                if (((reading - lastRangeFrontRight) > 500 && (rangeFrontRightTime - timer.seconds()) < 0.1) || reading == 2550) {
+                    rangeFrontRightTime = timer.seconds();
+                    lastRangeFrontRight = reading;
+                    return lastRangeFrontRight;
+                }
+                rangeFrontRightTime = timer.seconds();
+                lastRangeFrontRight = reading;
+                return reading;
+
             case RIGHT:
-                return rangeBackRight.cmUltrasonic() * 10;
+                reading = rangeBackRight.cmUltrasonic() * 10;
+                if (((reading - lastRangeBackRight) > 500 && (rangeBackRightTime - timer.seconds()) < 0.1) || reading == 2550) {
+                    rangeBackRightTime = timer.seconds();
+                    lastRangeBackRight = reading;
+                    return lastRangeBackRight;
+                }
+                rangeBackRightTime = timer.seconds();
+                lastRangeBackRight = reading;
+                return reading;
+
             case LEFT:
-                return rangeFrontLeft.cmUltrasonic() * 10;
+                reading = rangeFrontLeft.cmUltrasonic() * 10;
+                if (((reading - lastRangeFrontLeft) > 500 && (rangeFrontLeftTime - timer.seconds()) < 0.1) || reading == 2550) {
+                    rangeFrontLeftTime = timer.seconds();
+                    lastRangeFrontLeft = reading;
+                    return lastRangeFrontLeft;
+                }
+                rangeFrontLeftTime = timer.seconds();
+                lastRangeFrontLeft = reading;
+                return reading;
+
             case BACKWARD:
-                return rangeBackLeft.cmUltrasonic() * 10;
+                reading = rangeBackLeft.cmUltrasonic() * 10;
+                if (((reading - lastRangeBackLeft) > 500 && (rangeBackLeftTime - timer.seconds()) < 0.1) || reading == 2550) {
+                    rangeBackLeftTime = timer.seconds();
+                    lastRangeBackLeft = reading;
+                    return lastRangeBackLeft;
+                }
+                rangeBackLeftTime = timer.seconds();
+                lastRangeBackLeft = reading;
+                return reading;
         }
         return 0;
     }
     public double leftDistance(Direction direction) {
         switch (direction) {
             case FORWARD:
-                return rangeFrontLeft.cmUltrasonic() * 10;
+                double reading = rangeFrontLeft.cmUltrasonic() * 10;
+                if (((reading - lastRangeFrontLeft) > 500 && (rangeFrontLeftTime - timer.seconds()) < 0.1) || reading == 2550) {
+                    rangeFrontLeftTime = timer.seconds();
+                    lastRangeFrontLeft = reading;
+                    return lastRangeFrontLeft;
+                }
+                rangeFrontLeftTime = timer.seconds();
+                lastRangeFrontLeft = reading;
+                return reading;
             case RIGHT:
-                return rangeFrontRight.cmUltrasonic() * 10;
+                reading = rangeFrontRight.cmUltrasonic() * 10;
+                if (((reading - lastRangeFrontRight) > 500 && (rangeFrontRightTime - timer.seconds()) < 0.1) || reading == 2550) {
+                    rangeFrontRightTime = timer.seconds();
+                    lastRangeFrontRight = reading;
+                    return lastRangeFrontRight;
+                }
+                rangeFrontRightTime = timer.seconds();
+                lastRangeFrontRight = reading;
+                return reading;
+
             case LEFT:
-                return rangeBackLeft.cmUltrasonic() * 10;
+                reading = rangeBackLeft.cmUltrasonic() * 10;
+                if (((reading - lastRangeBackLeft) > 500 && (rangeBackLeftTime - timer.seconds()) < 0.1) || reading == 2550) {
+                    rangeBackLeftTime = timer.seconds();
+                    lastRangeBackLeft = reading;
+                    return lastRangeBackLeft;
+                }
+                rangeBackLeftTime = timer.seconds();
+                lastRangeBackLeft = reading;
+                return reading;
+
             case BACKWARD:
-                return rangeBackRight.cmUltrasonic() * 10;
+                reading = rangeBackRight.cmUltrasonic() * 10;
+                if (((reading - lastRangeBackRight) > 500 && (rangeBackRightTime - timer.seconds()) < 0.1) || reading == 2550) {
+                    rangeBackRightTime = timer.seconds();
+                    lastRangeBackRight = reading;
+                    return lastRangeBackRight;
+                }
+                rangeBackRightTime = timer.seconds();
+                lastRangeBackRight = reading;
+                return reading;
         }
         return 0;
     }
@@ -456,21 +542,37 @@ public class Robot {
         double maxDif = 0;
         switch (direction) {
             case FORWARD:
-                maxDif = Math.max(Math.abs(frontRightServo.getPosition()-SENSOR_SERVO_ZERO), Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_ZERO));
+                //maxDif = Math.max(Math.abs(frontRightServo.getPosition()-SENSOR_SERVO_ZERO), Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_ZERO));
+                maxDif = 1;
                 frontRightServo.setPosition(SENSOR_SERVO_ZERO);
-                frontLeftServo.setPosition(SENSOR_SERVO_ZERO);
+                //frontLeftServo.setPosition(SENSOR_SERVO_ZERO);
+                backRightServo.setPosition(SENSOR_SERVO_ZERO);
+                //backLeftServo.setPosition(SENSOR_SERVO_ZERO);
+                break;
             case RIGHT:
-                maxDif = Math.max(Math.abs(frontRightServo.getPosition()-SENSOR_SERVO_FULL), Math.abs(backRightServo.getPosition()-SENSOR_SERVO_FULL));
+                //maxDif = Math.max(Math.abs(frontRightServo.getPosition()-SENSOR_SERVO_FULL), Math.abs(backRightServo.getPosition()-SENSOR_SERVO_FULL));
+                maxDif = 1;
                 frontRightServo.setPosition(SENSOR_SERVO_FULL);
                 backRightServo.setPosition(SENSOR_SERVO_FULL);
+                //frontLeftServo.setPosition(SENSOR_SERVO_FULL);
+                //backLeftServo.setPosition(SENSOR_SERVO_FULL);
+                break;
             case LEFT:
-                maxDif = Math.max(Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_FULL), Math.abs(backLeftServo.getPosition()-SENSOR_SERVO_FULL));
-                frontLeftServo.setPosition(SENSOR_SERVO_FULL);
-                backLeftServo.setPosition(SENSOR_SERVO_FULL);
+                maxDif = 1;
+                //maxDif = Math.max(Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_FULL), Math.abs(backLeftServo.getPosition()-SENSOR_SERVO_FULL));
+                //frontLeftServo.setPosition(SENSOR_SERVO_FULL);
+                //backLeftServo.setPosition(SENSOR_SERVO_FULL);
+                frontRightServo.setPosition(SENSOR_SERVO_FULL);
+                backRightServo.setPosition(SENSOR_SERVO_FULL);
+                break;
             case BACKWARD:
-                maxDif = Math.max(Math.abs(backRightServo.getPosition()-SENSOR_SERVO_ZERO), Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_ZERO));
+                //maxDif = Math.max(Math.abs(backRightServo.getPosition()-SENSOR_SERVO_ZERO), Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_ZERO));
+                maxDif = 1;
                 backRightServo.setPosition(SENSOR_SERVO_ZERO);
-                backLeftServo.setPosition(SENSOR_SERVO_ZERO);
+                //backLeftServo.setPosition(SENSOR_SERVO_ZERO);
+                frontRightServo.setPosition(SENSOR_SERVO_ZERO);
+                //frontLeftServo.setPosition(SENSOR_SERVO_ZERO);
+                break;
         }
         double sleepTime = 210*(maxDif/Math.abs(SENSOR_SERVO_FULL - SENSOR_SERVO_ZERO))+50;
         Thread.sleep((long) sleepTime);

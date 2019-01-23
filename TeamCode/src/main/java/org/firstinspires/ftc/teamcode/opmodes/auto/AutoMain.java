@@ -1,16 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
 import org.firstinspires.ftc.teamcode.utils.PersistentHeading;
-import org.firstinspires.ftc.teamcode.utils.PowerSetting;
 import org.firstinspires.ftc.teamcode.utils.StartingPosition;
 
 public abstract class AutoMain extends LinearOpMode {
@@ -67,33 +62,39 @@ public abstract class AutoMain extends LinearOpMode {
 
         // NEW AUTO (UNTESTED)
         if (true) {
-            AutoAligner aligner = new AutoAligner(this);
-
             // Get centered on minerals/lander
-            aligner.pidCornerCenterRobot(robot, 2, true);
+            robot.aligner.centerInCorner(2, true);
 
-            sleep(1000);
+            sleep(100);
 
             // Get close to minerals (away from lander)
-            aligner.driveToDistance(robot, Robot.Direction.RIGHT, 130, 2, true);
+            robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 1000, 1, true);
 
-            sleep(1000);
+            sleep(100);
 
             // Get in front of cube
-            aligner.driveToDistance(robot, Robot.Direction.FORWARD, 87, 2, true);
+            robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true, 760, 2, true);
 
-            sleep(1000);
-
-            // Hit cube
-            aligner.driveToDistance(robot, Robot.Direction.RIGHT, 40, 2, true);
-
-            sleep(1000);
+            sleep(100);
 
             robot.lessBadTurn(0, 0.5);
 
-            sleep(1000);
+            sleep(100);
 
-            aligner.pidCornerCenterRobot(robot, 2, true);
+            // Hit cube
+            robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 200, 3, true);
+
+            sleep(100);
+
+            robot.lessBadTurn(0, 0.5);
+
+            sleep(100);
+
+            robot.aligner.centerInCorner(2, true);
+
+            robot.lessBadTurn(-45);
+
+            robot.aligner.driveAlignDistance(0.8, 150);
 
             return;
         }

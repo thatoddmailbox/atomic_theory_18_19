@@ -14,7 +14,6 @@ public class WallAlignmentAtDistanceTest extends LinearOpMode {
         waitForStart();
 
         Robot robot = new Robot(this, false);
-        AutoAligner aligner = new AutoAligner(this);
 
         robot.setupSimpleServos(Robot.Direction.RIGHT);
 
@@ -24,7 +23,7 @@ public class WallAlignmentAtDistanceTest extends LinearOpMode {
 
             telemetry.update();
 
-            aligner.driveAlignDistanceRobot(robot, 0.85, 300);
+            robot.aligner.driveAlignDistance(0.85, 300);
             idle();
         }
     }

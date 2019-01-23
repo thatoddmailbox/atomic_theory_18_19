@@ -23,7 +23,13 @@ public class ServoTest extends LinearOpMode {
             sleep(1000);
             robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL);
             robot.backRightServo.setPosition(Robot.SENSOR_SERVO_FULL);
-
+            sleep(1000);
+            robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+            robot.backRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+            sleep(1000);
+            robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_ZERO);
+            robot.backRightServo.setPosition(Robot.SENSOR_SERVO_ZERO);
+            break;
         }
     }
 }

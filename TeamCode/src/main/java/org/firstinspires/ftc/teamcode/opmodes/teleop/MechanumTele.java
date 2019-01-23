@@ -107,21 +107,21 @@ public class MechanumTele extends LinearOpMode {
             }
 
 //            //George Control
-//            if(gamepad2.dpad_up) robot.george.setPower(1);
-//            else if(gamepad2.dpad_down) robot.george.setPower(-1);
-//            else robot.george.setPower(0);
+            if(gamepad2.dpad_up) robot.george.setPower(1);
+            else if(gamepad2.dpad_down) robot.george.setPower(-1);
+            else robot.george.setPower(0);
 
             // nom control
-            if (gamepad2.dpad_up) {
-                robot.nomLeft.setPosition(Robot.SERVO_VEX_FORWARD);
-                robot.nomRight.setPosition(Robot.SERVO_VEX_FORWARD);
-            } else if (gamepad2.dpad_down) {
-                robot.nomLeft.setPosition(Robot.SERVO_VEX_REVERSE);
-                robot.nomRight.setPosition(Robot.SERVO_VEX_REVERSE);
-            } else {
-                robot.nomLeft.setPosition(Robot.SERVO_VEX_NEUTRAL);
-                robot.nomRight.setPosition(Robot.SERVO_VEX_NEUTRAL);
-            }
+//            if (gamepad2.dpad_up) {
+//                robot.nomLeft.setPosition(Robot.SERVO_VEX_FORWARD);
+//                robot.nomRight.setPosition(Robot.SERVO_VEX_FORWARD);
+//            } else if (gamepad2.dpad_down) {
+//                robot.nomLeft.setPosition(Robot.SERVO_VEX_REVERSE);
+//                robot.nomRight.setPosition(Robot.SERVO_VEX_REVERSE);
+//            } else {
+//                robot.nomLeft.setPosition(Robot.SERVO_VEX_NEUTRAL);
+//                robot.nomRight.setPosition(Robot.SERVO_VEX_NEUTRAL);
+//            }
 
             // nom speed control
 //            if (gamepad2.dpad_left && !lastGamepad2.dpad_left) {
