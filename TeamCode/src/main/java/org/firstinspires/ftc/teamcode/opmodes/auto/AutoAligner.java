@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
@@ -102,9 +103,13 @@ public class AutoAligner {
 
         double leftDistance;
         double rightDistance;
+        double lastLeftDistance = 0;
+        double lastRightDistance = 0;
         double distanceDiff;
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.002, 0.00000000005, 0.1), true, 0.8);
+        double lastDistanceDiff;
+
+        PIDController pid = new PIDController(new PIDCoefficients(0.002, 0, 0), true, 0.8);
 
         PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
         double targetHeading = robot.getHeading();
@@ -114,6 +119,9 @@ public class AutoAligner {
 
         timer.reset();
 
+        double lastCorrectTime = 0;
+        double lastLoopTime = -0.09;
+        //double errorsInARow = 0;
         while (timer.seconds() < timeout && opmode.opModeIsActive()) {
             if (shouldLog) {
                 robot.logSensors();
@@ -122,40 +130,73 @@ public class AutoAligner {
             leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;
             rightDistance = robot.rangeBackRight.cmUltrasonic() * 10;
 
-            distanceDiff = leftDistance - rightDistance;
-
-            if (rightDistance == 2550 || leftDistance == 2550) {
+            // Angle correction
+            double currentHeading = robot.getHeading();
+            if (Math.abs(currentHeading - targetHeading) < 0.25) {
+                currentHeading = targetHeading;
+            }
+            double angleCorrection = -anglePID.step(currentHeading, targetHeading);
+            //angleCorrection = 0;
+            if (leftDistance == 2550 && rightDistance == 2550) {
+                robot.driveMotors(0, 0,0,0);
+                timeout += timer.seconds() - lastLoopTime;
+                lastLoopTime = timer.seconds();
                 continue;
+            } else if (leftDistance == 2550) {
+                if (lastRightDistance == 0) {
+                    robot.driveMotors(0, 0,0,0);
+                    timeout += timer.seconds() - lastLoopTime;
+                    lastLoopTime = timer.seconds();
+                    continue;
+                }
+                double rightDiff = rightDistance - lastRightDistance;
+                leftDistance = lastLeftDistance - rightDiff;
+            } else if (rightDistance == 2550) {
+                if (lastLeftDistance == 0) {
+                    robot.driveMotors(0, 0,0,0);
+                    timeout += timer.seconds() - lastLoopTime;
+                    lastLoopTime = timer.seconds();
+                    continue;
+                }
+                double leftDiff = leftDistance - lastLeftDistance;
+                rightDistance = lastRightDistance - leftDiff;
             }
 
+            lastLoopTime = timer.seconds();
+
+            distanceDiff = leftDistance - rightDistance;
+
             if (Math.abs(distanceDiff) < 20) {
-                correctFrames += 1;
-                if (correctFrames > 20) {
-                    break;
-                }
+//                correctFrames += 1;
+//                if (correctFrames > 20) break;
+                if (lastCorrectTime == 0) lastCorrectTime = timer.seconds();
+                if (timer.seconds() - lastCorrectTime > 0.3) break;
             } else {
-                correctFrames = 0;
+                lastCorrectTime = 0;
+                //correctFrames = 0;
             }
 
             double output = pid.step(-distanceDiff, 0);
 
-            // Angle correction
-            double currentHeading = robot.getHeading();
-
-            if (Math.abs(currentHeading - targetHeading) < 0.25) {
-                currentHeading = targetHeading;
-            }
-
-            double angleCorrection = anglePID.step(currentHeading, targetHeading);
-
             robot.driveMotors(output - angleCorrection, output + angleCorrection, output - angleCorrection, output + angleCorrection);
+//            robot.driveMotors(output, output, output, output);
+
+            lastLeftDistance = leftDistance;
+            lastRightDistance = rightDistance;
 
             opmode.idle();
         }
     }
 
     // Drives robot forward/backward while aligning on the wall and maintaining a target distance (mm) (called in a loop)
-    public void driveAlignDistance(double motorPower, double targetWallDistance) {
+    public void driveAlignDistance(double motorPower, double targetWallDistance, boolean followWithSensors) {
+        if (followWithSensors) {
+            double angle = robot.getHeading();
+            double relativeError = angle / 45;
+            robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (relativeError - 1) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
+            robot.backRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
+        }
+
         double leftDistance = robot.leftDistance(Robot.Direction.RIGHT);
         double rightDistance = robot.rightDistance(Robot.Direction.RIGHT);
         // Difference between two sensor readings for wall alignment
@@ -179,7 +220,7 @@ public class AutoAligner {
             distanceError = 0;
         }
 
-        robot.driveMotors(motorPower + distanceDiff - distanceError, motorPower - distanceDiff + distanceError,motorPower + distanceDiff + distanceError, motorPower - distanceDiff - distanceError);
+        robot.driveMotors(motorPower + Math.signum(motorPower) * (distanceDiff - distanceError), motorPower + Math.signum(motorPower) * (-distanceDiff + distanceError),motorPower + Math.signum(motorPower) * (distanceDiff + distanceError), motorPower + Math.signum(motorPower) * (- distanceDiff - distanceError));
     }
 
     //NOTE: Supply a negative targetOrthogonalWallDistance to go backwards, and a positive one to go forwards
@@ -219,7 +260,7 @@ public class AutoAligner {
 
             double output = pid.step(-orthogonalWallDistanceDiff, 0);
 
-            this.driveAlignDistance(Math.signum(targetOrthogonalWallDistance)*output, targetWallDistance);
+            this.driveAlignDistance(Math.signum(targetOrthogonalWallDistance)*output, targetWallDistance, false);
 
             opmode.idle();
         }
@@ -227,6 +268,10 @@ public class AutoAligner {
     }
 
     public void driveToDistance(Robot.Direction direction, Robot.Direction sensorChoice, boolean half, double targetDistance, double timeout, boolean shouldLog) throws InterruptedException {
+        driveToDistance(direction, sensorChoice, half, targetDistance, timeout, shouldLog, false);
+    }
+
+    public void driveToDistance(Robot.Direction direction, Robot.Direction sensorChoice, boolean half, double targetDistance, double timeout, boolean shouldLog, boolean shouldCenter) throws InterruptedException {
         switch (direction) {
             case FORWARD:
                 if (!half) {
@@ -269,9 +314,19 @@ public class AutoAligner {
 
         double distance;
 
+        double leftDistance;
+        double rightDistance;
+        double lastLeftDistance = 0;
+        double lastRightDistance = 0;
+
         double distanceDiff;
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.003, 0.000002, 0.25), true, 0.8);
+        //0.000004
+        //0.0005
+
+        PIDController centerCornerPID = new PIDController(new PIDCoefficients(0.002, 0, 0), true, 0.6);
+
+        PIDController pid = new PIDController(new PIDCoefficients(0.005, 0.0000075, 0.5), true, 0.8);
 
         PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
         double targetHeading = robot.getHeading();
@@ -281,33 +336,80 @@ public class AutoAligner {
 
         timer.reset();
 
+        double lastCorrectTime = 0;
+        double lastLoopTime = -0.09;
         while (timer.seconds() < timeout && opmode.opModeIsActive()) {
             if (shouldLog) {
                 robot.logSensors();
             }
 
-            if (sensorChoice == Robot.Direction.RIGHT) {
-                distance = robot.rightDistance(direction);
-            } else {
-                distance = robot.leftDistance(direction);
-            }
-            distanceDiff =  distance - targetDistance;
+            leftDistance = robot.leftDistance(Robot.Direction.RIGHT);
+            rightDistance = robot.rightDistance(Robot.Direction.RIGHT);
 
-            if (distance == 2550) {
-                opmode.idle();
+            if (leftDistance == 2550 && rightDistance == 2550) {
+                robot.driveMotors(0, 0,0,0);
+                timeout += timer.seconds() - lastLoopTime;
+                lastLoopTime = timer.seconds();
                 continue;
+            } else if (leftDistance == 2550) {
+                if (lastRightDistance == 0) {
+                    robot.driveMotors(0, 0,0,0);
+                    timeout += timer.seconds() - lastLoopTime;
+                    lastLoopTime = timer.seconds();
+                    continue;
+                }
+                double rightDiff = rightDistance - lastRightDistance;
+                leftDistance = lastLeftDistance - rightDiff;
+            } else if (rightDistance == 2550) {
+                if (lastLeftDistance == 0) {
+                    robot.driveMotors(0, 0,0,0);
+                    timeout += timer.seconds() - lastLoopTime;
+                    lastLoopTime = timer.seconds();
+                    continue;
+                }
+                double leftDiff = leftDistance - lastLeftDistance;
+                rightDistance = lastRightDistance - leftDiff;
             }
 
-            if (Math.abs(distanceDiff) < 20) {
-                correctFrames += 1;
-                if (correctFrames > 20) {
-                    break;
+            if (half) {
+                if (direction == Robot.Direction.FORWARD) {
+                    distance = leftDistance;
+                } else if (direction == Robot.Direction.RIGHT) {
+                    if (sensorChoice == Robot.Direction.RIGHT) {
+                        distance = rightDistance;
+                    } else {
+                        distance = leftDistance;
+                    }
+                } else if (direction == Robot.Direction.LEFT) {
+                    distance = rightDistance;
+                } else {
+                    distance = 0;
                 }
             } else {
-                correctFrames = 0;
+                if (sensorChoice == Robot.Direction.RIGHT) {
+                    distance = robot.rightDistance(direction);
+                } else {
+                    distance = robot.rightDistance(direction);
+                }
+            }
+
+
+            lastLoopTime = timer.seconds();
+
+            distanceDiff = distance - targetDistance;
+
+            if (Math.abs(distanceDiff) < 20) {
+                if (lastCorrectTime == 0) lastCorrectTime = timer.seconds();
+                if (timer.seconds() - lastCorrectTime > 0.3) break;
+            } else {
+                //correctFrames = 0;
+                lastCorrectTime = 0;
             }
 
             double output = pid.step(-distanceDiff, 0);
+            double sign = Math.signum(output);
+
+            output = Math.min(Math.min(1.0, timer.seconds()), Math.abs(output)) * sign;
 
             double frontLeft = (direction == Robot.Direction.FORWARD || direction == Robot.Direction.RIGHT) ? output : -output;
             double frontRight = (direction == Robot.Direction.FORWARD || direction == Robot.Direction.LEFT) ? output : -output;
@@ -321,9 +423,125 @@ public class AutoAligner {
                 currentHeading = targetHeading;
             }
 
-            double angleCorrection = anglePID.step(currentHeading, targetHeading);
+            double centerDistanceDiff = leftDistance - rightDistance;
+            double centerCorrection = centerCornerPID.step(-centerDistanceDiff, 0);
+            if (!shouldCenter) {
+                centerCorrection = 0;
+            }
 
-            robot.driveMotors(frontLeft - angleCorrection, frontRight + angleCorrection, backLeft - angleCorrection, backRight + angleCorrection);
+            double angleCorrection = -anglePID.step(currentHeading, targetHeading);
+            robot.driveMotors(centerCorrection + frontLeft - angleCorrection, centerCorrection + frontRight + angleCorrection, centerCorrection + backLeft - angleCorrection, centerCorrection + backRight + angleCorrection);
+
+            opmode.idle();
+        }
+    }
+
+    private double getYDistance(double left, double right) {
+        return left*Math.sqrt(2) + Math.sqrt(Math.pow(right, 2) - 2*Math.pow(left, 2)) / 2;
+    }
+
+    private double getXDistance(double left, double right) {
+        return Math.sqrt(Math.pow(right, 2) - 2*Math.pow(left, 2)) / 2;
+    }
+
+    public void dynamicOmniPID(double targetLeft, double targetRight) throws InterruptedException {
+        robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+        robot.backRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+
+        Thread.sleep(110);
+
+        double timeout = 5.0;
+
+        double leftDistance;
+        double rightDistance;
+        double lastLeftDistance = 0;
+        double lastRightDistance = 0;
+        double currentXDistance;
+        double currentYDistance;
+
+        double targetYDistance = getYDistance(targetLeft, targetRight);
+        double targetXDistance = getXDistance(targetLeft, targetRight);
+
+        PIDController xPID = new PIDController(new PIDCoefficients(0.002, 0, 0), true, 0.8);
+        PIDController yPID = new PIDController(new PIDCoefficients(0.005, 0.0000075, 0.5), true, 0.8);
+
+        PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
+        double targetHeading = robot.getHeading();
+
+        ElapsedTime timer = new ElapsedTime();
+
+        timer.reset();
+
+        double lastCorrectTime = 0;
+        double lastLoopTime = -0.09;
+        //double errorsInARow = 0;
+        while (timer.seconds() < timeout && opmode.opModeIsActive()) {
+            robot.logSensors();
+
+            leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;
+            rightDistance = robot.rangeBackRight.cmUltrasonic() * 10;
+
+            // Angle correction
+            double currentHeading = robot.getHeading();
+            if (Math.abs(currentHeading - targetHeading) < 0.25) {
+                currentHeading = targetHeading;
+            }
+            double angleCorrection = -anglePID.step(currentHeading, targetHeading);
+
+            if (leftDistance == 2550 && rightDistance == 2550) {
+                robot.driveMotors(0, 0,0,0);
+                timeout += timer.seconds() - lastLoopTime;
+                lastLoopTime = timer.seconds();
+                continue;
+            } else if (leftDistance == 2550) {
+                // Cool interpolation stuffs
+                if (lastRightDistance == 0) {
+                    robot.driveMotors(0, 0,0,0);
+                    timeout += timer.seconds() - lastLoopTime;
+                    lastLoopTime = timer.seconds();
+                    continue;
+                }
+                double rightDiff = rightDistance - lastRightDistance;
+                leftDistance = lastLeftDistance - rightDiff;
+            } else if (rightDistance == 2550) {
+                // Cool interpolation stuffs
+                if (lastLeftDistance == 0) {
+                    robot.driveMotors(0, 0,0,0);
+                    timeout += timer.seconds() - lastLoopTime;
+                    lastLoopTime = timer.seconds();
+                    continue;
+                }
+                double leftDiff = leftDistance - lastLeftDistance;
+                rightDistance = lastRightDistance - leftDiff;
+            }
+
+            lastLoopTime = timer.seconds();
+
+            currentXDistance = getXDistance(leftDistance, rightDistance);
+            currentYDistance = getYDistance(leftDistance, rightDistance);
+
+            opmode.telemetry.addData("x distance", currentXDistance);
+            opmode.telemetry.addData("y distance", currentYDistance);
+            opmode.telemetry.update();
+
+            double absoluteError = Math.abs(currentXDistance) + Math.abs(currentYDistance);
+            double xProportionalError = Math.abs(currentXDistance) / absoluteError;
+            double yProportionalError = Math.abs(currentYDistance) / absoluteError;
+
+            if (absoluteError < 30) {
+                if (lastCorrectTime == 0) lastCorrectTime = timer.seconds();
+                if (timer.seconds() - lastCorrectTime > 0.3) break;
+            } else {
+                lastCorrectTime = 0;
+            }
+
+            double xOutput = xPID.step(currentXDistance, targetXDistance) * xProportionalError;
+            double yOutput = yPID.step(currentYDistance, targetYDistance) * yProportionalError;
+
+            robot.driveMotors(xOutput - angleCorrection - yOutput, xOutput + angleCorrection + yOutput, xOutput - angleCorrection + yOutput, xOutput + angleCorrection - yOutput);
+
+            lastLeftDistance = leftDistance;
+            lastRightDistance = rightDistance;
 
             opmode.idle();
         }

@@ -21,6 +21,6 @@ public class FixedTurningTest extends LinearOpMode {
 
         waitForStart();
 
-        robot.lessBadTurn(90);
+        robot.lessBadTurn(-90);
     }
 }

@@ -62,40 +62,69 @@ public abstract class AutoMain extends LinearOpMode {
 
         // NEW AUTO (UNTESTED)
         if (true) {
-            // Get centered on minerals/lander
-            robot.aligner.centerInCorner(2, true);
+            ElapsedTime timer = new ElapsedTime();
 
-            sleep(100);
+            // Get centered on minerals/lander
+            robot.aligner.centerInCorner(2.0, true);
+
+            sleep(3000);
 
             // Get close to minerals (away from lander)
-            robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 1000, 1, true);
+            robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 850, 3.5, true, true);
 
-            sleep(100);
+            //if (true) return;
+            sleep(3000);
 
             // Get in front of cube
-            robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true, 760, 2, true);
-
-            sleep(100);
+            robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true, 560, 2.5, true);
 
             robot.lessBadTurn(0, 0.5);
-
-            sleep(100);
 
             // Hit cube
-            robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 200, 3, true);
+            if (getStartingPosition() == StartingPosition.DEPOT) {
+                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 100, 2.5, true);
 
-            sleep(100);
+                robot.lessBadTurn(0, 0.5);
 
-            robot.lessBadTurn(0, 0.5);
+                robot.aligner.centerInCorner(2, true);
 
-            sleep(100);
+                robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
+                sleep(500);
 
-            robot.aligner.centerInCorner(2, true);
+                robot.lessBadTurn(-45);
 
-            robot.lessBadTurn(-45);
+                robot.setupSimpleServos(Robot.Direction.RIGHT);
 
-            robot.aligner.driveAlignDistance(0.8, 150);
+                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, false, 100, 0.5, true);
+            }
+            if (getStartingPosition() == StartingPosition.CRATER) {
+                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 300, 1.0, true);
 
+                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 640, 1.0, true);
+
+                robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true, 300, 2.0, true);
+
+                double angle = robot.getHeading();
+                double relativeError = angle / 45;
+                robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (relativeError - 1) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
+                robot.backRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
+                sleep(200);
+
+                timer.reset();
+                while (opModeIsActive() && timer.seconds() < 1.0) {
+                    robot.aligner.driveAlignDistance(0.85, 100, true);
+                    idle();
+                }
+                robot.driveMotors(0, 0, 0, 0);
+                robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
+                sleep(500);
+            }
+
+            timer.reset();
+            while (opModeIsActive() && timer.seconds() < 1.0) {
+                robot.aligner.driveAlignDistance(-0.85, 100, false);
+                idle();
+            }
             return;
         }
 
