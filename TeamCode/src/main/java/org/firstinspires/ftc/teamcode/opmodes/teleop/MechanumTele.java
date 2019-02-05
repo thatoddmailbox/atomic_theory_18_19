@@ -39,13 +39,21 @@ public class MechanumTele extends LinearOpMode {
 
         while (opModeIsActive()) {
             double slowMode = gamepad1.left_bumper ? .5 : 1.0;
+            boolean latchMode = gamepad1.right_bumper;
 
             //Square values for finer slow control.
             double drivePower = 0.1572 * Math.pow(6.3594, Math.abs(gamepad1.left_stick_y)) * Math.signum(gamepad1.left_stick_y);
             double strafePower = -1 * 0.1572 * Math.pow(6.3594, Math.abs(gamepad1.left_stick_x)) * Math.signum(gamepad1.left_stick_x);
             double turnPower = .5 * 0.1572 * Math.pow(6.3594, Math.abs(gamepad1.right_stick_x)) * Math.signum(gamepad1.right_stick_x);
 
-            //Scaled Lenny speed down
+            //Swap Driver and turn if latch mode is activated so directions make sense
+            if(latchMode){
+                double temp = drivePower;
+                drivePower = strafePower;
+                strafePower = temp;
+            }
+
+            //Lenny Speed
             double lennyBackPower = gamepad2.left_trigger;
             double lennyForwardPower = gamepad2.right_trigger;
 
@@ -94,7 +102,7 @@ public class MechanumTele extends LinearOpMode {
 
             // turn-compensated driving
             if (gamepad1.left_stick_button && !lastGamepad1.left_stick_button) {
-//                turnCompensation = !turnCompensation;
+                //turnCompensation = !turnCompensation;
             }
 
             //Lenny Control
@@ -106,55 +114,31 @@ public class MechanumTele extends LinearOpMode {
                 robot.lenny.setPower(0);
             }
 
-//            //George Control
+            //George Control
             if(gamepad2.dpad_up) robot.george.setPower(1);
             else if(gamepad2.dpad_down) robot.george.setPower(-1);
             else robot.george.setPower(0);
 
-            // nom control
-//            if (gamepad2.dpad_up) {
-//                robot.nomLeft.setPosition(Robot.SERVO_VEX_FORWARD);
-//                robot.nomRight.setPosition(Robot.SERVO_VEX_FORWARD);
-//            } else if (gamepad2.dpad_down) {
-//                robot.nomLeft.setPosition(Robot.SERVO_VEX_REVERSE);
-//                robot.nomRight.setPosition(Robot.SERVO_VEX_REVERSE);
-//            } else {
-//                robot.nomLeft.setPosition(Robot.SERVO_VEX_NEUTRAL);
-//                robot.nomRight.setPosition(Robot.SERVO_VEX_NEUTRAL);
-//            }
-
-            // nom speed control
-//            if (gamepad2.dpad_left && !lastGamepad2.dpad_left) {
-//                nomPower -= 0.1;
-//                if (nomPower < 0) {
-//                    nomPower = 0;
-//                }
-//            } else if (gamepad2.dpad_right && !lastGamepad2.dpad_right) {
-//                nomPower += 0.1;
-//                if (nomPower > 1) {
-//                    nomPower = 1;
-//                }
-//            }
 
             // latch control: press AND HOLD
             if (gamepad2.y) {
-//                robot.latchLeft.setPower(-0.8);
-//                robot.latchLeft.setTargetPosition(-10000);
-//                robot.latchRight.setPower(-1.0);
-//                robot.latchRight.setTargetPosition(robot.latchLeft.getCurrentPosition());
+                robot.latchLeft.setPower(0.8);
+                robot.latchLeft.setTargetPosition(0);
+                robot.latchRight.setPower(1.0);
+                robot.latchRight.setTargetPosition(0);
 
                 //Alternative
-                robot.latchLeft.setPower(-0.9);
-                robot.latchRight.setPower(-0.9);
-            } else if (gamepad2.a) {
-//                robot.latchLeft.setPower(0.8);
-//                robot.latchLeft.setTargetPosition(0);
-//                robot.latchRight.setPower(1.0);
-//                robot.latchRight.setTargetPosition(robot.latchLeft.getCurrentPosition());
+                //robot.latchLeft.setPower(0.9);
+                //robot.latchRight.setPower(0.9);
 
-                //Alternative
-                robot.latchLeft.setPower(0.9);
-                robot.latchRight.setPower(0.9);
+            } else if(gamepad2.dpad_left){
+                robot.latchLeft.setPower(-0.8);
+                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()-5);
+
+            } else if(gamepad2.dpad_right){
+                robot.latchLeft.setPower(-0.8);
+                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+5);
+
             } else {
                 robot.latchLeft.setPower(0);
                 robot.latchRight.setPower(0);
