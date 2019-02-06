@@ -112,19 +112,19 @@ public class Robot {
 
     public AHRS navX;
 
-    public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
+    /*
+     * state
+     */
 
+    public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
     public VuforiaLocalizer vuforia;
     public TFObjectDetector tfod;
-
+    public LinearOpMode opMode;
+    public AutoAligner aligner;
     public double headingOffset = 0;
 
-    private LinearOpMode _opMode;
-
-    public AutoAligner aligner;
-
-    public Robot(LinearOpMode opMode, boolean enableVision) throws InterruptedException {
-        _opMode = opMode;
+    public Robot(LinearOpMode opModeIn, boolean enableVision) throws InterruptedException {
+        opMode = opModeIn;
 
         /*
          * control module initialization
@@ -202,13 +202,22 @@ public class Robot {
 
         imu.initialize(imuParameters);
 
-//        while (!opMode.isStopRequested() && !imu.isGyroCalibrated())
-//        {
-//            Thread.sleep(50);
-//            opMode.telemetry.addLine("calibrating");
-//            opMode.telemetry.update();
-//            opMode.idle();
-//        }
+        // axis remap? maybe?
+        Thread.sleep(100);
+        imu.write8(BNO055IMU.Register.OPR_MODE, BNO055IMU.SensorMode.CONFIG.bVal);
+        Thread.sleep(100);
+        imu.write8(BNO055IMU.Register.AXIS_MAP_CONFIG, 0x24);
+        imu.write8(BNO055IMU.Register.AXIS_MAP_SIGN, 0x05);
+        imu.write8(BNO055IMU.Register.OPR_MODE, BNO055IMU.SensorMode.IMU.bVal);
+        Thread.sleep(100);
+
+        while (!opMode.isStopRequested() && !imu.isGyroCalibrated())
+        {
+            Thread.sleep(50);
+            opMode.telemetry.addLine("calibrating");
+            opMode.telemetry.update();
+            opMode.idle();
+        }
 
         resetHeading();
 
@@ -226,7 +235,7 @@ public class Robot {
 //        navX = AHRS.getInstance(dim, NAVX_DIM_I2C_PORT, AHRS.DeviceDataType.kProcessedData, (byte)50);
 //        navX.zeroYaw();
 
-        aligner = new AutoAligner(this, this._opMode);
+        aligner = new AutoAligner(this);
 
         /*
          * initialize sensors
@@ -350,7 +359,7 @@ public class Robot {
 
         timer.reset();
 
-        while (_opMode.opModeIsActive() && timer.seconds() < timeout) {
+        while (opMode.opModeIsActive() && timer.seconds() < timeout) {
             //if (true) break;
             /*
              * pid control loop
@@ -374,11 +383,11 @@ public class Robot {
 
             driveMotors(-output, output, -output, output);
 
-            _opMode.telemetry.addData("Target", targetHeading);
-            _opMode.telemetry.addData("Current", currentHeading);
-            _opMode.telemetry.addData("Output", output);
-            _opMode.telemetry.addData("Correct frames", correctFrames);
-            _opMode.telemetry.update();
+            opMode.telemetry.addData("Target", targetHeading);
+            opMode.telemetry.addData("Current", currentHeading);
+            opMode.telemetry.addData("Output", output);
+            opMode.telemetry.addData("Correct frames", correctFrames);
+            opMode.telemetry.update();
         }
 
         driveMotors(0, 0, 0,0);
@@ -630,18 +639,18 @@ public class Robot {
     }
 
     public void logSensors() {
-        _opMode.telemetry.addData("range front right optical (cm)", rangeFrontRight.cmOptical());
-        _opMode.telemetry.addData("range front right ultrasonic (cm)", rangeFrontRight.cmUltrasonic());
+        opMode.telemetry.addData("range front right optical (cm)", rangeFrontRight.cmOptical());
+        opMode.telemetry.addData("range front right ultrasonic (cm)", rangeFrontRight.cmUltrasonic());
 
-        _opMode.telemetry.addData("range back right optical (cm)", rangeBackRight.cmOptical());
-        _opMode.telemetry.addData("range back right ultrasonic (cm)", rangeBackRight.cmUltrasonic());
+        opMode.telemetry.addData("range back right optical (cm)", rangeBackRight.cmOptical());
+        opMode.telemetry.addData("range back right ultrasonic (cm)", rangeBackRight.cmUltrasonic());
 
-        //_opMode.telemetry.addData("range front left optical (cm)", rangeFrontLeft.cmOptical());
-        //_opMode.telemetry.addData("range front left ultrasonic (cm)", rangeFrontLeft.cmUltrasonic());
+        //opMode.telemetry.addData("range front left optical (cm)", rangeFrontLeft.cmOptical());
+        //opMode.telemetry.addData("range front left ultrasonic (cm)", rangeFrontLeft.cmUltrasonic());
 
-        //_opMode.telemetry.addData("range back left optical (cm)", rangeBackLeft.cmOptical());
-        //_opMode.telemetry.addData("range back left ultrasonic (cm)", rangeBackLeft.cmUltrasonic());
+        //opMode.telemetry.addData("range back left optical (cm)", rangeBackLeft.cmOptical());
+        //opMode.telemetry.addData("range back left ultrasonic (cm)", rangeBackLeft.cmUltrasonic());
 
-        _opMode.telemetry.update();
+        opMode.telemetry.update();
     }
 }

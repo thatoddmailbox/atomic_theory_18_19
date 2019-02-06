@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -9,12 +8,10 @@ import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
 public class AutoAligner {
-    LinearOpMode opmode;
     Robot robot;
 
-    public AutoAligner(Robot robot, LinearOpMode opmode) {
+    public AutoAligner(Robot robot) {
         this.robot = robot;
-        this.opmode = opmode;
     }
 
     //       ***THE ROBOT***
@@ -42,7 +39,7 @@ public class AutoAligner {
         double rightDistance = robot.rightDistance(direction);
         double distanceDiff = leftDistance-rightDistance;
 
-        while ((leftDistance + 2 < rightDistance || leftDistance - 2 > rightDistance) && opmode.opModeIsActive()) {
+        while ((leftDistance + 2 < rightDistance || leftDistance - 2 > rightDistance) && robot.opMode.opModeIsActive()) {
             if (shouldLog) {
                 robot.logSensors();
             }
@@ -59,7 +56,7 @@ public class AutoAligner {
 
             robot.driveMotors(-1*impulsePower, -1*impulsePower, impulsePower, impulsePower);
 
-            opmode.idle();
+            robot.opMode.idle();
         }
     }
 
@@ -122,7 +119,7 @@ public class AutoAligner {
         double lastCorrectTime = 0;
         double lastLoopTime = -0.09;
         //double errorsInARow = 0;
-        while (timer.seconds() < timeout && opmode.opModeIsActive()) {
+        while (timer.seconds() < timeout && robot.opMode.opModeIsActive()) {
             if (shouldLog) {
                 robot.logSensors();
             }
@@ -184,7 +181,7 @@ public class AutoAligner {
             lastLeftDistance = leftDistance;
             lastRightDistance = rightDistance;
 
-            opmode.idle();
+            robot.opMode.idle();
         }
     }
 
@@ -236,12 +233,12 @@ public class AutoAligner {
 
         timer.reset();
 
-        while (timer.seconds() < timeout && opmode.opModeIsActive()) {
+        while (timer.seconds() < timeout && robot.opMode.opModeIsActive()) {
             leftDistance = robot.leftDistance(targetOrthogonalWallDistance > 0 ? Robot.Direction.FORWARD : Robot.Direction.BACKWARD);
             orthogonalWallDistanceDiff = leftDistance - Math.abs(targetOrthogonalWallDistance);
 
             if (shouldLog) {
-                opmode.telemetry.addData("orthogonal wall distance diff", orthogonalWallDistanceDiff);
+                robot.opMode.telemetry.addData("orthogonal wall distance diff", orthogonalWallDistanceDiff);
                 robot.logSensors();
             }
 
@@ -262,7 +259,7 @@ public class AutoAligner {
 
             this.driveAlignDistance(Math.signum(targetOrthogonalWallDistance)*output, targetWallDistance, false);
 
-            opmode.idle();
+            robot.opMode.idle();
         }
 
     }
@@ -338,7 +335,7 @@ public class AutoAligner {
 
         double lastCorrectTime = 0;
         double lastLoopTime = -0.09;
-        while (timer.seconds() < timeout && opmode.opModeIsActive()) {
+        while (timer.seconds() < timeout && robot.opMode.opModeIsActive()) {
             if (shouldLog) {
                 robot.logSensors();
             }
@@ -432,7 +429,7 @@ public class AutoAligner {
             double angleCorrection = -anglePID.step(currentHeading, targetHeading);
             robot.driveMotors(centerCorrection + frontLeft - angleCorrection, centerCorrection + frontRight + angleCorrection, centerCorrection + backLeft - angleCorrection, centerCorrection + backRight + angleCorrection);
 
-            opmode.idle();
+            robot.opMode.idle();
         }
     }
 
@@ -475,7 +472,7 @@ public class AutoAligner {
         double lastCorrectTime = 0;
         double lastLoopTime = -0.09;
         //double errorsInARow = 0;
-        while (timer.seconds() < timeout && opmode.opModeIsActive()) {
+        while (timer.seconds() < timeout && robot.opMode.opModeIsActive()) {
             robot.logSensors();
 
             leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;
@@ -520,9 +517,9 @@ public class AutoAligner {
             currentXDistance = getXDistance(leftDistance, rightDistance);
             currentYDistance = getYDistance(leftDistance, rightDistance);
 
-            opmode.telemetry.addData("x distance", currentXDistance);
-            opmode.telemetry.addData("y distance", currentYDistance);
-            opmode.telemetry.update();
+            robot.opMode.telemetry.addData("x distance", currentXDistance);
+            robot.opMode.telemetry.addData("y distance", currentYDistance);
+            robot.opMode.telemetry.update();
 
             double absoluteError = Math.abs(currentXDistance) + Math.abs(currentYDistance);
             double xProportionalError = Math.abs(currentXDistance) / absoluteError;
@@ -543,7 +540,7 @@ public class AutoAligner {
             lastLeftDistance = leftDistance;
             lastRightDistance = rightDistance;
 
-            opmode.idle();
+            robot.opMode.idle();
         }
     }
 
