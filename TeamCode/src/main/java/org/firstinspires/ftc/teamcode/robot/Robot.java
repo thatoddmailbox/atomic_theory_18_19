@@ -57,6 +57,8 @@ public class Robot {
 
     public static final int NAVX_DIM_I2C_PORT = 0;
 
+    public static final int latchDistance = 7560;
+
     /*
      * control modules
      */

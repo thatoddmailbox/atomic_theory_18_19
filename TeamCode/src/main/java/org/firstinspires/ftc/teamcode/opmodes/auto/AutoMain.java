@@ -37,10 +37,14 @@ public abstract class AutoMain extends LinearOpMode {
 
 
         // unlatch
+        int latchLeftStart = robot.latchLeft.getCurrentPosition();
+        int latchRightStart = robot.latchRight.getCurrentPosition();
+
         robot.latchLeft.setPower(-0.8);
         robot.latchRight.setPower(-1);
-        robot.latchLeft.setTargetPosition(-7560);
-        robot.latchRight.setTargetPosition(-7560);
+
+        robot.latchLeft.setTargetPosition(latchLeftStart-robot.latchDistance);
+        robot.latchRight.setTargetPosition(latchRightStart-robot.latchDistance);
 
         while(robot.latchLeft.isBusy() && robot.latchRight.isBusy() && opModeIsActive()){
             sleep(10);
