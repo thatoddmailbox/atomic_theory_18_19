@@ -80,6 +80,12 @@ public class Robot {
     public DcMotor latchRight;
 
     /*
+     * vex motors
+     */
+    public Servo nomLeft;
+    public Servo nomRight;
+
+    /*
      * servos
      */
 
@@ -89,6 +95,7 @@ public class Robot {
     public Servo backRightServo;
     public Servo frontLeftServo;
     public Servo backLeftServo;
+
 
     /*
      * sensors

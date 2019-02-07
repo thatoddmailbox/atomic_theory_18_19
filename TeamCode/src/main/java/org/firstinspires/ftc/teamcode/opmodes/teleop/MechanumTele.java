@@ -122,6 +122,15 @@ public class MechanumTele extends LinearOpMode {
 
             // latch control: press AND HOLD
             if (gamepad2.y) {
+                robot.latchLeft.setPower(-0.8);
+                robot.latchLeft.setTargetPosition(-7560);
+                robot.latchRight.setPower(-1.0);
+                robot.latchRight.setTargetPosition(-7560);
+
+                //Alternative
+                //robot.latchLeft.setPower(-0.9);
+                //robot.latchRight.setPower(-0.9);
+            } else if (gamepad2.a) {
                 robot.latchLeft.setPower(0.8);
                 robot.latchLeft.setTargetPosition(0);
                 robot.latchRight.setPower(1.0);
@@ -133,13 +142,14 @@ public class MechanumTele extends LinearOpMode {
 
             } else if(gamepad2.dpad_left){
                 robot.latchLeft.setPower(-0.8);
-                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()-5);
+                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()-15);
 
             } else if(gamepad2.dpad_right){
-                robot.latchLeft.setPower(-0.8);
-                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+5);
+                robot.latchLeft.setPower(+0.8);
+                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+15);
 
             } else {
+
                 robot.latchLeft.setPower(0);
                 robot.latchRight.setPower(0);
             }
@@ -148,7 +158,8 @@ public class MechanumTele extends LinearOpMode {
 
             telemetry.addData("Zero power", robot.driveMotorZeroPowerBehavior.toString());
             telemetry.addData("Nom power", nomPower);
-            telemetry.addData("Latch position", robot.latchLeft.getCurrentPosition());
+            telemetry.addData("Latch Left position", robot.latchLeft.getCurrentPosition());
+            telemetry.addData("Latch Right position", robot.latchRight.getCurrentPosition());
             telemetry.addData("Turn compensation", turnCompensation);
             telemetry.addData("Heading offset", robot.headingOffset);
             telemetry.addData("Heading", robot.getHeading());
