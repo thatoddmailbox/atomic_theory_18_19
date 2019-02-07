@@ -26,7 +26,8 @@ public class TurningTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(this, false);
 
-        robot.resetHeading();
+        telemetry.addLine("stuff");
+        telemetry.update();
 
         waitForStart();
 
@@ -37,7 +38,9 @@ public class TurningTest extends LinearOpMode {
             e.printStackTrace();
         }
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.062, 0.00001, 0.36), false, 1);
+//        PIDController pid = new PIDController(new PIDCoefficients(0.062, 0.00001, 0.36), false, 1);
+        PIDController pid = new PIDController(new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
+//        PIDController pid = new PIDController(new PIDCoefficients(0.01, 0.0, 0.0), true, 1);
         Gamepad lastGamepad = new Gamepad();
         double targetHeading = 0;
         int newTarget = (int) targetHeading;
@@ -71,10 +74,9 @@ public class TurningTest extends LinearOpMode {
                 currentHeading = targetHeading;
             }
 
-            double output = pid.step(currentHeading, targetHeading);
+            double output = -pid.step(currentHeading, targetHeading);
 
-            robot.driveMotors(-output, output, -output, output);
-
+//            robot.driveMotors(-output, output, -output, output);
             /*
              * gamepad input
              */
@@ -140,6 +142,8 @@ public class TurningTest extends LinearOpMode {
             telemetry.addData("New target", newTarget);
             telemetry.addData("Target", targetHeading);
             telemetry.addData("Current", currentHeading);
+            telemetry.addData("Heading offset", robot.headingOffset);
+            telemetry.addData("Raw heading", robot.imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
             telemetry.addData("Output", output);
             telemetry.addData("Total error", pid.errorSum);
             telemetry.addData("Anti-windup enabled", pid.enableAntiWindup);

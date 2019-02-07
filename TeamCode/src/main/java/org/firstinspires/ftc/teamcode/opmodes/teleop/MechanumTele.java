@@ -122,6 +122,7 @@ public class MechanumTele extends LinearOpMode {
 
             // latch control: press AND HOLD
             if (gamepad2.y) {
+<<<<<<< HEAD
                 robot.latchLeft.setPower(-0.8);
                 robot.latchLeft.setTargetPosition(-7560);
                 robot.latchRight.setPower(-1.0);
@@ -131,6 +132,8 @@ public class MechanumTele extends LinearOpMode {
                 //robot.latchLeft.setPower(-0.9);
                 //robot.latchRight.setPower(-0.9);
             } else if (gamepad2.a) {
+=======
+>>>>>>> deda628b4d9882c77d3feceedc19dfada0d6653b
                 robot.latchLeft.setPower(0.8);
                 robot.latchLeft.setTargetPosition(0);
                 robot.latchRight.setPower(1.0);
@@ -153,9 +156,6 @@ public class MechanumTele extends LinearOpMode {
                 robot.latchLeft.setPower(0);
                 robot.latchRight.setPower(0);
             }
-
-
-
 
             LynxGetBulkInputDataResponse bulkData = robot.getBulkData(robot.expansionHub1);
 

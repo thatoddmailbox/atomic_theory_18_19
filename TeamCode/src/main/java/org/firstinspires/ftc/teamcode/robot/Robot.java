@@ -112,19 +112,19 @@ public class Robot {
 
     public AHRS navX;
 
-    public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
+    /*
+     * state
+     */
 
+    public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
     public VuforiaLocalizer vuforia;
     public TFObjectDetector tfod;
-
+    public LinearOpMode opMode;
+    public AutoAligner aligner;
     public double headingOffset = 0;
 
-    private LinearOpMode _opMode;
-
-    public AutoAligner aligner;
-
-    public Robot(LinearOpMode opMode, boolean enableVision) throws InterruptedException {
-        _opMode = opMode;
+    public Robot(LinearOpMode opModeIn, boolean enableVision) throws InterruptedException {
+        opMode = opModeIn;
 
         /*
          * control module initialization
@@ -147,12 +147,8 @@ public class Robot {
         latchRight = opMode.hardwareMap.dcMotor.get("latch_right");
 
         /*
-         * vex motor/servo initialization
+         * servo initialization
          */
-
-        //nomLeft = opMode.hardwareMap.servo.get("nom_left");
-        //nomRight = opMode.hardwareMap.servo.get("nom_right");
-
         teamMarker = opMode.hardwareMap.servo.get("team_marker");
 
         frontRightServo = opMode.hardwareMap.servo.get("front_right_servo");
@@ -181,11 +177,11 @@ public class Robot {
         latchLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         latchRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        latchLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        latchRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        // Alternative to consider: based on velocity
-        //latchLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //latchRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //latchLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //latchRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//         Alternative to consider: based on velocity
+        latchLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        latchRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         /*
@@ -202,6 +198,25 @@ public class Robot {
 
         imu.initialize(imuParameters);
 
+        // axis remap? maybe?
+        Thread.sleep(100);
+        imu.write8(BNO055IMU.Register.OPR_MODE, BNO055IMU.SensorMode.CONFIG.bVal);
+        Thread.sleep(100);
+        imu.write8(BNO055IMU.Register.AXIS_MAP_CONFIG, 0x24);
+        imu.write8(BNO055IMU.Register.AXIS_MAP_SIGN, 0x05);
+        imu.write8(BNO055IMU.Register.OPR_MODE, BNO055IMU.SensorMode.IMU.bVal);
+        Thread.sleep(100);
+
+        while (!opMode.isStopRequested() && !imu.isGyroCalibrated())
+        {
+            Thread.sleep(50);
+            opMode.telemetry.addLine("calibrating");
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+
+        resetHeading();
+
         leftWebcam = opMode.hardwareMap.get(WebcamName.class, "left_webcam");
         rightWebcam = opMode.hardwareMap.get(WebcamName.class, "right_webcam");
 
@@ -216,7 +231,7 @@ public class Robot {
 //        navX = AHRS.getInstance(dim, NAVX_DIM_I2C_PORT, AHRS.DeviceDataType.kProcessedData, (byte)50);
 //        navX.zeroYaw();
 
-        aligner = new AutoAligner(this, this._opMode);
+        aligner = new AutoAligner(this);
 
         /*
          * initialize sensors
@@ -305,11 +320,27 @@ public class Robot {
      * sensor functions - imu
      */
     public double getHeading() {
-        return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle; // - headingOffset; // navX.getYaw() - headingOffset; //
+        double angle = imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        double sign = Math.signum(headingOffset);
+        if (headingOffset > 0) {
+            if (angle > -180 && angle < headingOffset - 180){
+                return 360 - Math.abs(angle) - headingOffset;
+            } else {
+                return angle - headingOffset;
+            }
+        } else {
+            if (angle < 180 && angle > headingOffset + 180){
+                return -(360 - Math.abs(angle) + headingOffset);
+            } else {
+                return angle - headingOffset;
+            }
+        }
+
+        //return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle - headingOffset; // navX.getYaw() - headingOffset; //
     }
 
     public void resetHeading() {
-//        headingOffset = navX.getYaw();
+        headingOffset = imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
 
     public void lessBadTurn(double targetHeading) {
@@ -324,7 +355,8 @@ public class Robot {
 
         timer.reset();
 
-        while (_opMode.opModeIsActive() && timer.seconds() < timeout) {
+        while (opMode.opModeIsActive() && timer.seconds() < timeout) {
+            //if (true) break;
             /*
              * pid control loop
              */
@@ -343,15 +375,15 @@ public class Robot {
                 correctFrames = 0;
             }
 
-            double output = pid.step(currentHeading, targetHeading);
+            double output = -pid.step(currentHeading, targetHeading);
 
             driveMotors(-output, output, -output, output);
 
-            _opMode.telemetry.addData("Target", targetHeading);
-            _opMode.telemetry.addData("Current", currentHeading);
-            _opMode.telemetry.addData("Output", output);
-            _opMode.telemetry.addData("Correct frames", correctFrames);
-            _opMode.telemetry.update();
+            opMode.telemetry.addData("Target", targetHeading);
+            opMode.telemetry.addData("Current", currentHeading);
+            opMode.telemetry.addData("Output", output);
+            opMode.telemetry.addData("Correct frames", correctFrames);
+            opMode.telemetry.update();
         }
 
         driveMotors(0, 0, 0,0);
@@ -434,58 +466,72 @@ public class Robot {
 
     ElapsedTime timer = new ElapsedTime();
     double rangeFrontRightTime = timer.seconds();
-    double lastRangeFrontRight;
+    double lastRangeFrontRight = 0;
+    double lastRangeFrontRightDiff;
     double rangeBackRightTime = timer.seconds();
-    double lastRangeBackRight;
+    double lastRangeBackRight = 0;
+    double lastRangeBackRightDiff;
     double rangeFrontLeftTime = timer.seconds();
-    double lastRangeFrontLeft;
+    double lastRangeFrontLeft = 0;
+    double lastRangeFrontLeftDiff;
     double rangeBackLeftTime = timer.seconds();
-    double lastRangeBackLeft;
+    double lastRangeBackLeft = 0;
+    double lastRangeBackLeftDiff;
 
 
     public double rightDistance(Direction direction) {
         switch (direction) {
             case FORWARD:
                 double reading = rangeFrontRight.cmUltrasonic() * 10;
-                if (((reading - lastRangeFrontRight) > 500 && (rangeFrontRightTime - timer.seconds()) < 0.1) || reading == 2550) {
-                    rangeFrontRightTime = timer.seconds();
-                    lastRangeFrontRight = reading;
-                    return lastRangeFrontRight;
-                }
+                if (lastRangeFrontRight == 0) lastRangeFrontRight = reading;
+                //(Math.abs(reading - lastRangeFrontRight) > 400 && (timer.seconds() - rangeFrontRightTime) < 0.15) ||
+                //if (reading == 2550) {
+                //    rangeFrontRightTime = timer.seconds();
+                    //lastRangeFrontRight += lastRangeFrontRightDiff;
+                //    return lastRangeFrontRight;
+                //}
                 rangeFrontRightTime = timer.seconds();
+                lastRangeFrontRightDiff = reading-lastRangeFrontRight;
                 lastRangeFrontRight = reading;
                 return reading;
 
             case RIGHT:
                 reading = rangeBackRight.cmUltrasonic() * 10;
-                if (((reading - lastRangeBackRight) > 500 && (rangeBackRightTime - timer.seconds()) < 0.1) || reading == 2550) {
-                    rangeBackRightTime = timer.seconds();
-                    lastRangeBackRight = reading;
-                    return lastRangeBackRight;
-                }
+                if (lastRangeBackRight == 0) lastRangeBackRight = reading;
+                //(Math.abs(reading - lastRangeBackRight) > 400 && (timer.seconds() - rangeBackRightTime) < 0.15) ||
+                //if (reading == 2550) {
+                //    rangeBackRightTime = timer.seconds();
+                    //lastRangeBackRight += lastRangeBackRightDiff;
+                //    return lastRangeBackRight;
+                //}
                 rangeBackRightTime = timer.seconds();
+                lastRangeBackRightDiff = reading-lastRangeBackRight;
                 lastRangeBackRight = reading;
                 return reading;
 
             case LEFT:
                 reading = rangeFrontLeft.cmUltrasonic() * 10;
-                if (((reading - lastRangeFrontLeft) > 500 && (rangeFrontLeftTime - timer.seconds()) < 0.1) || reading == 2550) {
+                if (lastRangeFrontLeft == 0) lastRangeFrontLeft = reading;
+                if ((Math.abs(reading - lastRangeFrontLeft) > 400 && (timer.seconds() - rangeFrontLeftTime) < 0.15) || reading == 2550) {
                     rangeFrontLeftTime = timer.seconds();
-                    lastRangeFrontLeft = reading;
+                    lastRangeFrontLeft += lastRangeFrontLeftDiff;
                     return lastRangeFrontLeft;
                 }
                 rangeFrontLeftTime = timer.seconds();
+                lastRangeFrontLeftDiff = reading-lastRangeFrontLeft;
                 lastRangeFrontLeft = reading;
                 return reading;
 
             case BACKWARD:
                 reading = rangeBackLeft.cmUltrasonic() * 10;
-                if (((reading - lastRangeBackLeft) > 500 && (rangeBackLeftTime - timer.seconds()) < 0.1) || reading == 2550) {
+                if (lastRangeBackLeft == 0) lastRangeBackLeft = reading;
+                if ((Math.abs(reading - lastRangeBackLeft) > 400 && (timer.seconds() - rangeBackLeftTime) < 0.15) || reading == 2550) {
                     rangeBackLeftTime = timer.seconds();
-                    lastRangeBackLeft = reading;
+                    lastRangeBackLeft += lastRangeBackLeftDiff;
                     return lastRangeBackLeft;
                 }
                 rangeBackLeftTime = timer.seconds();
+                lastRangeBackLeftDiff = reading-lastRangeBackLeft;
                 lastRangeBackLeft = reading;
                 return reading;
         }
@@ -495,44 +541,54 @@ public class Robot {
         switch (direction) {
             case FORWARD:
                 double reading = rangeFrontLeft.cmUltrasonic() * 10;
-                if (((reading - lastRangeFrontLeft) > 500 && (rangeFrontLeftTime - timer.seconds()) < 0.1) || reading == 2550) {
-                    rangeFrontLeftTime = timer.seconds();
-                    lastRangeFrontLeft = reading;
-                    return lastRangeFrontLeft;
-                }
+                if (lastRangeFrontLeft == 0) lastRangeFrontLeft = reading;
+                //if ((Math.abs(reading - lastRangeFrontLeft) > 400 && (timer.seconds() - rangeFrontLeftTime) < 0.15) || reading == 2550) {
+                //    rangeFrontLeftTime = timer.seconds();
+                    //lastRangeFrontLeft += lastRangeFrontLeftDiff;
+                //    return lastRangeFrontLeft;
+                //}
                 rangeFrontLeftTime = timer.seconds();
+                lastRangeFrontLeftDiff = reading-lastRangeFrontLeft;
                 lastRangeFrontLeft = reading;
                 return reading;
             case RIGHT:
                 reading = rangeFrontRight.cmUltrasonic() * 10;
-                if (((reading - lastRangeFrontRight) > 500 && (rangeFrontRightTime - timer.seconds()) < 0.1) || reading == 2550) {
+                if (lastRangeFrontRight == 0) lastRangeFrontRight = reading;
+                //(Math.abs(reading - lastRangeFrontRight) > 400 && (timer.seconds() - rangeFrontRightTime) < 0.15) ||
+                //if (reading == 2550) {
                     rangeFrontRightTime = timer.seconds();
-                    lastRangeFrontRight = reading;
-                    return lastRangeFrontRight;
-                }
+                    //lastRangeFrontRight += lastRangeFrontRightDiff;
+                //    return lastRangeFrontRight;
+                //}
                 rangeFrontRightTime = timer.seconds();
+                lastRangeFrontRightDiff = reading-lastRangeFrontRight;
                 lastRangeFrontRight = reading;
                 return reading;
 
             case LEFT:
                 reading = rangeBackLeft.cmUltrasonic() * 10;
-                if (((reading - lastRangeBackLeft) > 500 && (rangeBackLeftTime - timer.seconds()) < 0.1) || reading == 2550) {
+                if (lastRangeBackLeft == 0) lastRangeBackLeft = reading;
+                if ((Math.abs(reading - lastRangeBackLeft) > 400 && ( timer.seconds() - rangeBackLeftTime) < 0.15) || reading == 2550) {
                     rangeBackLeftTime = timer.seconds();
-                    lastRangeBackLeft = reading;
+                    lastRangeBackLeft += lastRangeBackLeftDiff;
                     return lastRangeBackLeft;
                 }
                 rangeBackLeftTime = timer.seconds();
+                lastRangeBackLeftDiff = reading-lastRangeBackLeft;
                 lastRangeBackLeft = reading;
                 return reading;
 
             case BACKWARD:
                 reading = rangeBackRight.cmUltrasonic() * 10;
-                if (((reading - lastRangeBackRight) > 500 && (rangeBackRightTime - timer.seconds()) < 0.1) || reading == 2550) {
-                    rangeBackRightTime = timer.seconds();
-                    lastRangeBackRight = reading;
-                    return lastRangeBackRight;
-                }
+                if (lastRangeBackRight == 0) lastRangeBackRight = reading;
+                //(Math.abs(reading - lastRangeBackRight) > 400 && (timer.seconds() - rangeBackRightTime) < 0.15) ||
+                //if (reading == 2550) {
+                //    rangeBackRightTime = timer.seconds();
+                    //lastRangeBackRight += lastRangeBackRightDiff;
+                //    return lastRangeBackRight;
+                //}
                 rangeBackRightTime = timer.seconds();
+                lastRangeBackRightDiff = reading-lastRangeBackRight;
                 lastRangeBackRight = reading;
                 return reading;
         }
@@ -579,18 +635,18 @@ public class Robot {
     }
 
     public void logSensors() {
-        _opMode.telemetry.addData("range front right optical (cm)", rangeFrontRight.cmOptical());
-        _opMode.telemetry.addData("range front right ultrasonic (cm)", rangeFrontRight.cmUltrasonic());
+        opMode.telemetry.addData("range front right optical (cm)", rangeFrontRight.cmOptical());
+        opMode.telemetry.addData("range front right ultrasonic (cm)", rangeFrontRight.cmUltrasonic());
 
-        _opMode.telemetry.addData("range back right optical (cm)", rangeBackRight.cmOptical());
-        _opMode.telemetry.addData("range back right ultrasonic (cm)", rangeBackRight.cmUltrasonic());
+        opMode.telemetry.addData("range back right optical (cm)", rangeBackRight.cmOptical());
+        opMode.telemetry.addData("range back right ultrasonic (cm)", rangeBackRight.cmUltrasonic());
 
-        //_opMode.telemetry.addData("range front left optical (cm)", rangeFrontLeft.cmOptical());
-        //_opMode.telemetry.addData("range front left ultrasonic (cm)", rangeFrontLeft.cmUltrasonic());
+        //opMode.telemetry.addData("range front left optical (cm)", rangeFrontLeft.cmOptical());
+        //opMode.telemetry.addData("range front left ultrasonic (cm)", rangeFrontLeft.cmUltrasonic());
 
-        //_opMode.telemetry.addData("range back left optical (cm)", rangeBackLeft.cmOptical());
-        //_opMode.telemetry.addData("range back left ultrasonic (cm)", rangeBackLeft.cmUltrasonic());
+        //opMode.telemetry.addData("range back left optical (cm)", rangeBackLeft.cmOptical());
+        //opMode.telemetry.addData("range back left ultrasonic (cm)", rangeBackLeft.cmUltrasonic());
 
-        _opMode.telemetry.update();
+        opMode.telemetry.update();
     }
 }
