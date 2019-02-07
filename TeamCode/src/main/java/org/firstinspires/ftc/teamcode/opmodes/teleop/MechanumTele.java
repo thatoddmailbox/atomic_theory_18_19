@@ -43,7 +43,7 @@ public class MechanumTele extends LinearOpMode {
 
             //Square values for finer slow control.
             double drivePower = 0.1572 * Math.pow(6.3594, Math.abs(gamepad1.left_stick_y)) * Math.signum(gamepad1.left_stick_y);
-            double strafePower = -1 * 0.1572 * Math.pow(6.3594, Math.abs(gamepad1.left_stick_x)) * Math.signum(gamepad1.left_stick_x);
+            double strafePower = -1 * 0.1572 * Math.pow(6.35914, Math.abs(gamepad1.left_stick_x)) * Math.signum(gamepad1.left_stick_x);
             double turnPower = .5 * 0.1572 * Math.pow(6.3594, Math.abs(gamepad1.right_stick_x)) * Math.signum(gamepad1.right_stick_x);
 
             //Swap Driver and turn if latch mode is activated so directions make sense
@@ -123,9 +123,9 @@ public class MechanumTele extends LinearOpMode {
             // latch control: press AND HOLD
             if (gamepad2.y) {
                 robot.latchLeft.setPower(-0.8);
-                robot.latchLeft.setTargetPosition(-10000);
+                robot.latchLeft.setTargetPosition(-7560);
                 robot.latchRight.setPower(-1.0);
-                robot.latchRight.setTargetPosition(-10000);
+                robot.latchRight.setTargetPosition(-7560);
 
                 //Alternative
                 //robot.latchLeft.setPower(-0.9);
@@ -145,10 +145,11 @@ public class MechanumTele extends LinearOpMode {
                 robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()-5);
 
             } else if(gamepad2.dpad_right){
-                robot.latchLeft.setPower(-0.8);
+                robot.latchLeft.setPower(+0.8);
                 robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+5);
 
             } else {
+
                 robot.latchLeft.setPower(0);
                 robot.latchRight.setPower(0);
             }
@@ -160,7 +161,8 @@ public class MechanumTele extends LinearOpMode {
 
             telemetry.addData("Zero power", robot.driveMotorZeroPowerBehavior.toString());
             telemetry.addData("Nom power", nomPower);
-            telemetry.addData("Latch position", robot.latchLeft.getCurrentPosition());
+            telemetry.addData("Latch Left position", robot.latchLeft.getCurrentPosition());
+            telemetry.addData("Latch Right position", robot.latchRight.getCurrentPosition());
             telemetry.addData("Turn compensation", turnCompensation);
             telemetry.addData("Heading offset", robot.headingOffset);
             telemetry.addData("Heading", robot.getHeading());
