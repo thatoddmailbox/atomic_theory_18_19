@@ -94,7 +94,7 @@ public class AutoAligner {
 
     public void centerInCorner(double timeout, boolean shouldLog) throws InterruptedException {
         robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
-        robot.backRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+        robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
 
         Thread.sleep(110);
 
@@ -106,7 +106,7 @@ public class AutoAligner {
 
         double lastDistanceDiff;
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.002, 0, 0), true, 0.8);
+        PIDController pid = new PIDController(new PIDCoefficients(0.002, 0.00000075, 0), true, 0.8);
 
         PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
         double targetHeading = robot.getHeading();
@@ -132,7 +132,7 @@ public class AutoAligner {
             if (Math.abs(currentHeading - targetHeading) < 0.25) {
                 currentHeading = targetHeading;
             }
-            double angleCorrection = -anglePID.step(currentHeading, targetHeading);
+            double angleCorrection = anglePID.step(currentHeading, targetHeading);
             //angleCorrection = 0;
             if (leftDistance == 2550 && rightDistance == 2550) {
                 robot.driveMotors(0, 0,0,0);
@@ -191,7 +191,7 @@ public class AutoAligner {
             double angle = robot.getHeading();
             double relativeError = angle / 45;
             robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (relativeError - 1) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
-            robot.backRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
+            robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_REV_SERVO_FULL-Robot.SENSOR_REV_SERVO_HALF));
         }
 
         double leftDistance = robot.leftDistance(Robot.Direction.RIGHT);
@@ -273,18 +273,20 @@ public class AutoAligner {
             case FORWARD:
                 if (!half) {
                     robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_ZERO);
+                    robot.backRightServo.setPosition(Robot.SENSOR_SERVO_ZERO);
                     //robot.frontLeftServo.setPosition(Robot.SENSOR_SERVO_ZERO);
                 } else {
                     robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+                    robot.backRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
                     //robot.frontLeftServo.setPosition(Robot.SENSOR_SERVO_HALF);
                 }
                 break;
             case RIGHT:
                 if (!half) {
-                    robot.backRightServo.setPosition(Robot.SENSOR_SERVO_FULL);
+                    robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_FULL);
                     robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL);
                 } else {
-                    robot.backRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+                    robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
                     robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
                 }
                 break;
@@ -300,10 +302,10 @@ public class AutoAligner {
             case BACKWARD:
                 if (!half) {
                     //robot.backLeftServo.setPosition(Robot.SENSOR_SERVO_ZERO);
-                    robot.backRightServo.setPosition(Robot.SENSOR_SERVO_ZERO);
+                    robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_ZERO);
                 } else {
                     //robot.backLeftServo.setPosition(Robot.SENSOR_SERVO_HALF);
-                    robot.backRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+                    robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
                 }
                 break;
         }
@@ -321,9 +323,9 @@ public class AutoAligner {
         //0.000004
         //0.0005
 
-        PIDController centerCornerPID = new PIDController(new PIDCoefficients(0.002, 0, 0), true, 0.6);
+        PIDController centerCornerPID = new PIDController(new PIDCoefficients(0.002, 0.00000075, 0), true, 0.6);
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.005, 0.0000075, 0.5), true, 0.8);
+        PIDController pid = new PIDController(new PIDCoefficients(0.004, 0.0000015, 0.0), true, 0.8);
 
         PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
         double targetHeading = robot.getHeading();
@@ -380,7 +382,7 @@ public class AutoAligner {
                 } else if (direction == Robot.Direction.LEFT) {
                     distance = rightDistance;
                 } else {
-                    distance = 0;
+                    distance = leftDistance;
                 }
             } else {
                 if (sensorChoice == Robot.Direction.RIGHT) {
@@ -426,7 +428,7 @@ public class AutoAligner {
                 centerCorrection = 0;
             }
 
-            double angleCorrection = -anglePID.step(currentHeading, targetHeading);
+            double angleCorrection = anglePID.step(currentHeading, targetHeading);
             robot.driveMotors(centerCorrection + frontLeft - angleCorrection, centerCorrection + frontRight + angleCorrection, centerCorrection + backLeft - angleCorrection, centerCorrection + backRight + angleCorrection);
 
             robot.opMode.idle();
@@ -443,7 +445,7 @@ public class AutoAligner {
 
     public void dynamicOmniPID(double targetLeft, double targetRight) throws InterruptedException {
         robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
-        robot.backRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+        robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
 
         Thread.sleep(110);
 
@@ -483,7 +485,7 @@ public class AutoAligner {
             if (Math.abs(currentHeading - targetHeading) < 0.25) {
                 currentHeading = targetHeading;
             }
-            double angleCorrection = -anglePID.step(currentHeading, targetHeading);
+            double angleCorrection = anglePID.step(currentHeading, targetHeading);
 
             if (leftDistance == 2550 && rightDistance == 2550) {
                 robot.driveMotors(0, 0,0,0);

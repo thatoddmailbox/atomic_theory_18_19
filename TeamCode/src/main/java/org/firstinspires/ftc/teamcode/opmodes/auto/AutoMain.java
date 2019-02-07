@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.robot.Robot;
@@ -49,6 +50,11 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("Heading - unlatch", robot.getHeading());
         telemetry.update();
 
+//        robot.latchLeft.setPower(0.8);
+//        robot.latchLeft.setTargetPosition(-5000);
+//        robot.latchRight.setPower(1.0);
+//        robot.latchRight.setTargetPosition(-5000);
+
         // turn to realign
         robot.lessBadTurn(0);
 
@@ -60,6 +66,11 @@ public abstract class AutoMain extends LinearOpMode {
         // turn to realign
         robot.lessBadTurn(0, 0.5);
 
+        robot.activateTfod();
+        sleep(1000); // TODO: how long of a delay is needed? is any?
+
+        MineralPosition goldMineral = robot.findGoldMineralDifferent();
+
         // NEW AUTO (UNTESTED)
         if (true) {
             ElapsedTime timer = new ElapsedTime();
@@ -67,23 +78,25 @@ public abstract class AutoMain extends LinearOpMode {
             // Get centered on minerals/lander
             robot.aligner.centerInCorner(2.0, true);
 
-            sleep(3000);
-
             // Get close to minerals (away from lander)
-            robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 850, 3.5, true, true);
-
-            //if (true) return;
-            sleep(3000);
+            robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 850, 3.5, true, false);
 
             // Get in front of cube
+            //if (goldMineral == MineralPosition.LEFT) {
             robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true, 560, 2.5, true);
+            //} else {
+//                robot.aligner.driveToDistance(Robot.Direction.BACKWARD, Robot.Direction.LEFT, true, 560, 2.5, true);
+            //}
 
             robot.lessBadTurn(0, 0.5);
 
             // Hit cube
             if (getStartingPosition() == StartingPosition.DEPOT) {
+//                if (goldMineral == MineralPosition.LEFT) {
                 robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 100, 2.5, true);
-
+//                } else {
+//                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 100, 2.5, true);
+//                }
                 robot.lessBadTurn(0, 0.5);
 
                 robot.aligner.centerInCorner(2, true);
@@ -107,7 +120,7 @@ public abstract class AutoMain extends LinearOpMode {
                 double angle = robot.getHeading();
                 double relativeError = angle / 45;
                 robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (relativeError - 1) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
-                robot.backRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
+                robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_REV_SERVO_FULL-Robot.SENSOR_REV_SERVO_HALF));
                 sleep(200);
 
                 timer.reset();
@@ -121,7 +134,7 @@ public abstract class AutoMain extends LinearOpMode {
             }
 
             timer.reset();
-            while (opModeIsActive() && timer.seconds() < 1.0) {
+            while (opModeIsActive() && timer.seconds() < 1.1) {
                 robot.aligner.driveAlignDistance(-0.85, 100, false);
                 idle();
             }
@@ -141,7 +154,7 @@ public abstract class AutoMain extends LinearOpMode {
         robot.activateTfod();
         sleep(1000); // TODO: how long of a delay is needed? is any?
 
-        MineralPosition goldMineral = robot.findGoldMineralDifferent();
+        //MineralPosition goldMineral = robot.findGoldMineralDifferent();
         telemetry.addData("Gold mineral position", goldMineral.toString());
         telemetry.addData("Heading - mineral", robot.getHeading());
         telemetry.update();

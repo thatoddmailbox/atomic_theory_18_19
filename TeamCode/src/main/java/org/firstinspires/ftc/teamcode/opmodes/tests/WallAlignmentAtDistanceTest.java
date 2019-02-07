@@ -21,7 +21,7 @@ public class WallAlignmentAtDistanceTest extends LinearOpMode {
         double relativeError = angle / 45;
         telemetry.addData("relativeError", relativeError);
         robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (relativeError - 1) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
-        robot.backRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
+        robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_REV_SERVO_FULL-Robot.SENSOR_REV_SERVO_HALF));
         telemetry.addData("front right pos", Robot.SENSOR_SERVO_FULL + (relativeError - 1) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
         telemetry.update();
 

@@ -41,6 +41,10 @@ public class Robot {
     public static final double SENSOR_SERVO_HALF = 0.5;
     public static final double SENSOR_SERVO_FULL = 0.75;
 
+    public static final double SENSOR_REV_SERVO_ZERO = 0.4166666666;
+    public static final double SENSOR_REV_SERVO_HALF = 0.5833333333;
+    public static final double SENSOR_REV_SERVO_FULL = 0.75;
+
     public static final double SERVO_VEX_REVERSE = 0.25; // (1000-500)/2000
     public static final double SERVO_VEX_NEUTRAL = 0.5; // (1500-500)/2000
     public static final double SERVO_VEX_FORWARD = 0.75; // (2000-500)/2000
@@ -138,7 +142,6 @@ public class Robot {
         lenny = opMode.hardwareMap.dcMotor.get("lenny");
         latchLeft = opMode.hardwareMap.dcMotor.get("latch_left");
         latchRight = opMode.hardwareMap.dcMotor.get("latch_right");
-
         /*
          * servo initialization
          */
@@ -368,7 +371,7 @@ public class Robot {
                 correctFrames = 0;
             }
 
-            double output = -pid.step(currentHeading, targetHeading);
+            double output = pid.step(currentHeading, targetHeading);
 
             driveMotors(-output, output, -output, output);
 
@@ -595,14 +598,14 @@ public class Robot {
                 maxDif = 1;
                 frontRightServo.setPosition(SENSOR_SERVO_ZERO);
                 //frontLeftServo.setPosition(SENSOR_SERVO_ZERO);
-                backRightServo.setPosition(SENSOR_SERVO_ZERO);
+                backRightServo.setPosition(SENSOR_REV_SERVO_ZERO);
                 //backLeftServo.setPosition(SENSOR_SERVO_ZERO);
                 break;
             case RIGHT:
                 //maxDif = Math.max(Math.abs(frontRightServo.getPosition()-SENSOR_SERVO_FULL), Math.abs(backRightServo.getPosition()-SENSOR_SERVO_FULL));
                 maxDif = 1;
                 frontRightServo.setPosition(SENSOR_SERVO_FULL);
-                backRightServo.setPosition(SENSOR_SERVO_FULL);
+                backRightServo.setPosition(SENSOR_REV_SERVO_FULL);
                 //frontLeftServo.setPosition(SENSOR_SERVO_FULL);
                 //backLeftServo.setPosition(SENSOR_SERVO_FULL);
                 break;
@@ -612,12 +615,12 @@ public class Robot {
                 //frontLeftServo.setPosition(SENSOR_SERVO_FULL);
                 //backLeftServo.setPosition(SENSOR_SERVO_FULL);
                 frontRightServo.setPosition(SENSOR_SERVO_FULL);
-                backRightServo.setPosition(SENSOR_SERVO_FULL);
+                backRightServo.setPosition(SENSOR_REV_SERVO_FULL);
                 break;
             case BACKWARD:
                 //maxDif = Math.max(Math.abs(backRightServo.getPosition()-SENSOR_SERVO_ZERO), Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_ZERO));
                 maxDif = 1;
-                backRightServo.setPosition(SENSOR_SERVO_ZERO);
+                backRightServo.setPosition(SENSOR_REV_SERVO_ZERO);
                 //backLeftServo.setPosition(SENSOR_SERVO_ZERO);
                 frontRightServo.setPosition(SENSOR_SERVO_ZERO);
                 //frontLeftServo.setPosition(SENSOR_SERVO_ZERO);
