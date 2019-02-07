@@ -37,6 +37,9 @@ public class MechanumTele extends LinearOpMode {
         double nomPower = 1;
         boolean turnCompensation = false;
 
+        int latchLeftStart = robot.latchLeft.getCurrentPosition();
+        int latchRightStart = robot.latchRight.getCurrentPosition();
+
         while (opModeIsActive()) {
             double slowMode = gamepad1.left_bumper ? .5 : 1.0;
             boolean latchMode = gamepad1.right_bumper;
@@ -123,18 +126,18 @@ public class MechanumTele extends LinearOpMode {
             // latch control: press AND HOLD
             if (gamepad2.y) {
                 robot.latchLeft.setPower(-0.8);
-                robot.latchLeft.setTargetPosition(-7560);
+                robot.latchLeft.setTargetPosition(latchLeftStart);
                 robot.latchRight.setPower(-1.0);
-                robot.latchRight.setTargetPosition(-7560);
+                robot.latchRight.setTargetPosition(latchRightStart);
 
                 //Alternative
                 //robot.latchLeft.setPower(-0.9);
                 //robot.latchRight.setPower(-0.9);
             } else if (gamepad2.a) {
                 robot.latchLeft.setPower(0.8);
-                robot.latchLeft.setTargetPosition(0);
+                robot.latchLeft.setTargetPosition(latchLeftStart+robot.latchDistance);
                 robot.latchRight.setPower(1.0);
-                robot.latchRight.setTargetPosition(0);
+                robot.latchRight.setTargetPosition(latchRightStart+robot.latchDistance);
 
                 //Alternative
                 //robot.latchLeft.setPower(0.9);
@@ -149,7 +152,6 @@ public class MechanumTele extends LinearOpMode {
                 robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+15);
 
             } else {
-
                 robot.latchLeft.setPower(0);
                 robot.latchRight.setPower(0);
             }

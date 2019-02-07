@@ -36,24 +36,28 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.update();
 
 
-        // unlatch TODO: make this an encoder value
+        // unlatch
+        int latchLeftStart = robot.latchLeft.getCurrentPosition();
+        int latchRightStart = robot.latchRight.getCurrentPosition();
 
-        // UNCOMMENT THIS DUMMY
-        //robot.latchLeft.setPower(-1);
-        //robot.latchRight.setPower(-1);
-        //sleep(7200);
-        //robot.latchLeft.setPower(0);
-        //robot.latchRight.setPower(0);
+        robot.latchLeft.setPower(-0.8);
+        robot.latchRight.setPower(-1);
 
-        sleep(100);
+        robot.latchLeft.setTargetPosition(latchLeftStart-robot.latchDistance);
+        robot.latchRight.setTargetPosition(latchRightStart-robot.latchDistance);
+
+        while(robot.latchLeft.isBusy() && robot.latchRight.isBusy() && opModeIsActive()){
+            sleep(10);
+            idle();
+        }
+
+        sleep(200);
+        robot.latchLeft.setPower(0);
+        robot.latchRight.setPower(0);
 
         telemetry.addData("Heading - unlatch", robot.getHeading());
         telemetry.update();
 
-//        robot.latchLeft.setPower(0.8);
-//        robot.latchLeft.setTargetPosition(-5000);
-//        robot.latchRight.setPower(1.0);
-//        robot.latchRight.setTargetPosition(-5000);
 
         // turn to realign
         robot.lessBadTurn(0);
