@@ -149,7 +149,6 @@ public class MechanumTele extends LinearOpMode {
                 robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+15);
 
             } else {
-
                 robot.latchLeft.setPower(0);
                 robot.latchRight.setPower(0);
             }
