@@ -21,7 +21,7 @@ public abstract class AutoMain extends LinearOpMode {
 
         PersistentHeading.clearSavedHeading();
 
-        Robot robot = new Robot(this, false);
+        Robot robot = new Robot(this, true);
 
         telemetry.addData("Status", "Ready to go");
         telemetry.addData("Starting position", getStartingPosition());
@@ -82,21 +82,21 @@ public abstract class AutoMain extends LinearOpMode {
             robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 850, 3.5, true, false);
 
             // Get in front of cube
-            //if (goldMineral == MineralPosition.LEFT) {
-            robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true, 560, 2.5, true);
-            //} else {
-//                robot.aligner.driveToDistance(Robot.Direction.BACKWARD, Robot.Direction.LEFT, true, 560, 2.5, true);
-            //}
+            if (goldMineral == MineralPosition.LEFT) {
+                robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true, 560, 2.5, true);
+            } else {
+                robot.aligner.driveToDistance(Robot.Direction.BACKWARD, Robot.Direction.LEFT, true, 560, 2.5, true);
+            }
 
             robot.lessBadTurn(0, 0.5);
 
             // Hit cube
             if (getStartingPosition() == StartingPosition.DEPOT) {
-//                if (goldMineral == MineralPosition.LEFT) {
-                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 100, 2.5, true);
-//                } else {
-//                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 100, 2.5, true);
-//                }
+                if (goldMineral == MineralPosition.LEFT) {
+                    robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 100, 2.5, true);
+                } else {
+                    robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 100, 2.5, true);
+                }
                 robot.lessBadTurn(0, 0.5);
 
                 robot.aligner.centerInCorner(2, true);
