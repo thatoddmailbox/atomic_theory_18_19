@@ -41,8 +41,8 @@ public class Robot {
     public static final double SENSOR_SERVO_HALF = 0.5;
     public static final double SENSOR_SERVO_FULL = 0.75;
 
-    public static final double SENSOR_REV_SERVO_ZERO = 0.4166666666;
-    public static final double SENSOR_REV_SERVO_HALF = 0.5833333333;
+    public static final double SENSOR_REV_SERVO_ZERO = 0.36;
+    public static final double SENSOR_REV_SERVO_HALF = 0.555;
     public static final double SENSOR_REV_SERVO_FULL = 0.75;
 
     public static final double SERVO_VEX_REVERSE = 0.25; // (1000-500)/2000
@@ -57,7 +57,7 @@ public class Robot {
 
     public static final int NAVX_DIM_I2C_PORT = 0;
 
-    public static final int latchDistance = 7560;
+    public static final int LATCH_DISTANCE = 7560;
 
     /*
      * control modules
@@ -159,8 +159,9 @@ public class Robot {
         frontRightServo = opMode.hardwareMap.servo.get("front_right_servo");
         backRightServo = opMode.hardwareMap.servo.get("back_right_servo");
 //        frontLeftServo = opMode.hardwareMap.servo.get("front_left_servo");
-//        backLeftServo = opMode.hardwareMap.servo.get("back_left_servo");
+        backLeftServo = opMode.hardwareMap.servo.get("back_left_servo");
         frontRightServo.setDirection(Servo.Direction.REVERSE);
+        backRightServo.setDirection(Servo.Direction.REVERSE);
 //        frontLeftServo.setDirection(Servo.Direction.REVERSE);
         /*
          * motor setup
@@ -230,8 +231,8 @@ public class Robot {
 
         rangeFrontRight = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_left");
         rangeBackRight = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_right");
-        //rangeFrontLeft = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_front_left");
-        //rangeBackLeft = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_back_left");
+        rangeFrontLeft = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_front_left");
+        rangeBackLeft = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_back_left");
 
 //        navX = AHRS.getInstance(dim, NAVX_DIM_I2C_PORT, AHRS.DeviceDataType.kProcessedData, (byte)50);
 //        navX.zeroYaw();
@@ -517,11 +518,11 @@ public class Robot {
             case LEFT:
                 reading = rangeFrontLeft.cmUltrasonic() * 10;
                 if (lastRangeFrontLeft == 0) lastRangeFrontLeft = reading;
-                if ((Math.abs(reading - lastRangeFrontLeft) > 400 && (timer.seconds() - rangeFrontLeftTime) < 0.15) || reading == 2550) {
-                    rangeFrontLeftTime = timer.seconds();
-                    lastRangeFrontLeft += lastRangeFrontLeftDiff;
-                    return lastRangeFrontLeft;
-                }
+//                if ((Math.abs(reading - lastRangeFrontLeft) > 400 && (timer.seconds() - rangeFrontLeftTime) < 0.15) || reading == 2550) {
+//                    rangeFrontLeftTime = timer.seconds();
+//                    lastRangeFrontLeft += lastRangeFrontLeftDiff;
+//                    return lastRangeFrontLeft;
+//                }
                 rangeFrontLeftTime = timer.seconds();
                 lastRangeFrontLeftDiff = reading-lastRangeFrontLeft;
                 lastRangeFrontLeft = reading;
@@ -530,11 +531,11 @@ public class Robot {
             case BACKWARD:
                 reading = rangeBackLeft.cmUltrasonic() * 10;
                 if (lastRangeBackLeft == 0) lastRangeBackLeft = reading;
-                if ((Math.abs(reading - lastRangeBackLeft) > 400 && (timer.seconds() - rangeBackLeftTime) < 0.15) || reading == 2550) {
-                    rangeBackLeftTime = timer.seconds();
-                    lastRangeBackLeft += lastRangeBackLeftDiff;
-                    return lastRangeBackLeft;
-                }
+//                if ((Math.abs(reading - lastRangeBackLeft) > 400 && (timer.seconds() - rangeBackLeftTime) < 0.15) || reading == 2550) {
+//                    rangeBackLeftTime = timer.seconds();
+//                    lastRangeBackLeft += lastRangeBackLeftDiff;
+//                    return lastRangeBackLeft;
+//                }
                 rangeBackLeftTime = timer.seconds();
                 lastRangeBackLeftDiff = reading-lastRangeBackLeft;
                 lastRangeBackLeft = reading;
@@ -573,11 +574,11 @@ public class Robot {
             case LEFT:
                 reading = rangeBackLeft.cmUltrasonic() * 10;
                 if (lastRangeBackLeft == 0) lastRangeBackLeft = reading;
-                if ((Math.abs(reading - lastRangeBackLeft) > 400 && ( timer.seconds() - rangeBackLeftTime) < 0.15) || reading == 2550) {
-                    rangeBackLeftTime = timer.seconds();
-                    lastRangeBackLeft += lastRangeBackLeftDiff;
-                    return lastRangeBackLeft;
-                }
+//                if ((Math.abs(reading - lastRangeBackLeft) > 400 && ( timer.seconds() - rangeBackLeftTime) < 0.15) || reading == 2550) {
+//                    rangeBackLeftTime = timer.seconds();
+//                    lastRangeBackLeft += lastRangeBackLeftDiff;
+//                    return lastRangeBackLeft;
+//                }
                 rangeBackLeftTime = timer.seconds();
                 lastRangeBackLeftDiff = reading-lastRangeBackLeft;
                 lastRangeBackLeft = reading;
@@ -608,7 +609,7 @@ public class Robot {
                 frontRightServo.setPosition(SENSOR_SERVO_ZERO);
                 //frontLeftServo.setPosition(SENSOR_SERVO_ZERO);
                 backRightServo.setPosition(SENSOR_REV_SERVO_ZERO);
-                //backLeftServo.setPosition(SENSOR_SERVO_ZERO);
+                backLeftServo.setPosition(SENSOR_SERVO_ZERO);
                 break;
             case RIGHT:
                 //maxDif = Math.max(Math.abs(frontRightServo.getPosition()-SENSOR_SERVO_FULL), Math.abs(backRightServo.getPosition()-SENSOR_SERVO_FULL));
@@ -616,13 +617,13 @@ public class Robot {
                 frontRightServo.setPosition(SENSOR_SERVO_FULL);
                 backRightServo.setPosition(SENSOR_REV_SERVO_FULL);
                 //frontLeftServo.setPosition(SENSOR_SERVO_FULL);
-                //backLeftServo.setPosition(SENSOR_SERVO_FULL);
+                backLeftServo.setPosition(SENSOR_SERVO_FULL);
                 break;
             case LEFT:
                 maxDif = 1;
                 //maxDif = Math.max(Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_FULL), Math.abs(backLeftServo.getPosition()-SENSOR_SERVO_FULL));
                 //frontLeftServo.setPosition(SENSOR_SERVO_FULL);
-                //backLeftServo.setPosition(SENSOR_SERVO_FULL);
+                backLeftServo.setPosition(SENSOR_REV_SERVO_FULL);
                 frontRightServo.setPosition(SENSOR_SERVO_FULL);
                 backRightServo.setPosition(SENSOR_REV_SERVO_FULL);
                 break;
@@ -630,7 +631,7 @@ public class Robot {
                 //maxDif = Math.max(Math.abs(backRightServo.getPosition()-SENSOR_SERVO_ZERO), Math.abs(frontLeftServo.getPosition()-SENSOR_SERVO_ZERO));
                 maxDif = 1;
                 backRightServo.setPosition(SENSOR_REV_SERVO_ZERO);
-                //backLeftServo.setPosition(SENSOR_SERVO_ZERO);
+                backLeftServo.setPosition(SENSOR_REV_SERVO_ZERO);
                 frontRightServo.setPosition(SENSOR_SERVO_ZERO);
                 //frontLeftServo.setPosition(SENSOR_SERVO_ZERO);
                 break;
@@ -646,11 +647,11 @@ public class Robot {
         opMode.telemetry.addData("range back right optical (cm)", rangeBackRight.cmOptical());
         opMode.telemetry.addData("range back right ultrasonic (cm)", rangeBackRight.cmUltrasonic());
 
-        //opMode.telemetry.addData("range front left optical (cm)", rangeFrontLeft.cmOptical());
-        //opMode.telemetry.addData("range front left ultrasonic (cm)", rangeFrontLeft.cmUltrasonic());
+        opMode.telemetry.addData("range front left optical (cm)", rangeFrontLeft.cmOptical());
+        opMode.telemetry.addData("range front left ultrasonic (cm)", rangeFrontLeft.cmUltrasonic());
 
-        //opMode.telemetry.addData("range back left optical (cm)", rangeBackLeft.cmOptical());
-        //opMode.telemetry.addData("range back left ultrasonic (cm)", rangeBackLeft.cmUltrasonic());
+        opMode.telemetry.addData("range back left optical (cm)", rangeBackLeft.cmOptical());
+        opMode.telemetry.addData("range back left ultrasonic (cm)", rangeBackLeft.cmUltrasonic());
 
         opMode.telemetry.update();
     }

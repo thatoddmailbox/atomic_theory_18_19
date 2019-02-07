@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.robot.Robot;
@@ -43,10 +42,10 @@ public abstract class AutoMain extends LinearOpMode {
         robot.latchLeft.setPower(-0.8);
         robot.latchRight.setPower(-1);
 
-        robot.latchLeft.setTargetPosition(latchLeftStart-robot.latchDistance);
-        robot.latchRight.setTargetPosition(latchRightStart-robot.latchDistance);
+        robot.latchLeft.setTargetPosition(latchLeftStart-Robot.LATCH_DISTANCE);
+        robot.latchRight.setTargetPosition(latchRightStart-Robot.LATCH_DISTANCE);
 
-        while(robot.latchLeft.isBusy() && robot.latchRight.isBusy() && opModeIsActive()){
+        while ((Math.abs(robot.latchLeft.getCurrentPosition() - (latchLeftStart-Robot.LATCH_DISTANCE)) > 30 || Math.abs(robot.latchRight.getCurrentPosition() - (latchRightStart-Robot.LATCH_DISTANCE)) > 30) && opModeIsActive()){
             sleep(10);
             idle();
         }
@@ -55,9 +54,10 @@ public abstract class AutoMain extends LinearOpMode {
         robot.latchLeft.setPower(0);
         robot.latchRight.setPower(0);
 
-        telemetry.addData("Heading - unlatch", robot.getHeading());
-        telemetry.update();
+        if (true) return;
 
+        telemetry.addData("Heading - unlatched", robot.getHeading());
+        telemetry.update();
 
         // turn to realign
         robot.lessBadTurn(0);
@@ -78,6 +78,8 @@ public abstract class AutoMain extends LinearOpMode {
         // NEW AUTO (UNTESTED)
         if (true) {
             ElapsedTime timer = new ElapsedTime();
+
+            robot.backLeftServo.setPosition(Robot.SENSOR_REV_SERVO_ZERO);
 
             // Get centered on minerals/lander
             robot.aligner.centerInCorner(2.0, true);
@@ -128,8 +130,9 @@ public abstract class AutoMain extends LinearOpMode {
                 sleep(200);
 
                 timer.reset();
-                while (opModeIsActive() && timer.seconds() < 1.0) {
+                while (opModeIsActive() && (robot.leftDistance(Robot.Direction.FORWARD) > 150 || timer.seconds() < 0.5)) {
                     robot.aligner.driveAlignDistance(0.85, 100, true);
+                    if (timer.seconds() > 1.1) break;
                     idle();
                 }
                 robot.driveMotors(0, 0, 0, 0);
@@ -138,8 +141,9 @@ public abstract class AutoMain extends LinearOpMode {
             }
 
             timer.reset();
-            while (opModeIsActive() && timer.seconds() < 1.1) {
+            while (opModeIsActive() && (robot.rightDistance(Robot.Direction.BACKWARD) > 700 || timer.seconds() < 0.5)) {
                 robot.aligner.driveAlignDistance(-0.85, 100, false);
+                if (timer.seconds() > 1.3) break;
                 idle();
             }
             return;

@@ -5,11 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.robot.Robot;
-import org.firstinspires.ftc.teamcode.utils.PersistentHeading;
 
 @TeleOp(name="Mechanum Tele-op")
 public class MechanumTele extends LinearOpMode {
@@ -135,9 +133,9 @@ public class MechanumTele extends LinearOpMode {
                 //robot.latchRight.setPower(-0.9);
             } else if (gamepad2.a) {
                 robot.latchLeft.setPower(0.8);
-                robot.latchLeft.setTargetPosition(latchLeftStart+robot.latchDistance);
+                robot.latchLeft.setTargetPosition(latchLeftStart+robot.LATCH_DISTANCE);
                 robot.latchRight.setPower(1.0);
-                robot.latchRight.setTargetPosition(latchRightStart+robot.latchDistance);
+                robot.latchRight.setTargetPosition(latchRightStart+robot.LATCH_DISTANCE);
 
                 //Alternative
                 //robot.latchLeft.setPower(0.9);
