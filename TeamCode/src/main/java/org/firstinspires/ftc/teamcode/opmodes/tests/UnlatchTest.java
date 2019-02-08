@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.utils.PIDLogger;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-@Autonomous(name="Unlatch test", group="Tests")
+@Autonomous(name="Latch test", group="Tests")
 public class UnlatchTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -28,13 +28,34 @@ public class UnlatchTest extends LinearOpMode {
 
         waitForStart();
 
-        robot.latchLeft.setPower(1);
-        robot.latchRight.setPower(1);
-        ElapsedTime timer = new ElapsedTime();
+        int latchLeftStart = robot.latchLeft.getCurrentPosition();
+        int latchRightStart = robot.latchRight.getCurrentPosition();
 
-        while (opModeIsActive() && timer.seconds() < 6) {
-            telemetry.addData("Time", timer.seconds());
-            telemetry.update();
+        while (opModeIsActive()) {
+            if(gamepad2.y){
+                robot.latchLeft.setPower(-0.8);
+                robot.latchRight.setPower(-1.0);
+                robot.latchRight.setTargetPosition(robot.latchRight.getCurrentPosition()-100);
+                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()-100);
+
+            } else if(gamepad2.a){
+                robot.latchLeft.setPower(0.8);
+                robot.latchRight.setPower(1.0);
+                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+100);
+                robot.latchRight.setTargetPosition(robot.latchRight.getCurrentPosition()+100);
+
+            } else if(gamepad2.dpad_left){
+                robot.latchLeft.setPower(-0.8);
+                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()-15);
+
+            } else if(gamepad2.dpad_right){
+                robot.latchLeft.setPower(+0.8);
+                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+15);
+
+            } else {
+                robot.latchLeft.setPower(0);
+                robot.latchRight.setPower(0);
+            }
             idle();
         }
 

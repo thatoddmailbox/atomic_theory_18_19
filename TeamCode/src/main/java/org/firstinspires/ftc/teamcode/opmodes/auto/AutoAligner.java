@@ -136,11 +136,21 @@ public class AutoAligner {
             //angleCorrection = 0;
             if (leftDistance == 2550 && rightDistance == 2550) {
                 robot.driveMotors(0, 0,0,0);
+                robot.driveMotors(0.6, 0.6,0.6,0.6);
+                Thread.sleep(25);
+                robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
+                Thread.sleep(25);
+                robot.driveMotors(0, 0,0,0);
                 timeout += timer.seconds() - lastLoopTime;
                 lastLoopTime = timer.seconds();
                 continue;
             } else if (leftDistance == 2550) {
                 if (lastRightDistance == 0) {
+                    robot.driveMotors(0, 0,0,0);
+                    robot.driveMotors(0.6, 0.6,0.6,0.6);
+                    Thread.sleep(25);
+                    robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
+                    Thread.sleep(25);
                     robot.driveMotors(0, 0,0,0);
                     timeout += timer.seconds() - lastLoopTime;
                     lastLoopTime = timer.seconds();
@@ -150,6 +160,11 @@ public class AutoAligner {
                 leftDistance = lastLeftDistance - rightDiff;
             } else if (rightDistance == 2550) {
                 if (lastLeftDistance == 0) {
+                    robot.driveMotors(0, 0,0,0);
+                    robot.driveMotors(0.6, 0.6,0.6,0.6);
+                    Thread.sleep(25);
+                    robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
+                    Thread.sleep(25);
                     robot.driveMotors(0, 0,0,0);
                     timeout += timer.seconds() - lastLoopTime;
                     lastLoopTime = timer.seconds();
@@ -325,7 +340,7 @@ public class AutoAligner {
 
         PIDController centerCornerPID = new PIDController(new PIDCoefficients(0.002, 0.00000075, 0), true, 0.6);
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.004, 0.0000015, 0.0), true, 0.8);
+        PIDController pid = new PIDController(new PIDCoefficients(0.006, 0.0000015, 0.0), true, 0.8);
 
         PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
         double targetHeading = robot.getHeading();
@@ -347,11 +362,21 @@ public class AutoAligner {
 
             if (leftDistance == 2550 && rightDistance == 2550) {
                 robot.driveMotors(0, 0,0,0);
+                robot.driveMotors(0.6, 0.6,0.6,0.6);
+                Thread.sleep(25);
+                robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
+                Thread.sleep(25);
+                robot.driveMotors(0, 0,0,0);
                 timeout += timer.seconds() - lastLoopTime;
                 lastLoopTime = timer.seconds();
                 continue;
             } else if (leftDistance == 2550) {
                 if (lastRightDistance == 0) {
+                    robot.driveMotors(0, 0,0,0);
+                    robot.driveMotors(0.6, 0.6,0.6,0.6);
+                    Thread.sleep(25);
+                    robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
+                    Thread.sleep(25);
                     robot.driveMotors(0, 0,0,0);
                     timeout += timer.seconds() - lastLoopTime;
                     lastLoopTime = timer.seconds();
@@ -361,6 +386,11 @@ public class AutoAligner {
                 leftDistance = lastLeftDistance - rightDiff;
             } else if (rightDistance == 2550) {
                 if (lastLeftDistance == 0) {
+                    robot.driveMotors(0, 0,0,0);
+                    robot.driveMotors(0.6, 0.6,0.6,0.6);
+                    Thread.sleep(25);
+                    robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
+                    Thread.sleep(25);
                     robot.driveMotors(0, 0,0,0);
                     timeout += timer.seconds() - lastLoopTime;
                     lastLoopTime = timer.seconds();
@@ -382,7 +412,7 @@ public class AutoAligner {
                 } else if (direction == Robot.Direction.LEFT) {
                     distance = rightDistance;
                 } else {
-                    distance = leftDistance;
+                    distance = rightDistance;
                 }
             } else {
                 if (sensorChoice == Robot.Direction.RIGHT) {

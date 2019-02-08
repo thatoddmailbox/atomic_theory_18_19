@@ -34,6 +34,7 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
+        robot.activateTfod();
 
         // unlatch
         int latchLeftStart = robot.latchLeft.getCurrentPosition();
@@ -51,29 +52,34 @@ public abstract class AutoMain extends LinearOpMode {
         }
 
         sleep(200);
+
         robot.latchLeft.setPower(0);
         robot.latchRight.setPower(0);
-
-        if (true) return;
 
         telemetry.addData("Heading - unlatched", robot.getHeading());
         telemetry.update();
 
-        // turn to realign
-        robot.lessBadTurn(0);
+        MineralPosition goldMineral = robot.findGoldMineralDifferent();
+
+        telemetry.addData("gold mineral", goldMineral.name());
+        telemetry.update();
 
         // strafe away from lander //TODO: These two shouldn't be different times + ENCODE
+        robot.driveMotors(-1, -1, -1, -1);
+        sleep(70);
+        robot.driveMotors(0, 0, 0, 0);
+
         robot.driveMotors(1, -1, -1, 1);
         sleep(200);
         robot.driveMotors(0, 0, 0, 0);
 
+        robot.latchLeft.setPower(0.8);
+        robot.latchRight.setPower(1);
+        robot.latchLeft.setTargetPosition(latchLeftStart-Robot.LATCH_DISTANCE + 3000);
+        robot.latchRight.setTargetPosition(latchRightStart-Robot.LATCH_DISTANCE + 3000);
+
         // turn to realign
         robot.lessBadTurn(0, 0.5);
-
-        robot.activateTfod();
-        sleep(1000); // TODO: how long of a delay is needed? is any?
-
-        MineralPosition goldMineral = robot.findGoldMineralDifferent();
 
         // NEW AUTO (UNTESTED)
         if (true) {
@@ -85,13 +91,13 @@ public abstract class AutoMain extends LinearOpMode {
             robot.aligner.centerInCorner(2.0, true);
 
             // Get close to minerals (away from lander)
-            robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 850, 3.5, true, false);
+            robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 850, 2.5, true, false);
 
             // Get in front of cube
             if (goldMineral == MineralPosition.LEFT) {
-                robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true, 560, 2.5, true);
-            } else {
-                robot.aligner.driveToDistance(Robot.Direction.BACKWARD, Robot.Direction.LEFT, true, 560, 2.5, true);
+                robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true, 560, 2.0, true);
+            } else if (goldMineral == MineralPosition.RIGHT) {
+                robot.aligner.driveToDistance(Robot.Direction.BACKWARD, Robot.Direction.LEFT, true, 560, 2.0, true);
             }
 
             robot.lessBadTurn(0, 0.5);
@@ -99,53 +105,102 @@ public abstract class AutoMain extends LinearOpMode {
             // Hit cube
             if (getStartingPosition() == StartingPosition.DEPOT) {
                 if (goldMineral == MineralPosition.LEFT) {
-                    robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 100, 2.5, true);
+                    robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 100, 2.0, true);
+                } else if (goldMineral == MineralPosition.RIGHT) {
+                    robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 100, 2.0, true);
                 } else {
-                    robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 100, 2.5, true);
+                    robot.lessBadTurn(-90);
+                    robot.driveMotors(1.0, 1.0, 1.0, 1.0);
+                    sleep(1500);
+                    robot.driveMotors(0,0,0 ,0);
+                    robot.lessBadTurn(0, 1.5);
+//                    robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 200, 1.5, true);
                 }
                 robot.lessBadTurn(0, 0.5);
 
-                robot.aligner.centerInCorner(2, true);
-
+                if (goldMineral != MineralPosition.CENTER) {
+                    robot.aligner.centerInCorner(2, true);
+                }
                 robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
                 sleep(500);
 
-                robot.lessBadTurn(-45);
-
+                if (!isSafeAuto()) {
+                    robot.lessBadTurn(-45);
+                } else {
+                    robot.lessBadTurn(45);
+                }
                 robot.setupSimpleServos(Robot.Direction.RIGHT);
 
-                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, false, 100, 0.5, true);
+                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, false, 100, 1.0, true);
             }
             if (getStartingPosition() == StartingPosition.CRATER) {
-                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 300, 1.0, true);
-
-                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 640, 1.0, true);
+                if (goldMineral == MineralPosition.LEFT) {
+                    robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 320, 1.0, true);
+                    robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 580, 1.0, true);
+                } else if (goldMineral == MineralPosition.RIGHT) {
+                    robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 320, 1.0, true);
+                    robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 580, 1.0, true);
+                } else {
+                    robot.lessBadTurn(-90);
+                    robot.driveMotors(1.0, 1.0, 1.0, 1.0);
+                    sleep(200);
+                    robot.driveMotors(0,0,0 ,0);
+                    robot.driveMotors(-1.0, -1.0, -1.0, -1.0);
+                    sleep(200);
+                    robot.driveMotors(0,0,0 ,0);
+                    robot.lessBadTurn(0, 1.5);
+                }
 
                 robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true, 300, 2.0, true);
 
-                double angle = robot.getHeading();
-                double relativeError = angle / 45;
-                robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (relativeError - 1) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
-                robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_REV_SERVO_FULL-Robot.SENSOR_REV_SERVO_HALF));
-                sleep(200);
+//                double angle = robot.getHeading();
+//                double relativeError = angle / 45;
+//                robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (relativeError - 1) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
+//                robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_REV_SERVO_FULL-Robot.SENSOR_REV_SERVO_HALF));
+//                sleep(200);
+                robot.setupSimpleServos(Robot.Direction.RIGHT);
+
+                robot.lessBadTurn(45);
 
                 timer.reset();
-                while (opModeIsActive() && (robot.leftDistance(Robot.Direction.FORWARD) > 150 || timer.seconds() < 0.5)) {
-                    robot.aligner.driveAlignDistance(0.85, 100, true);
-                    if (timer.seconds() > 1.1) break;
+                while (opModeIsActive()) {
+                    robot.aligner.driveAlignDistance(0.85, 100, false);
+                    if (timer.seconds() > 2.0) break;
                     idle();
                 }
                 robot.driveMotors(0, 0, 0, 0);
+
+                robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, false, 100, 1.0, true);
+
                 robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
                 sleep(500);
             }
 
+            robot.latchLeft.setPower(0.0);
+            robot.latchRight.setPower(0.0);
+
             timer.reset();
-            while (opModeIsActive() && (robot.rightDistance(Robot.Direction.BACKWARD) > 700 || timer.seconds() < 0.5)) {
-                robot.aligner.driveAlignDistance(-0.85, 100, false);
-                if (timer.seconds() > 1.3) break;
+            while (opModeIsActive()) {
+                if (!isSafeAuto()) {
+                    robot.aligner.driveAlignDistance(-0.85, 100, false);
+                } else {
+                    robot.aligner.driveAlignDistance(0.85, 100, false);
+                }
+                if (timer.seconds() > 1.1) break;
                 idle();
             }
+
+            if (getStartingPosition() == StartingPosition.DEPOT) {
+                if (!isSafeAuto()) {
+                    robot.lessBadTurn(135);
+                }
+            } else {
+                robot.lessBadTurn(-135);
+            }
+            robot.lenny.setPower(1.0);
+            sleep(4000);
+            robot.lenny.setPower(0.0);
+
             return;
         }
 

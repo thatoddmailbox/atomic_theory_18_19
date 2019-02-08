@@ -35,8 +35,8 @@ public class MechanumTele extends LinearOpMode {
         double nomPower = 1;
         boolean turnCompensation = false;
 
-        int latchLeftStart = robot.latchLeft.getCurrentPosition();
-        int latchRightStart = robot.latchRight.getCurrentPosition();
+        int latchLeftStart = robot.latchLeft.getCurrentPosition() - 3000;
+        int latchRightStart = robot.latchRight.getCurrentPosition() - 3000;
 
         while (opModeIsActive()) {
             double slowMode = gamepad1.left_bumper ? .5 : 1.0;
@@ -50,7 +50,7 @@ public class MechanumTele extends LinearOpMode {
             //Swap Driver and turn if latch mode is activated so directions make sense
             if(latchMode){
                 double temp = drivePower;
-                drivePower = strafePower;
+                drivePower = -strafePower;
                 strafePower = temp;
             }
 
@@ -92,14 +92,8 @@ public class MechanumTele extends LinearOpMode {
                 robot.driveMotors(0, 0, 0, 0);
             }
 
-            // zero power behavior toggling
-            if (gamepad1.right_bumper && !lastGamepad1.right_bumper) {
-                if (robot.driveMotorZeroPowerBehavior == DcMotor.ZeroPowerBehavior.BRAKE) {
-                    robot.setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                } else {
-                    robot.setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                }
-            }
+            robot.setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
             // turn-compensated driving
             if (gamepad1.left_stick_button && !lastGamepad1.left_stick_button) {

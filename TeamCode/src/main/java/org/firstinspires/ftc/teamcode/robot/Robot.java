@@ -33,9 +33,8 @@ import org.firstinspires.ftc.teamcode.utils.PIDController;
 import java.util.List;
 
 public class Robot {
-    public static final double SERVO_TEAM_MARKER_DEPOSIT = 0.0;
-    public static final double SERVO_TEAM_MARKER_HELD = 0.6;
-
+    public static final double SERVO_TEAM_MARKER_DEPOSIT = 0.1;
+    public static final double SERVO_TEAM_MARKER_HELD = 0.5;
 
     public static final double SENSOR_SERVO_ZERO = 0.25;
     public static final double SENSOR_SERVO_HALF = 0.5;
@@ -57,7 +56,7 @@ public class Robot {
 
     public static final int NAVX_DIM_I2C_PORT = 0;
 
-    public static final int LATCH_DISTANCE = 7560;
+    public static final int LATCH_DISTANCE = 7060;
 
     /*
      * control modules
@@ -183,11 +182,11 @@ public class Robot {
         latchLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         latchRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        //latchLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //latchRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        latchLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        latchRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //         Alternative to consider: based on velocity
-        latchLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        latchRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        latchLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        latchRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         /*
