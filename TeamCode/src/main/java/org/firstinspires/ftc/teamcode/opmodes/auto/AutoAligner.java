@@ -135,23 +135,13 @@ public class AutoAligner {
             double angleCorrection = anglePID.step(currentHeading, targetHeading);
             //angleCorrection = 0;
             if (leftDistance == 2550 && rightDistance == 2550) {
-                robot.driveMotors(0, 0,0,0);
-                robot.driveMotors(0.6, 0.6,0.6,0.6);
-                Thread.sleep(25);
-                robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
-                Thread.sleep(25);
-                robot.driveMotors(0, 0,0,0);
+                startSineWave();
                 timeout += timer.seconds() - lastLoopTime;
                 lastLoopTime = timer.seconds();
                 continue;
             } else if (leftDistance == 2550) {
                 if (lastRightDistance == 0) {
-                    robot.driveMotors(0, 0,0,0);
-                    robot.driveMotors(0.6, 0.6,0.6,0.6);
-                    Thread.sleep(25);
-                    robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
-                    Thread.sleep(25);
-                    robot.driveMotors(0, 0,0,0);
+                    startSineWave();
                     timeout += timer.seconds() - lastLoopTime;
                     lastLoopTime = timer.seconds();
                     continue;
@@ -160,12 +150,7 @@ public class AutoAligner {
                 leftDistance = lastLeftDistance - rightDiff;
             } else if (rightDistance == 2550) {
                 if (lastLeftDistance == 0) {
-                    robot.driveMotors(0, 0,0,0);
-                    robot.driveMotors(0.6, 0.6,0.6,0.6);
-                    Thread.sleep(25);
-                    robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
-                    Thread.sleep(25);
-                    robot.driveMotors(0, 0,0,0);
+                    startSineWave();
                     timeout += timer.seconds() - lastLoopTime;
                     lastLoopTime = timer.seconds();
                     continue;
@@ -283,6 +268,13 @@ public class AutoAligner {
         driveToDistance(direction, sensorChoice, half, targetDistance, timeout, shouldLog, false);
     }
 
+    public void startSineWave() {
+        ElapsedTime timer = new ElapsedTime();
+        while (robot.opMode.opModeIsActive() && timer.seconds() < 0.25) {
+            robot.driveMotors(Math.sin(timer.seconds()*8*Math.PI), Math.sin(timer.seconds()*8*Math.PI), Math.sin(timer.seconds()*8*Math.PI), Math.sin(timer.seconds()*8*Math.PI));
+        }
+    }
+
     public void driveToDistance(Robot.Direction direction, Robot.Direction sensorChoice, boolean half, double targetDistance, double timeout, boolean shouldLog, boolean shouldCenter) throws InterruptedException {
         switch (direction) {
             case FORWARD:
@@ -361,23 +353,13 @@ public class AutoAligner {
             rightDistance = robot.rightDistance(Robot.Direction.RIGHT);
 
             if (leftDistance == 2550 && rightDistance == 2550) {
-                robot.driveMotors(0, 0,0,0);
-                robot.driveMotors(0.6, 0.6,0.6,0.6);
-                Thread.sleep(25);
-                robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
-                Thread.sleep(25);
-                robot.driveMotors(0, 0,0,0);
+                startSineWave();
                 timeout += timer.seconds() - lastLoopTime;
                 lastLoopTime = timer.seconds();
                 continue;
             } else if (leftDistance == 2550) {
                 if (lastRightDistance == 0) {
-                    robot.driveMotors(0, 0,0,0);
-                    robot.driveMotors(0.6, 0.6,0.6,0.6);
-                    Thread.sleep(25);
-                    robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
-                    Thread.sleep(25);
-                    robot.driveMotors(0, 0,0,0);
+                    startSineWave();
                     timeout += timer.seconds() - lastLoopTime;
                     lastLoopTime = timer.seconds();
                     continue;
@@ -386,12 +368,7 @@ public class AutoAligner {
                 leftDistance = lastLeftDistance - rightDiff;
             } else if (rightDistance == 2550) {
                 if (lastLeftDistance == 0) {
-                    robot.driveMotors(0, 0,0,0);
-                    robot.driveMotors(0.6, 0.6,0.6,0.6);
-                    Thread.sleep(25);
-                    robot.driveMotors(-0.6, -0.6,-0.6,-0.6);
-                    Thread.sleep(25);
-                    robot.driveMotors(0, 0,0,0);
+                    startSineWave();
                     timeout += timer.seconds() - lastLoopTime;
                     lastLoopTime = timer.seconds();
                     continue;

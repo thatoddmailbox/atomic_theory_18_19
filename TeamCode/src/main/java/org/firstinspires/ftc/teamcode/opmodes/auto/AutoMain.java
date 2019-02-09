@@ -143,10 +143,10 @@ public abstract class AutoMain extends LinearOpMode {
                 } else {
                     robot.lessBadTurn(-90);
                     robot.driveMotors(1.0, 1.0, 1.0, 1.0);
-                    sleep(200);
+                    sleep(300);
                     robot.driveMotors(0,0,0 ,0);
                     robot.driveMotors(-1.0, -1.0, -1.0, -1.0);
-                    sleep(200);
+                    sleep(400);
                     robot.driveMotors(0,0,0 ,0);
                     robot.lessBadTurn(0, 1.5);
                 }
@@ -165,7 +165,7 @@ public abstract class AutoMain extends LinearOpMode {
                 timer.reset();
                 while (opModeIsActive()) {
                     robot.aligner.driveAlignDistance(0.85, 100, false);
-                    if (timer.seconds() > 2.0) break;
+                    if (timer.seconds() > 2.1) break;
                     idle();
                 }
                 robot.driveMotors(0, 0, 0, 0);

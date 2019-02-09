@@ -38,6 +38,8 @@ public class MechanumTele extends LinearOpMode {
         int latchLeftStart = robot.latchLeft.getCurrentPosition() - 3000;
         int latchRightStart = robot.latchRight.getCurrentPosition() - 3000;
 
+        int lennyEncoderDown = 0;
+
         while (opModeIsActive()) {
             double slowMode = gamepad1.left_bumper ? .5 : 1.0;
             boolean latchMode = gamepad1.right_bumper;
@@ -103,15 +105,21 @@ public class MechanumTele extends LinearOpMode {
             //Lenny Control
             if (lennyBackPower > deadZone) {
                 robot.lenny.setPower(-lennyBackPower);
-            } else if (lennyForwardPower > deadZone) {
+            } else if (lennyForwardPower > deadZone) { // && (lennyEncoderDown == 0 || robot.lenny.getCurrentPosition() < (lennyEncoderDown - 10))) {
                 robot.lenny.setPower(lennyForwardPower);
             } else {
                 robot.lenny.setPower(0);
             }
 
+            if (gamepad2.b) {
+                lennyEncoderDown = robot.lenny.getCurrentPosition();
+            } else if (gamepad2.x) {
+                lennyEncoderDown = 0;
+            }
+
             //George Control
-            if(gamepad2.dpad_up) robot.george.setPower(1);
-            else if(gamepad2.dpad_down) robot.george.setPower(-1);
+            if(gamepad2.dpad_up) robot.george.setPower(-1);
+            else if(gamepad2.dpad_down) robot.george.setPower(1);
             else robot.george.setPower(0);
 
 
@@ -157,6 +165,8 @@ public class MechanumTele extends LinearOpMode {
             telemetry.addData("Turn compensation", turnCompensation);
             telemetry.addData("Heading offset", robot.headingOffset);
             telemetry.addData("Heading", robot.getHeading());
+            telemetry.addData("Lenny encoder", robot.lenny.getCurrentPosition());
+            telemetry.addData("Lenny down", lennyEncoderDown);
             telemetry.addData("FL position", bulkData.getEncoder(Robot.MOTOR_PORT_FRONT_LEFT));
             telemetry.addData("FR position", bulkData.getEncoder(Robot.MOTOR_PORT_FRONT_RIGHT));
             telemetry.addData("BL position", bulkData.getEncoder(Robot.MOTOR_PORT_BACK_LEFT));
