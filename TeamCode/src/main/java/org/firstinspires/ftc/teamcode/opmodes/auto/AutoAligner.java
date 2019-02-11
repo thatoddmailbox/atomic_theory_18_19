@@ -133,7 +133,8 @@ public class AutoAligner {
                 currentHeading = targetHeading;
             }
             double angleCorrection = anglePID.step(currentHeading, targetHeading);
-            //angleCorrection = 0;
+//            angleCorrection = 0;
+
             if (leftDistance == 2550 && rightDistance == 2550) {
                 startSineWave();
                 timeout += timer.seconds() - lastLoopTime;
@@ -195,7 +196,7 @@ public class AutoAligner {
         }
 
         double leftDistance = robot.leftDistance(Robot.Direction.RIGHT);
-        double rightDistance = robot.rightDistance(Robot.Direction.RIGHT);
+        double rightDistance = robot.rightDistance(Robot.Direction.RIGHT) + 10;
         // Difference between two sensor readings for wall alignment
         double distanceDiff = leftDistance-rightDistance;
         // Difference between target distance and actual distance to set perpendicular distance
@@ -209,11 +210,11 @@ public class AutoAligner {
         distanceDiff = correctionToPowerScaling * distanceDiff/500;
         distanceError = correctionToPowerScaling * distanceError/500;
 
-        if (rightDistance == 2550 || leftDistance == 2550) {
+        if (rightDistance >= 2550 || leftDistance >= 2550) {
             distanceDiff = 0;
         }
 
-        if (rightDistance == 2550 && leftDistance == 2550) {
+        if (rightDistance >= 2550 && leftDistance >= 2550) {
             distanceError = 0;
         }
 

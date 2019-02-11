@@ -156,7 +156,7 @@ public class MechanumTele extends LinearOpMode {
                 robot.latchRight.setPower(0);
             }
 
-            LynxGetBulkInputDataResponse bulkData = robot.getBulkData(robot.expansionHub1);
+            LynxGetBulkInputDataResponse bulkData = robot.getBulkData(robot.expansionHub2);
 
             telemetry.addData("Zero power", robot.driveMotorZeroPowerBehavior.toString());
             telemetry.addData("Nom power", nomPower);

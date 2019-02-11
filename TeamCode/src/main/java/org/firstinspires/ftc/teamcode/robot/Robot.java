@@ -263,7 +263,11 @@ public class Robot {
 //
 //        opMode.telemetry.addLine("Calibrated navX");
 //        opMode.telemetry.update();
+
+        initialTicks = frontLeft.getCurrentPosition();
     }
+
+    public int initialTicks;
 
     /*
      * drive functions
@@ -299,11 +303,49 @@ public class Robot {
         setClippedMotorPower(backRight, br);
     }
 
-    public void driveTicks(int ticks, double power) {
-        int targetPosition = frontRight.getCurrentPosition() + ticks;
-        while ((targetPosition - frontRight.getCurrentPosition()) > 10) {
-            double currentPower = power;
-            driveMotors(power, power, power, power);
+    public void driveTargetTicks(int target, double fl, double fr, double bl, double br) {
+        driveTicks(target - frontLeft.getCurrentPosition(), fl, fr, bl, br);
+    }
+
+    public void driveTicks(int ticks, double fl, double fr, double bl, double br) {
+        int targetPosition = frontLeft.getCurrentPosition() + ticks;
+//        PIDController pid = new PIDController(new PIDCoefficients(0.01, 0, 0), true, Math.abs(fl));
+        PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
+
+        lastTargetHeading = this.getHeading();
+
+        double ogDiffSign = Math.signum(targetPosition - frontLeft.getCurrentPosition());
+        while (Math.abs(targetPosition - frontLeft.getCurrentPosition()) > 10 && opMode.opModeIsActive()) {
+
+            // Angle correction
+            double currentHeading = this.getHeading();
+            if (Math.abs(currentHeading - lastTargetHeading) < 0.25) {
+                currentHeading = lastTargetHeading;
+            }
+            double angleCorrection = anglePID.step(currentHeading, lastTargetHeading);
+
+            angleCorrection = 0;
+//            double currentPower = power;
+            double diffu = targetPosition - frontLeft.getCurrentPosition();
+            double diff = Math.abs(diffu);
+            double sign = ogDiffSign * Math.signum(diffu);
+//            double output = pid.step(frontLeft.getCurrentPosition(), targetPosition);
+//            opMode.telemetry.addData("diff", diff);
+            double flp = sign*Math.signum(fl)*Math.min(Math.max(diff/400.0, 0.4), Math.abs(fl));
+            double frp = sign*Math.signum(fr)*Math.min(Math.max(diff/400.0, 0.4), Math.abs(fr));
+            double blp = sign*Math.signum(bl)*Math.min(Math.max(diff/400.0, 0.4), Math.abs(bl));
+            double brp = sign*Math.signum(br)*Math.min(Math.max(diff/400.0, 0.4), Math.abs(br));
+//            opMode.telemetry.addData("flp", flp - angleCorrection);
+//            opMode.telemetry.addData("frp", frp + angleCorrection);
+//            opMode.telemetry.addData("blp", blp - angleCorrection);
+//            opMode.telemetry.addData("brp", brp + angleCorrection);
+//            opMode.telemetry.addData("current position", frontLeft.getCurrentPosition());
+//            opMode.telemetry.addData("target position", targetPosition);
+//            opMode.telemetry.addData("output", output);
+//            opMode.telemetry.update();
+
+            driveMotors(flp - angleCorrection, frp + angleCorrection, blp - angleCorrection, brp + angleCorrection);
+//            driveMotors(output, output * Math.signum(fr) * Math.signum(fl), output * Math.signum(fr) * Math.signum(bl), output * Math.signum(fr) * Math.signum(br));
         }
         driveMotors(0, 0, 0, 0);
     }
@@ -352,6 +394,7 @@ public class Robot {
         lessBadTurn(targetHeading, 2);
     }
 
+    private double lastTargetHeading = 0;
     public void lessBadTurn(double targetHeading, double timeout) {
         PIDController pid = new PIDController(new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
 
@@ -359,6 +402,8 @@ public class Robot {
         int correctFrames = 0;
 
         timer.reset();
+
+        lastTargetHeading = targetHeading;
 
         while (opMode.opModeIsActive() && timer.seconds() < timeout) {
             //if (true) break;
@@ -448,17 +493,45 @@ public class Robot {
             return MineralPosition.UNKNOWN;
         }
 
+        boolean foundSilverLeft = false;
+        boolean foundSilverCenter = false;
+        boolean foundSilverRight = false;
+
         for (Recognition r : updatedRecognitions) {
-            if (r.getLabel().equals(Consts.TFOD_LABEL_GOLD)) {
-                if (r.getLeft() > 200 && r.getLeft() < 400) {
+            boolean isGold = r.getLabel().equals(Consts.TFOD_LABEL_GOLD);
+            if (r.getLeft() > 200 && r.getLeft() < 400) {
+                if (isGold) {
                     return MineralPosition.CENTER;
-                } else if (r.getLeft() <= 200) {
+                } else {
+                    foundSilverCenter = true;
+                }
+            } else if (r.getLeft() <= 200) {
+                if (isGold) {
                     return MineralPosition.LEFT;
-                } else if (r.getLeft() >= 400) {
+                } else {
+                    foundSilverLeft = true;
+                }
+            } else if (r.getLeft() >= 400) {
+                if (isGold) {
                     return MineralPosition.RIGHT;
+                } else {
+                    foundSilverRight = true;
                 }
             }
+        }
 
+        // still haven't found gold boi
+        if (updatedRecognitions.size() != 2) {
+            // ???
+            return MineralPosition.UNKNOWN;
+        }
+
+        if (foundSilverLeft && foundSilverCenter) {
+            return MineralPosition.RIGHT;
+        } else if (foundSilverCenter && foundSilverRight) {
+            return MineralPosition.LEFT;
+        } else if (foundSilverLeft && foundSilverRight) {
+            return MineralPosition.CENTER;
         }
 
         return MineralPosition.UNKNOWN;
