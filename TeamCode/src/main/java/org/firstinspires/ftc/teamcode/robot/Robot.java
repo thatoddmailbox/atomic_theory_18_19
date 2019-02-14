@@ -30,6 +30,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class Robot {
@@ -218,6 +219,7 @@ public class Robot {
             opMode.telemetry.addLine("calibrating");
             opMode.telemetry.update();
             opMode.idle();
+//            break;
         }
 
         resetHeading();
@@ -450,6 +452,11 @@ public class Robot {
         tfod.shutdown();
     }
 
+    public enum MineralType {
+        GOLD,
+        SILVER
+    }
+
     public MineralPosition findGoldMineral() {
         List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
@@ -486,55 +493,64 @@ public class Robot {
         }
     }
 
-    public MineralPosition findGoldMineralDifferent() {
+    public HashMap<MineralPosition, MineralType> findGoldMineralDifferent() {
         List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
+        HashMap<MineralPosition, MineralType> recognitions = new HashMap<MineralPosition, MineralType>();
+
         if (updatedRecognitions == null) {
-            return MineralPosition.UNKNOWN;
+            return recognitions;
         }
 
-        boolean foundSilverLeft = false;
-        boolean foundSilverCenter = false;
-        boolean foundSilverRight = false;
+//        boolean foundSilverLeft = false;
+//        boolean foundSilverCenter = false;
+//        boolean foundSilverRight = false;
 
         for (Recognition r : updatedRecognitions) {
             boolean isGold = r.getLabel().equals(Consts.TFOD_LABEL_GOLD);
             if (r.getLeft() > 200 && r.getLeft() < 400) {
                 if (isGold) {
-                    return MineralPosition.CENTER;
+                    recognitions.put(MineralPosition.CENTER, MineralType.GOLD);
                 } else {
-                    foundSilverCenter = true;
+                    recognitions.put(MineralPosition.CENTER, MineralType.SILVER);
+//                    foundSilverCenter = true;
                 }
             } else if (r.getLeft() <= 200) {
                 if (isGold) {
-                    return MineralPosition.LEFT;
+                    recognitions.put(MineralPosition.LEFT, MineralType.GOLD);
+//                    return MineralPosition.LEFT;
                 } else {
-                    foundSilverLeft = true;
+                    recognitions.put(MineralPosition.LEFT, MineralType.SILVER);
+//                    foundSilverLeft = true;
                 }
             } else if (r.getLeft() >= 400) {
                 if (isGold) {
-                    return MineralPosition.RIGHT;
+                    recognitions.put(MineralPosition.RIGHT, MineralType.GOLD);
+//                    return MineralPosition.RIGHT;
                 } else {
-                    foundSilverRight = true;
+                    recognitions.put(MineralPosition.RIGHT, MineralType.SILVER);
+//                    foundSilverRight = true;
                 }
             }
         }
 
+        return recognitions;
+
         // still haven't found gold boi
-        if (updatedRecognitions.size() != 2) {
-            // ???
-            return MineralPosition.UNKNOWN;
-        }
+//        if (updatedRecognitions.size() != 2) {
+//            // ???
+//            return MineralPosition.UNKNOWN;
+//        }
+//
+//        if (foundSilverLeft && foundSilverCenter) {
+//            return MineralPosition.RIGHT;
+//        } else if (foundSilverCenter && foundSilverRight) {
+//            return MineralPosition.LEFT;
+//        } else if (foundSilverLeft && foundSilverRight) {
+//            return MineralPosition.CENTER;
+//        }
 
-        if (foundSilverLeft && foundSilverCenter) {
-            return MineralPosition.RIGHT;
-        } else if (foundSilverCenter && foundSilverRight) {
-            return MineralPosition.LEFT;
-        } else if (foundSilverLeft && foundSilverRight) {
-            return MineralPosition.CENTER;
-        }
-
-        return MineralPosition.UNKNOWN;
+//        return MineralPosition.UNKNOWN;
     }
 
     // UTILITES
