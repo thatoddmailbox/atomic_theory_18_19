@@ -179,7 +179,7 @@ public class Robot {
         setDriveMotorZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         george.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         latchLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         latchRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 

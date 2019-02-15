@@ -190,8 +190,9 @@ public abstract class AutoMain extends LinearOpMode {
         robot.latchLeft.setPower(0.8);
         robot.latchRight.setPower(1);
         //-Robot.LATCH_DISTANCE + 3000
-        robot.latchLeft.setTargetPosition(latchLeftStart - Robot.LATCH_DISTANCE + 5000);
-        robot.latchRight.setTargetPosition(latchRightStart - Robot.LATCH_DISTANCE + 5000);
+
+        robot.latchLeft.setTargetPosition(latchLeftStart - Robot.LATCH_DISTANCE + 6000);
+        robot.latchRight.setTargetPosition(latchRightStart - Robot.LATCH_DISTANCE + 6000);
 
         // turn to realign
         robot.lessBadTurn(0, 0.5);
