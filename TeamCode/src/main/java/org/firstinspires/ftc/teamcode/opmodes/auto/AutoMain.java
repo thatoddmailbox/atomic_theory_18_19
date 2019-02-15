@@ -190,8 +190,8 @@ public abstract class AutoMain extends LinearOpMode {
         robot.latchLeft.setPower(0.8);
         robot.latchRight.setPower(1);
         //-Robot.LATCH_DISTANCE + 3000
-        robot.latchLeft.setTargetPosition(latchLeftStart - Robot.LATCH_DISTANCE + 3000);
-        robot.latchRight.setTargetPosition(latchRightStart - Robot.LATCH_DISTANCE + 3000);
+        robot.latchLeft.setTargetPosition(latchLeftStart - Robot.LATCH_DISTANCE + 5000);
+        robot.latchRight.setTargetPosition(latchRightStart - Robot.LATCH_DISTANCE + 5000);
 
         // turn to realign
         robot.lessBadTurn(0, 0.5);
@@ -275,12 +275,12 @@ public abstract class AutoMain extends LinearOpMode {
             if (getStartingPosition() == StartingPosition.CRATER) {
                 if (goldMineral == LEFT) {
                     robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
-                    robot.driveTicks(-250, -0.9, 0.9, 0.9, -0.9);
+                    robot.driveTicks(-350, -0.9, 0.9, 0.9, -0.9);
                     //robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 320, 1.0, true);
                     //robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 580, 1.0, true);
                 } else if (goldMineral == RIGHT) {
                     robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
-                    robot.driveTicks(-250, -0.9, 0.9, 0.9, -0.9);
+                    robot.driveTicks(-350, -0.9, 0.9, 0.9, -0.9);
                     //robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 320, 1.0, true);
                     //robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 580, 1.0, true);
                 } else {
@@ -311,6 +311,7 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.driveTicks(100, 0.9, -0.9, -0.9, -0.9);
 
                 timer.reset();
+//                robot.driveTicks(3000, 0.9, 0.9, 0.9, 0.9);
                 while (opModeIsActive()) {
                     robot.driveMotors(0.9, 0.9, 0.9, 0.9);
 //                    robot.aligner.driveAlignDistance(0.9, 100, false);
