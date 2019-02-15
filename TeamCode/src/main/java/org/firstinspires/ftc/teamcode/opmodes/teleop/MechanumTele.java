@@ -35,8 +35,8 @@ public class MechanumTele extends LinearOpMode {
         double nomPower = 1;
         boolean turnCompensation = false;
 
-        int latchLeftStart = robot.latchLeft.getCurrentPosition() - 3000;
-        int latchRightStart = robot.latchRight.getCurrentPosition() - 3000;
+        int latchLeftStart = robot.latchLeft.getCurrentPosition() - 6000;
+        int latchRightStart = robot.latchRight.getCurrentPosition() - 6000;
 
         int lennyEncoderDown = 0;
 
@@ -145,11 +145,11 @@ public class MechanumTele extends LinearOpMode {
 
             } else if(gamepad2.dpad_left){
                 robot.latchLeft.setPower(-0.8);
-                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()-15);
+                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()-200);
 
             } else if(gamepad2.dpad_right){
                 robot.latchLeft.setPower(+0.8);
-                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+15);
+                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+200);
 
             } else {
                 robot.latchLeft.setPower(0);

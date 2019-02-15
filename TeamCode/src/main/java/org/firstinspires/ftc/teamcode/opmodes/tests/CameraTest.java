@@ -23,8 +23,8 @@ public class CameraTest extends LinearOpMode {
 
         while (opModeIsActive()) {
             sleep(100);
-            MineralPosition goldMineral = robot.findGoldMineralDifferent();
-            telemetry.addData("gold mineral", goldMineral.name());
+//            MineralPosition goldMineral = robot.findGoldMineralDifferent();
+//            telemetry.addData("gold mineral", goldMineral.name());
             telemetry.update();
         }
 
