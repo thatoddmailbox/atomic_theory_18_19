@@ -76,7 +76,7 @@ public abstract class AutoMain extends LinearOpMode {
         while ((Math.abs(robot.latchLeft.getCurrentPosition() - (latchLeftStart-Robot.LATCH_DISTANCE)) > 30 || Math.abs(robot.latchRight.getCurrentPosition() - (latchRightStart-Robot.LATCH_DISTANCE)) > 30) && opModeIsActive()){
             HashMap<MineralPosition, Robot.MineralType> reading = robot.findGoldMineralDifferent();
 
-            if (reading.get(MineralPosition.CENTER) == Robot.MineralType.GOLD) {
+            if (reading.get(CENTER) == Robot.MineralType.GOLD) {
 //                centerCount++;
                 goldCenterVote++;
             } else if (reading.get(LEFT) == Robot.MineralType.GOLD) {
@@ -85,7 +85,7 @@ public abstract class AutoMain extends LinearOpMode {
             } else if (reading.get(RIGHT) == Robot.MineralType.GOLD) {
 //                rightCount++;
                 goldRightVote++;
-            } else if (reading.get(MineralPosition.CENTER) == Robot.MineralType.SILVER) {
+            } else if (reading.get(CENTER) == Robot.MineralType.SILVER) {
 //                whiteCenterCount++;
                 goldCenterVote--;
             } else if (reading.get(LEFT) == Robot.MineralType.SILVER) {
@@ -144,13 +144,9 @@ public abstract class AutoMain extends LinearOpMode {
         if (goldLeftVote >= goldRightVote && goldLeftVote >= goldCenterVote) {
             goldMineral = LEFT;
         } else if (goldCenterVote >= goldRightVote && goldCenterVote >= goldLeftVote) {
-            if (goldCenterVote == goldRightVote) {
-                goldMineral = LEFT;
-            } else {
+            if (goldCenterVote != goldRightVote) {
                 goldMineral = CENTER;
             }
-        } else if (goldRightVote >= goldCenterVote && goldRightVote >= goldLeftVote) {
-            goldMineral = RIGHT;
         }
 //        if (goldMineral == MineralPosition.UNKNOWN) {
 //            if (leftCount > centerCount && leftCount > rightCount) {
