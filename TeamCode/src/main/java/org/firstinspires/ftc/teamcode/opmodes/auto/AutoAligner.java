@@ -60,20 +60,6 @@ public class AutoAligner {
         }
     }
 
-    public void pidAlign() {
-        double leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;
-        double rightDistance = robot.rangeBackRight.cmUltrasonic() * 10;
-        double distanceDiff = leftDistance-rightDistance;
-        while (rightDistance == 2550 || leftDistance == 2550) {
-            leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;
-            rightDistance = robot.rangeBackRight.cmUltrasonic() * 10;
-            distanceDiff = leftDistance-rightDistance;
-        }
-        int distanceSign = distanceDiff > 0 ? 1 : -1;
-        distanceDiff = distanceSign * distanceDiff;
-        robot.lessBadTurn(robot.getHeading() + distanceSign*Math.atan(distanceDiff/150));
-    }
-
     // Drives robot forward/backward while aligning on the wall (called in a loop)
     public void driveAlign(double motorPower) {
         double leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;

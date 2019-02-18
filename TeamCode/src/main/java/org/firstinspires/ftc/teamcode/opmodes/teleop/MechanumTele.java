@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.robot.Robot;
 
@@ -40,6 +41,10 @@ public class MechanumTele extends LinearOpMode {
 
         int lennyEncoderDown = 0;
 
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        double lastLoopTime = timer.milliseconds();
+        double lastLennyPosition = robot.lenny.getCurrentPosition();
         while (opModeIsActive()) {
             double slowMode = gamepad1.left_bumper ? .5 : 1.0;
             boolean latchMode = gamepad1.right_bumper;
@@ -55,6 +60,13 @@ public class MechanumTele extends LinearOpMode {
                 drivePower = -strafePower;
                 strafePower = temp;
             }
+
+            double currentLennyPosition = robot.lenny.getCurrentPosition();
+            double currentTime = timer.milliseconds();
+            double loopElapsedTime = currentTime - lastLoopTime;
+            double lennyVelocity = (lastLennyPosition - currentLennyPosition)/loopElapsedTime;
+            lastLoopTime = currentTime;
+            lastLennyPosition = currentLennyPosition;
 
             //Lenny Speed
             double lennyBackPower = gamepad2.left_trigger;
@@ -103,10 +115,10 @@ public class MechanumTele extends LinearOpMode {
             }
 
             //Lenny Control
-            if (lennyBackPower > deadZone) {
+            if (lennyBackPower > deadZone && lennyVelocity < robot.MAX_LENNY_RETRO_VELOCITY) {
                 robot.lenny.setPower(-lennyBackPower);
 //                robot.lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            } else if (lennyForwardPower > deadZone) { // && (lennyEncoderDown == 0 || robot.lenny.getCurrentPosition() < (lennyEncoderDown - 10))) {
+            } else if (lennyForwardPower > deadZone && lennyVelocity > -robot.MAX_LENNY_RETRO_VELOCITY) { // && (lennyEncoderDown == 0 || robot.lenny.getCurrentPosition() < (lennyEncoderDown - 10))) {
                 robot.lenny.setPower(lennyForwardPower);
 //                robot.lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             } else {
@@ -169,6 +181,8 @@ public class MechanumTele extends LinearOpMode {
             telemetry.addData("Heading", robot.getHeading());
             telemetry.addData("Lenny encoder", robot.lenny.getCurrentPosition());
             telemetry.addData("Lenny down", lennyEncoderDown);
+            telemetry.addData("Lenny velocity", lennyVelocity);
+            telemetry.addData("Loop elapsed time", loopElapsedTime);
             telemetry.addData("FL position", bulkData.getEncoder(Robot.MOTOR_PORT_FRONT_LEFT));
             telemetry.addData("FR position", bulkData.getEncoder(Robot.MOTOR_PORT_FRONT_RIGHT));
             telemetry.addData("BL position", bulkData.getEncoder(Robot.MOTOR_PORT_BACK_LEFT));

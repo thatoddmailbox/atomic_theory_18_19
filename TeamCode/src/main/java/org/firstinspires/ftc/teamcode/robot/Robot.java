@@ -9,7 +9,6 @@ import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.AnalogInput;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
@@ -58,6 +57,8 @@ public class Robot {
     public static final int NAVX_DIM_I2C_PORT = 0;
 
     public static final int LATCH_DISTANCE = 7960;
+
+    public static final double MAX_LENNY_RETRO_VELOCITY = Double.MAX_VALUE; // ticks per millisecond
 
     /*
      * control modules
@@ -393,12 +394,12 @@ public class Robot {
         headingOffset = imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
 
-    public void lessBadTurn(double targetHeading) {
-        lessBadTurn(targetHeading, 2);
+    public void turn(double targetHeading) {
+        turn(targetHeading, 2);
     }
 
     private double lastTargetHeading = 0;
-    public void lessBadTurn(double targetHeading, double timeout) {
+    public void turn(double targetHeading, double timeout) {
         PIDController pid = new PIDController(new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
 
         ElapsedTime timer = new ElapsedTime();
@@ -494,64 +495,31 @@ public class Robot {
         }
     }
 
-    public HashMap<MineralPosition, MineralType> findGoldMineralDifferent() {
+    public HashMap<MineralPosition, Float> findGoldMineralDifferent() {
         List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
-        HashMap<MineralPosition, MineralType> recognitions = new HashMap<MineralPosition, MineralType>();
+        HashMap<MineralPosition, Float> recognitions = new HashMap<>();
 
         if (updatedRecognitions == null) {
             return recognitions;
         }
 
-//        boolean foundSilverLeft = false;
-//        boolean foundSilverCenter = false;
-//        boolean foundSilverRight = false;
-
         for (Recognition r : updatedRecognitions) {
-            boolean isGold = r.getLabel().equals(Consts.TFOD_LABEL_GOLD);
-            if (r.getLeft() > 200 && r.getLeft() < 400) {
-                if (isGold) {
-                    recognitions.put(MineralPosition.CENTER, MineralType.GOLD);
-                } else {
-                    recognitions.put(MineralPosition.CENTER, MineralType.SILVER);
-//                    foundSilverCenter = true;
-                }
-            } else if (r.getLeft() <= 200) {
-                if (isGold) {
-                    recognitions.put(MineralPosition.LEFT, MineralType.GOLD);
-//                    return MineralPosition.LEFT;
-                } else {
-                    recognitions.put(MineralPosition.LEFT, MineralType.SILVER);
-//                    foundSilverLeft = true;
-                }
-            } else if (r.getLeft() >= 400) {
-                if (isGold) {
-                    recognitions.put(MineralPosition.RIGHT, MineralType.GOLD);
-//                    return MineralPosition.RIGHT;
-                } else {
-                    recognitions.put(MineralPosition.RIGHT, MineralType.SILVER);
-//                    foundSilverRight = true;
-                }
+            float mineralTypeFactor = (r.getLabel().equals(Consts.TFOD_LABEL_GOLD)) ? 1 : -1;
+            double centerX = (r.getLeft() + r.getRight())/2;
+            if (centerX > 200 && centerX < 400) {
+                if (Math.abs(recognitions.get(MineralPosition.CENTER)) > r.getConfidence()) continue;
+                recognitions.put(MineralPosition.CENTER, mineralTypeFactor * r.getConfidence());
+            } else if (centerX <= 200) {
+                if (Math.abs(recognitions.get(MineralPosition.LEFT)) > r.getConfidence()) continue;
+                recognitions.put(MineralPosition.LEFT, mineralTypeFactor * r.getConfidence());
+            } else if (centerX >= 400) {
+                if (Math.abs(recognitions.get(MineralPosition.RIGHT)) > r.getConfidence()) continue;
+                recognitions.put(MineralPosition.RIGHT, mineralTypeFactor * r.getConfidence());
             }
         }
 
         return recognitions;
-
-        // still haven't found gold boi
-//        if (updatedRecognitions.size() != 2) {
-//            // ???
-//            return MineralPosition.UNKNOWN;
-//        }
-//
-//        if (foundSilverLeft && foundSilverCenter) {
-//            return MineralPosition.RIGHT;
-//        } else if (foundSilverCenter && foundSilverRight) {
-//            return MineralPosition.LEFT;
-//        } else if (foundSilverLeft && foundSilverRight) {
-//            return MineralPosition.CENTER;
-//        }
-
-//        return MineralPosition.UNKNOWN;
     }
 
     // UTILITES
