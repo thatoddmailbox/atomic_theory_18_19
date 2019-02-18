@@ -12,7 +12,7 @@ public class AutoDepotSafe extends AutoMain {
     }
 
     @Override
-    public boolean isSafeAuto() {
+    public boolean shouldEndInOtherCrater() {
         return true;
     }
 }

@@ -57,7 +57,7 @@ public class Robot {
 
     public static final int NAVX_DIM_I2C_PORT = 0;
 
-    public static final int LATCH_DISTANCE = 7060;
+    public static final int LATCH_DISTANCE = 7960;
 
     /*
      * control modules
@@ -213,13 +213,14 @@ public class Robot {
         imu.write8(BNO055IMU.Register.OPR_MODE, BNO055IMU.SensorMode.IMU.bVal);
         Thread.sleep(100);
 
-        while (!opMode.isStopRequested() && !imu.isGyroCalibrated())
-        {
-            Thread.sleep(50);
-            opMode.telemetry.addLine("calibrating");
-            opMode.telemetry.update();
-            opMode.idle();
+        if (enableVision) {
+            while (!opMode.isStopRequested() && !imu.isGyroCalibrated()) {
+                Thread.sleep(50);
+                opMode.telemetry.addLine("calibrating");
+                opMode.telemetry.update();
+                opMode.idle();
 //            break;
+            }
         }
 
         resetHeading();
@@ -341,10 +342,10 @@ public class Robot {
 //            opMode.telemetry.addData("frp", frp + angleCorrection);
 //            opMode.telemetry.addData("blp", blp - angleCorrection);
 //            opMode.telemetry.addData("brp", brp + angleCorrection);
-//            opMode.telemetry.addData("current position", frontLeft.getCurrentPosition());
-//            opMode.telemetry.addData("target position", targetPosition);
-//            opMode.telemetry.addData("output", output);
-//            opMode.telemetry.update();
+            opMode.telemetry.addData("current position", frontLeft.getCurrentPosition());
+            opMode.telemetry.addData("target position", targetPosition);
+            opMode.telemetry.addData("front left power", flp);
+            opMode.telemetry.update();
 
             driveMotors(flp - angleCorrection, frp + angleCorrection, blp - angleCorrection, brp + angleCorrection);
 //            driveMotors(output, output * Math.signum(fr) * Math.signum(fl), output * Math.signum(fr) * Math.signum(bl), output * Math.signum(fr) * Math.signum(br));

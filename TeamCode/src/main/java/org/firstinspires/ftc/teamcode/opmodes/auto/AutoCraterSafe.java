@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.utils.StartingPosition;
 
-@Autonomous(name="Auto - crater, safe")
+@Autonomous(name="Auto - crater, DON'T USE")
 public class AutoCraterSafe extends AutoMain {
     @Override
     public StartingPosition getStartingPosition() {
@@ -12,7 +12,7 @@ public class AutoCraterSafe extends AutoMain {
     }
 
     @Override
-    public boolean isSafeAuto() {
+    public boolean shouldEndInOtherCrater() {
         return true;
     }
 }

@@ -105,8 +105,10 @@ public class MechanumTele extends LinearOpMode {
             //Lenny Control
             if (lennyBackPower > deadZone) {
                 robot.lenny.setPower(-lennyBackPower);
+//                robot.lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             } else if (lennyForwardPower > deadZone) { // && (lennyEncoderDown == 0 || robot.lenny.getCurrentPosition() < (lennyEncoderDown - 10))) {
                 robot.lenny.setPower(lennyForwardPower);
+//                robot.lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             } else {
                 robot.lenny.setPower(0);
             }
