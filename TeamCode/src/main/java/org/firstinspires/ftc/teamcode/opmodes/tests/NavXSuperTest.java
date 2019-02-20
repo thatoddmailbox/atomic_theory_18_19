@@ -1,14 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes.tests;
 
-import android.util.Log;
-
 import com.kauailabs.navx.ftc.AHRS;
 import com.kauailabs.navx.ftc.navXPIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.text.DecimalFormat;
@@ -116,10 +112,14 @@ public class NavXSuperTest extends OpMode {
              */
             if (yawPIDController.isNewUpdateAvailable(yawPIDResult)) {
                 if (yawPIDResult.isOnTarget()) {
-                    frontLeft.setPowerFloat();
-                    frontRight.setPowerFloat();
-                    backLeft.setPowerFloat();
-                    backRight.setPowerFloat();
+                    frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    frontLeft.setPower(0.0);
+                    frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    frontRight.setPower(0.0);
+                    backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    backLeft.setPower(0.0);
+                    backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    backRight.setPower(0.0);
                     telemetry.addData("Motor Output", df.format(0.00));
                 } else {
                     double output = yawPIDResult.getOutput();
