@@ -10,10 +10,6 @@ import org.firstinspires.ftc.teamcode.utils.StartingPosition;
 
 import java.util.HashMap;
 
-import static org.firstinspires.ftc.teamcode.utils.MineralPosition.CENTER;
-import static org.firstinspires.ftc.teamcode.utils.MineralPosition.LEFT;
-import static org.firstinspires.ftc.teamcode.utils.MineralPosition.RIGHT;
-
 public abstract class AutoMain extends LinearOpMode {
 
     public abstract StartingPosition getStartingPosition();
@@ -68,16 +64,16 @@ public abstract class AutoMain extends LinearOpMode {
         while ((Math.abs(robot.latchLeft.getCurrentPosition() - (latchLeftStart-Robot.LATCH_DISTANCE)) > 30 || Math.abs(robot.latchRight.getCurrentPosition() - (latchRightStart-Robot.LATCH_DISTANCE)) > 30) && opModeIsActive()){
             HashMap<MineralPosition, Float> reading = robot.findGoldMineralDifferent();
 
-            if (reading.containsKey(CENTER)) {
-                goldCenterVote += reading.get(CENTER);
+            if (reading.containsKey(MineralPosition.CENTER)) {
+                goldCenterVote += reading.get(MineralPosition.CENTER);
                 totalCenterVotes += 1;
             }
-            if (reading.containsKey(LEFT)) {
-                goldLeftVote += reading.get(LEFT);
+            if (reading.containsKey(MineralPosition.LEFT)) {
+                goldLeftVote += reading.get(MineralPosition.LEFT);
                 totalLeftVotes += 1;
             }
-            if (reading.containsKey(RIGHT)) {
-                goldRightVote += reading.get(RIGHT);
+            if (reading.containsKey(MineralPosition.RIGHT)) {
+                goldRightVote += reading.get(MineralPosition.RIGHT);
                 totalRightVotes += 1;
             }
 
@@ -109,10 +105,10 @@ public abstract class AutoMain extends LinearOpMode {
         MineralPosition goldMineral = MineralPosition.RIGHT;
 
         if (goldLeftVote >= goldRightVote && goldLeftVote >= goldCenterVote) {
-            goldMineral = LEFT;
+            goldMineral = MineralPosition.LEFT;
         } else if (goldCenterVote >= goldRightVote && goldCenterVote >= goldLeftVote) {
             if (goldCenterVote != goldRightVote) {
-                goldMineral = CENTER;
+                goldMineral = MineralPosition.CENTER;
             }
         }
 
@@ -157,11 +153,11 @@ public abstract class AutoMain extends LinearOpMode {
 //            robot.turn(0, 0.5);
 
             // Get in front of cube
-            if (goldMineral == LEFT) {
+            if (goldMineral == MineralPosition.LEFT) {
                 robot.driveTicks(100 + MINERAL_TICKS + 550, 0.9, 0.9, 0.9, 0.9);
 //                robot.driveTicks(200 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
                 //robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true, 560, 2.0, true);
-            } else if (goldMineral == RIGHT) {
+            } else if (goldMineral == MineralPosition.RIGHT) {
                 robot.driveTicks(100 - MINERAL_TICKS + 100, -0.9, -0.9, -0.9, -0.9);
 //                robot.driveTicks(200 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
                 //robot.aligner.driveToDistance(Robot.Direction.BACKWARD, Robot.Direction.LEFT, true, 560, 2.0, true);
@@ -174,11 +170,11 @@ public abstract class AutoMain extends LinearOpMode {
 
             if (getStartingPosition() == StartingPosition.DEPOT) {
                 // Hit cube
-                if (goldMineral == LEFT) {
+                if (goldMineral == MineralPosition.LEFT) {
                     robot.driveTicks(1650, 0.9, -0.9, -0.9, 0.9);
 //                    robot.driveTicks(1650, 1, 1, 1, 1);
                     //robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 100, 2.0, true);
-                } else if (goldMineral == RIGHT) {
+                } else if (goldMineral == MineralPosition.RIGHT) {
                     robot.driveTicks(1650, 0.9, -0.9, -0.9, 0.9);
 //                    robot.driveTicks(1650, 1, 1, 1, 1);
                     //robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 100, 2.0, true);
@@ -192,11 +188,11 @@ public abstract class AutoMain extends LinearOpMode {
 //                robot.turn(0, 1.5);
 
                 // Recenter
-                if (goldMineral == LEFT) {
+                if (goldMineral == MineralPosition.LEFT) {
 //                    robot.driveTicks(-MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
                     robot.driveTicks(100 - MINERAL_TICKS - 100, -0.9, -0.9, -0.9, -0.9);
 //                    robot.driveTicks(100 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
-                } else if (goldMineral == RIGHT) {
+                } else if (goldMineral == MineralPosition.RIGHT) {
 //                    robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
                     robot.driveTicks(100 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
 //                    robot.driveTicks(100 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
@@ -228,12 +224,12 @@ public abstract class AutoMain extends LinearOpMode {
             }
             if (getStartingPosition() == StartingPosition.CRATER) {
                 // Hit cube
-                if (goldMineral == LEFT) {
+                if (goldMineral == MineralPosition.LEFT) {
                     robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
                     robot.driveTicks(-650, -0.9, 0.9, 0.9, -0.9);
                     //robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 320, 1.0, true);
                     //robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.LEFT, true, 580, 1.0, true);
-                } else if (goldMineral == RIGHT) {
+                } else if (goldMineral == MineralPosition.RIGHT) {
                     robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
                     robot.driveTicks(-650, -0.9, 0.9, 0.9, -0.9);
                     //robot.aligner.driveToDistance(Robot.Direction.RIGHT, Robot.Direction.RIGHT, true, 320, 1.0, true);
@@ -248,9 +244,9 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.turn(0, 1.0);
 
                 // Drive to wall
-                if (goldMineral == LEFT) {
+                if (goldMineral == MineralPosition.LEFT) {
                     robot.driveTicks(2000 - MINERAL_TICKS - 100, 0.9, 0.9, 0.9, 0.9);
-                } else if (goldMineral == RIGHT) {
+                } else if (goldMineral == MineralPosition.RIGHT) {
                     robot.driveTicks(2000 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
                 } else {
                     robot.driveTicks(2000, 0.9, 0.9, 0.9, 0.9);
@@ -376,11 +372,11 @@ public abstract class AutoMain extends LinearOpMode {
         robot.turn(0, 0.5);
 
         // Move left/right depending on mineral position TODO: ENCODE ME
-        if (goldMineral == LEFT) {
+        if (goldMineral == MineralPosition.LEFT) {
             robot.driveMotors(0.5, 0.5, 0.5, 0.5);
             sleep(700);
             robot.driveMotors(0, 0, 0, 0);
-        } else if (goldMineral == RIGHT) {
+        } else if (goldMineral == MineralPosition.RIGHT) {
             robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
             sleep(500);
             robot.driveMotors(0, 0, 0, 0);
@@ -413,11 +409,11 @@ public abstract class AutoMain extends LinearOpMode {
             robot.turn(0); //TODO: New plate, don't need turn
 
             // go back to OG position
-            if (goldMineral == LEFT) {
+            if (goldMineral == MineralPosition.LEFT) {
                 robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
                 sleep(700);
                 robot.driveMotors(0, 0, 0, 0);
-            } else if (goldMineral == RIGHT) {
+            } else if (goldMineral == MineralPosition.RIGHT) {
                 robot.driveMotors(0.5, 0.5, 0.5, 0.5);
                 sleep(500);
                 robot.driveMotors(0, 0, 0, 0);
@@ -459,11 +455,11 @@ public abstract class AutoMain extends LinearOpMode {
 
             robot.turn(0);
 
-            if (goldMineral == LEFT) {
+            if (goldMineral == MineralPosition.LEFT) {
                 robot.driveMotors(-0.5, -0.5, -0.5, -0.5);
                 sleep(700);
                 robot.driveMotors(0, 0, 0, 0);
-            } else if (goldMineral == RIGHT) {
+            } else if (goldMineral == MineralPosition.RIGHT) {
                 robot.driveMotors(0.5, 0.5, 0.5, 0.5);
                 sleep(500);
                 robot.driveMotors(0, 0, 0, 0);
