@@ -31,7 +31,7 @@ public class ATChannelChangeActivity extends Activity {
         WifiDirectChannelAndDescription[] items = WifiDirectChannelAndDescription.load().toArray(new WifiDirectChannelAndDescription[0]);
         Arrays.sort(items);
         items = Arrays.copyOfRange(items, 12, items.length);
-        ArrayAdapter<WifiDirectChannelAndDescription> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, items);
+        ArrayAdapter<WifiDirectChannelAndDescription> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         channelListView.setAdapter(adapter);
 
         channelListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
