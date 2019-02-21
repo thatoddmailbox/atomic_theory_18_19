@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.robolog.sensors;
+package org.firstinspires.ftc.teamcode.blackbox.sensors;
 
-import org.firstinspires.ftc.teamcode.robolog.Datastream;
-import org.firstinspires.ftc.teamcode.robolog.Datastreamable;
+import org.firstinspires.ftc.teamcode.blackbox.Datastreamable;
 
 public abstract class WrappedSensor<T> implements Datastreamable {
     String _name;

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.robolog;
+package org.firstinspires.ftc.teamcode.blackbox;
 
 public class TimestampedReading<T> {
     public long time;

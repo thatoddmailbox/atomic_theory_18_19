@@ -1,9 +1,8 @@
-package org.firstinspires.ftc.teamcode.robolog.sensors;
+package org.firstinspires.ftc.teamcode.blackbox.sensors;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 
-import org.firstinspires.ftc.teamcode.robolog.Datastream;
-import org.firstinspires.ftc.teamcode.robolog.Datastreamable;
+import org.firstinspires.ftc.teamcode.blackbox.Datastream;
 
 public class WrappedMRRangeSensor extends WrappedSensor<ModernRoboticsI2cRangeSensor> {
     public Datastream<Double> cmOpticalStream;
