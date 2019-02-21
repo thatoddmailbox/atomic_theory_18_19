@@ -26,6 +26,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.Consts;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
+import org.firstinspires.ftc.teamcode.robolog.sensors.WrappedMRRangeSensor;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
@@ -112,10 +113,10 @@ public class Robot {
     public AnalogInput sonarLeft;
     public AnalogInput sonarRight;
 
-    public ModernRoboticsI2cRangeSensor rangeFrontRight;
-    public ModernRoboticsI2cRangeSensor rangeBackRight;
-    public ModernRoboticsI2cRangeSensor rangeFrontLeft;
-    public ModernRoboticsI2cRangeSensor rangeBackLeft;
+    public WrappedMRRangeSensor rangeFrontRight;
+    public WrappedMRRangeSensor rangeBackRight;
+    public WrappedMRRangeSensor rangeFrontLeft;
+    public WrappedMRRangeSensor rangeBackLeft;
 
     public AHRS navX;
 
@@ -232,10 +233,10 @@ public class Robot {
         sonarLeft = opMode.hardwareMap.get(AnalogInput.class, "sonar_left");
         sonarRight = opMode.hardwareMap.get(AnalogInput.class, "sonar_right");
 
-        rangeFrontRight = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_left");
-        rangeBackRight = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_right");
-        rangeFrontLeft = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_front_left");
-        rangeBackLeft = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_back_left");
+        rangeFrontRight = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_left"), "range front right");
+        rangeBackRight = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_right"), "range back right");
+        rangeFrontLeft = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_front_left"), "range front left");
+        rangeBackLeft = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_back_left"), "range back left");
 
 //        navX = AHRS.getInstance(dim, NAVX_DIM_I2C_PORT, AHRS.DeviceDataType.kProcessedData, (byte)50);
 //        navX.zeroYaw();
