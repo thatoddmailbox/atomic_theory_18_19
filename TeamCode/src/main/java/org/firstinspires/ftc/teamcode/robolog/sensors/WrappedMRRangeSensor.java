@@ -5,25 +5,16 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import org.firstinspires.ftc.teamcode.robolog.Datastream;
 import org.firstinspires.ftc.teamcode.robolog.Datastreamable;
 
-public class WrappedMRRangeSensor implements Datastreamable {
+public class WrappedMRRangeSensor extends WrappedSensor<ModernRoboticsI2cRangeSensor> {
     public Datastream<Double> cmOpticalStream;
     public Datastream<Double> cmUltrasonicStream;
 
     public boolean loggingEnabled = false;
 
-    private String _name;
-    private ModernRoboticsI2cRangeSensor _range;
-
     public WrappedMRRangeSensor(ModernRoboticsI2cRangeSensor range, String name) {
+        super(range, name);
         cmOpticalStream = new Datastream<Double>("cmOptical");
         cmUltrasonicStream = new Datastream<Double>(" cmUltrasonic");
-        _name = name;
-        _range = range;
-    }
-
-    @Override
-    public String getName() {
-        return _name;
     }
 
     @Override
@@ -35,7 +26,7 @@ public class WrappedMRRangeSensor implements Datastreamable {
     }
 
     public double cmOptical() {
-        double reading = _range.cmOptical();
+        double reading = _sensor.cmOptical();
         if (loggingEnabled) {
             cmOpticalStream.storeReading(reading);
         }
@@ -43,7 +34,7 @@ public class WrappedMRRangeSensor implements Datastreamable {
     }
 
     public double cmUltrasonic() {
-        double reading = _range.cmUltrasonic();
+        double reading = _sensor.cmUltrasonic();
         if (loggingEnabled) {
             cmUltrasonicStream.storeReading(reading);
         }
