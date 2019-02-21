@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.robot.Robot;
+import org.firstinspires.ftc.teamcode.utils.Direction;
 
 @Autonomous(name="Align wall test", group="Tests")
 public class AlignWallTest extends LinearOpMode {
@@ -15,6 +16,6 @@ public class AlignWallTest extends LinearOpMode {
 
         Robot robot = new Robot(this, false);
 
-        robot.aligner.align(Robot.Direction.RIGHT, true);
+        robot.aligner.align(Direction.RIGHT, true);
     }
 }

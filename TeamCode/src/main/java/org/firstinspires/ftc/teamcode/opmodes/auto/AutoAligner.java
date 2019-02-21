@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.robot.Robot;
+import org.firstinspires.ftc.teamcode.utils.Direction;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
 public class AutoAligner {
@@ -32,7 +33,7 @@ public class AutoAligner {
     //
 
     // Aligns robot on wall by turning in place (called once)
-    public void align(Robot.Direction direction, boolean shouldLog) throws InterruptedException {
+    public void align(Direction direction, boolean shouldLog) throws InterruptedException {
         robot.setupSimpleServos(direction);
 
         double leftDistance = robot.leftDistance(direction);
@@ -181,8 +182,8 @@ public class AutoAligner {
             robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_REV_SERVO_FULL-Robot.SENSOR_REV_SERVO_HALF));
         }
 
-        double leftDistance = robot.leftDistance(Robot.Direction.RIGHT);
-        double rightDistance = robot.rightDistance(Robot.Direction.RIGHT) + 10;
+        double leftDistance = robot.leftDistance(Direction.RIGHT);
+        double rightDistance = robot.rightDistance(Direction.RIGHT) + 10;
         // Difference between two sensor readings for wall alignment
         double distanceDiff = leftDistance-rightDistance;
         // Difference between target distance and actual distance to set perpendicular distance
@@ -221,7 +222,7 @@ public class AutoAligner {
         timer.reset();
 
         while (timer.seconds() < timeout && robot.opMode.opModeIsActive()) {
-            leftDistance = robot.leftDistance(targetOrthogonalWallDistance > 0 ? Robot.Direction.FORWARD : Robot.Direction.BACKWARD);
+            leftDistance = robot.leftDistance(targetOrthogonalWallDistance > 0 ? Direction.FORWARD : Direction.BACKWARD);
             orthogonalWallDistanceDiff = leftDistance - Math.abs(targetOrthogonalWallDistance);
 
             if (shouldLog) {
@@ -251,7 +252,7 @@ public class AutoAligner {
 
     }
 
-    public void driveToDistance(Robot.Direction direction, Robot.Direction sensorChoice, boolean half, double targetDistance, double timeout, boolean shouldLog) throws InterruptedException {
+    public void driveToDistance(Direction direction, Direction sensorChoice, boolean half, double targetDistance, double timeout, boolean shouldLog) throws InterruptedException {
         driveToDistance(direction, sensorChoice, half, targetDistance, timeout, shouldLog, false);
     }
 
@@ -262,7 +263,7 @@ public class AutoAligner {
         }
     }
 
-    public void driveToDistance(Robot.Direction direction, Robot.Direction sensorChoice, boolean half, double targetDistance, double timeout, boolean shouldLog, boolean shouldCenter) throws InterruptedException {
+    public void driveToDistance(Direction direction, Direction sensorChoice, boolean half, double targetDistance, double timeout, boolean shouldLog, boolean shouldCenter) throws InterruptedException {
         switch (direction) {
             case FORWARD:
                 if (!half) {
@@ -336,8 +337,8 @@ public class AutoAligner {
                 robot.logSensors();
             }
 
-            leftDistance = robot.leftDistance(Robot.Direction.RIGHT);
-            rightDistance = robot.rightDistance(Robot.Direction.RIGHT);
+            leftDistance = robot.leftDistance(Direction.RIGHT);
+            rightDistance = robot.rightDistance(Direction.RIGHT);
 
             if (leftDistance == 2550 && rightDistance == 2550) {
                 startSineWave();
@@ -365,21 +366,21 @@ public class AutoAligner {
             }
 
             if (half) {
-                if (direction == Robot.Direction.FORWARD) {
+                if (direction == Direction.FORWARD) {
                     distance = leftDistance;
-                } else if (direction == Robot.Direction.RIGHT) {
-                    if (sensorChoice == Robot.Direction.RIGHT) {
+                } else if (direction == Direction.RIGHT) {
+                    if (sensorChoice == Direction.RIGHT) {
                         distance = rightDistance;
                     } else {
                         distance = leftDistance;
                     }
-                } else if (direction == Robot.Direction.LEFT) {
+                } else if (direction == Direction.LEFT) {
                     distance = rightDistance;
                 } else {
                     distance = rightDistance;
                 }
             } else {
-                if (sensorChoice == Robot.Direction.RIGHT) {
+                if (sensorChoice == Direction.RIGHT) {
                     distance = robot.rightDistance(direction);
                 } else {
                     distance = robot.rightDistance(direction);
@@ -404,10 +405,10 @@ public class AutoAligner {
 
             output = Math.min(Math.min(1.0, timer.seconds()), Math.abs(output)) * sign;
 
-            double frontLeft = (direction == Robot.Direction.FORWARD || direction == Robot.Direction.RIGHT) ? output : -output;
-            double frontRight = (direction == Robot.Direction.FORWARD || direction == Robot.Direction.LEFT) ? output : -output;
-            double backLeft = (direction == Robot.Direction.FORWARD || direction == Robot.Direction.LEFT) ? output : -output;
-            double backRight = (direction == Robot.Direction.FORWARD || direction == Robot.Direction.RIGHT) ? output : - output;
+            double frontLeft = (direction == Direction.FORWARD || direction == Direction.RIGHT) ? output : -output;
+            double frontRight = (direction == Direction.FORWARD || direction == Direction.LEFT) ? output : -output;
+            double backLeft = (direction == Direction.FORWARD || direction == Direction.LEFT) ? output : -output;
+            double backRight = (direction == Direction.FORWARD || direction == Direction.RIGHT) ? output : - output;
 
             // Angle correction
             double currentHeading = robot.getHeading();

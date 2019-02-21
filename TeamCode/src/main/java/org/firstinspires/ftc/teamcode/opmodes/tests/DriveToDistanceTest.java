@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.robot.Robot;
+import org.firstinspires.ftc.teamcode.utils.Direction;
 
 @Autonomous(name="Drive to distance test", group="Tests")
 public class DriveToDistanceTest extends LinearOpMode {
@@ -16,6 +17,6 @@ public class DriveToDistanceTest extends LinearOpMode {
         Robot robot = new Robot(this, false);
 
 
-        robot.aligner.driveToDistance(Robot.Direction.FORWARD, Robot.Direction.RIGHT, true,300, 5, true);
+        robot.aligner.driveToDistance(Direction.FORWARD, Direction.RIGHT, true,300, 5, true);
     }
 }

@@ -24,6 +24,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.Consts;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.robolog.sensors.WrappedMRRangeSensor;
+import org.firstinspires.ftc.teamcode.utils.Direction;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
@@ -495,9 +496,6 @@ public class Robot {
     }
 
     // UTILITES
-    public enum Direction {
-        FORWARD, BACKWARD, LEFT, RIGHT;
-    }
 
     ElapsedTime timer = new ElapsedTime();
     double rangeFrontRightTime = timer.seconds();
