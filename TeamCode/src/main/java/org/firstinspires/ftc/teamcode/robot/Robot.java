@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.robot;
 
-import com.kauailabs.navx.ftc.AHRS;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxNackException;
@@ -8,10 +7,8 @@ import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataCommand;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -55,8 +52,6 @@ public class Robot {
     public static final int MOTOR_PORT_BACK_LEFT = 2;
     public static final int MOTOR_PORT_BACK_RIGHT = 3;
 
-    public static final int NAVX_DIM_I2C_PORT = 0;
-
     public static final int LATCH_DISTANCE = 7960;
 
     public static final double MAX_LENNY_RETRO_VELOCITY = Double.MAX_VALUE; // ticks per millisecond
@@ -67,7 +62,6 @@ public class Robot {
 
     public LynxModule expansionHub1;
     public LynxModule expansionHub2;
-    public DeviceInterfaceModule dim;
 
     /*
      * motors
@@ -110,15 +104,10 @@ public class Robot {
     public WebcamName leftWebcam;
     public WebcamName rightWebcam;
 
-    public AnalogInput sonarLeft;
-    public AnalogInput sonarRight;
-
     public WrappedMRRangeSensor rangeFrontRight;
     public WrappedMRRangeSensor rangeBackRight;
     public WrappedMRRangeSensor rangeFrontLeft;
     public WrappedMRRangeSensor rangeBackLeft;
-
-    public AHRS navX;
 
     /*
      * state
@@ -139,7 +128,6 @@ public class Robot {
          */
         expansionHub1 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 1");
         expansionHub2 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 2");
-//        dim = opMode.hardwareMap.deviceInterfaceModule.get("dim");
 
         /*
          * motor initialization
@@ -230,16 +218,10 @@ public class Robot {
         leftWebcam = opMode.hardwareMap.get(WebcamName.class, "left_webcam");
         rightWebcam = opMode.hardwareMap.get(WebcamName.class, "right_webcam");
 
-        sonarLeft = opMode.hardwareMap.get(AnalogInput.class, "sonar_left");
-        sonarRight = opMode.hardwareMap.get(AnalogInput.class, "sonar_right");
-
         rangeFrontRight = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_left"), "range front right");
         rangeBackRight = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_right"), "range back right");
         rangeFrontLeft = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_front_left"), "range front left");
         rangeBackLeft = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_back_left"), "range back left");
-
-//        navX = AHRS.getInstance(dim, NAVX_DIM_I2C_PORT, AHRS.DeviceDataType.kProcessedData, (byte)50);
-//        navX.zeroYaw();
 
         aligner = new AutoAligner(this);
 
@@ -257,17 +239,6 @@ public class Robot {
             tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
             tfod.loadModelFromAsset(Consts.TFOD_MODEL_FILE, Consts.TFOD_LABEL_GOLD, Consts.TFOD_LABEL_SILVER);
         }
-
-//        while (navX.isCalibrating() && opMode.opModeIsActive()) {
-//            opMode.telemetry.addLine("Calibrating navX...");
-//            opMode.telemetry.update();
-//
-//            Thread.sleep(100);
-//            opMode.idle();
-//        }
-//
-//        opMode.telemetry.addLine("Calibrated navX");
-//        opMode.telemetry.update();
 
         initialTicks = frontLeft.getCurrentPosition();
     }
@@ -388,7 +359,7 @@ public class Robot {
             }
         }
 
-        //return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle - headingOffset; // navX.getYaw() - headingOffset; //
+        //return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle - headingOffset;
     }
 
     public void resetHeading() {
