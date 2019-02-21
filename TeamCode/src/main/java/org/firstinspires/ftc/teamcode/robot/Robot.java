@@ -32,6 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Robot {
+    /*
+     * constants
+     */
     public static final double SERVO_TEAM_MARKER_DEPOSIT = 0.1;
     public static final double SERVO_TEAM_MARKER_HELD = 0.5;
 
@@ -47,7 +50,6 @@ public class Robot {
     public static final double SERVO_VEX_NEUTRAL = 0.5; // (1500-500)/2000
     public static final double SERVO_VEX_FORWARD = 0.75; // (2000-500)/2000
 
-
     public static final int MOTOR_PORT_FRONT_LEFT = 0;
     public static final int MOTOR_PORT_FRONT_RIGHT = 1;
     public static final int MOTOR_PORT_BACK_LEFT = 2;
@@ -58,7 +60,7 @@ public class Robot {
     public static final double MAX_LENNY_RETRO_VELOCITY = Double.MAX_VALUE; // ticks per millisecond
 
     /*
-     * control modules
+     * expansion hubs
      */
 
     public LynxModule expansionHub1;
@@ -81,6 +83,7 @@ public class Robot {
     /*
      * vex motors
      */
+
     public Servo nomLeft;
     public Servo nomRight;
 
@@ -94,7 +97,6 @@ public class Robot {
     public Servo backRightServo;
     public Servo frontLeftServo;
     public Servo backLeftServo;
-
 
     /*
      * sensors
@@ -119,20 +121,24 @@ public class Robot {
     public TFObjectDetector tfod;
     public LinearOpMode opMode;
     public AutoAligner aligner;
+
     public double headingOffset = 0;
+    public double lastTargetHeading = 0;
+    public int initialTicks = 0;
+    public ElapsedTime timer = new ElapsedTime();
 
     public Robot(LinearOpMode opModeIn, boolean enableVision) throws InterruptedException {
         opMode = opModeIn;
 
         /*
-         * control module initialization
+         * expansion hub initialization
          */
         expansionHub1 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 1");
         expansionHub2 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 2");
 
         /*
          * motor initialization
-        */
+         */
         frontLeft = opMode.hardwareMap.dcMotor.get("front_left");
         frontRight = opMode.hardwareMap.dcMotor.get("front_right");
         backLeft = opMode.hardwareMap.dcMotor.get("back_left");
@@ -142,6 +148,7 @@ public class Robot {
         lenny = opMode.hardwareMap.dcMotor.get("lenny");
         latchLeft = opMode.hardwareMap.dcMotor.get("latch_left");
         latchRight = opMode.hardwareMap.dcMotor.get("latch_right");
+
         /*
          * servo initialization
          */
@@ -154,6 +161,7 @@ public class Robot {
         frontRightServo.setDirection(Servo.Direction.REVERSE);
         backRightServo.setDirection(Servo.Direction.REVERSE);
 //        frontLeftServo.setDirection(Servo.Direction.REVERSE);
+
         /*
          * motor setup
          */
@@ -180,9 +188,8 @@ public class Robot {
 //        latchLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        latchRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
         /*
-         * sensors
+         * sensor - imu
          */
         BNO055IMU.Parameters imuParameters = new BNO055IMU.Parameters();
 
@@ -204,6 +211,9 @@ public class Robot {
         imu.write8(BNO055IMU.Register.OPR_MODE, BNO055IMU.SensorMode.IMU.bVal);
         Thread.sleep(100);
 
+        /*
+         * sensor - vision
+         */
         if (enableVision) {
             while (!opMode.isStopRequested() && !imu.isGyroCalibrated()) {
                 Thread.sleep(50);
@@ -219,6 +229,9 @@ public class Robot {
         leftWebcam = opMode.hardwareMap.get(WebcamName.class, "left_webcam");
         rightWebcam = opMode.hardwareMap.get(WebcamName.class, "right_webcam");
 
+        /*
+         * sensor - range
+         */
         rangeFrontRight = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_left"), "range front right");
         rangeBackRight = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_right"), "range back right");
         rangeFrontLeft = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_front_left"), "range front left");
@@ -243,8 +256,6 @@ public class Robot {
 
         initialTicks = frontLeft.getCurrentPosition();
     }
-
-    public int initialTicks;
 
     /*
      * drive functions
@@ -371,7 +382,6 @@ public class Robot {
         turn(targetHeading, 2);
     }
 
-    private double lastTargetHeading = 0;
     public void turn(double targetHeading, double timeout) {
         PIDController pid = new PIDController(new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
 
@@ -425,11 +435,6 @@ public class Robot {
 
     public void deactivateTfod() {
         tfod.shutdown();
-    }
-
-    public enum MineralType {
-        GOLD,
-        SILVER
     }
 
     public MineralPosition findGoldMineral() {
@@ -497,7 +502,6 @@ public class Robot {
 
     // UTILITES
 
-    ElapsedTime timer = new ElapsedTime();
     double rangeFrontRightTime = timer.seconds();
     double lastRangeFrontRight = 0;
     double lastRangeFrontRightDiff;
