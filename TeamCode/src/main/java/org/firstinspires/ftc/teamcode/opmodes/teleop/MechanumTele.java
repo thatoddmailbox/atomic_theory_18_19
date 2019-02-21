@@ -43,8 +43,15 @@ public class MechanumTele extends LinearOpMode {
 
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
+
         double lastLoopTime = timer.milliseconds();
         double lastLennyPosition = robot.lenny.getCurrentPosition();
+
+        ElapsedTime lennyTimer = new ElapsedTime();
+        lennyTimer.reset();
+        boolean lennyPressed = false;
+        boolean lennyBackPressed = false;
+
         while (opModeIsActive()) {
             double slowMode = gamepad1.left_bumper ? .5 : 1.0;
             boolean latchMode = gamepad1.right_bumper;
@@ -115,13 +122,29 @@ public class MechanumTele extends LinearOpMode {
             }
 
             //Lenny Control
-            if (lennyBackPower > deadZone && lennyVelocity < robot.MAX_LENNY_RETRO_VELOCITY) {
-                robot.lenny.setPower(-lennyBackPower);
+            //&& lennyVelocity < robot.MAX_LENNY_RETRO_VELOCITY
+            if (lennyBackPower > deadZone) {
+                if (!lennyBackPressed || !lennyPressed) lennyTimer.reset();
+                lennyPressed = true;
+                lennyBackPressed = true;
+//                      .  .
+//                   .        .
+//                .              .
+//              .                  .                  .
+//                                   .              .
+//                                      .        .
+//                                         .  .
+                robot.lenny.setPower(-lennyBackPower * Math.sin(Math.min(lennyTimer.seconds()*Math.PI, Math.PI/2)));
 //                robot.lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            } else if (lennyForwardPower > deadZone && lennyVelocity > -robot.MAX_LENNY_RETRO_VELOCITY) { // && (lennyEncoderDown == 0 || robot.lenny.getCurrentPosition() < (lennyEncoderDown - 10))) {
-                robot.lenny.setPower(lennyForwardPower);
+                //&& lennyVelocity > -robot.MAX_LENNY_RETRO_VELOCITY
+            } else if (lennyForwardPower > deadZone) { // && (lennyEncoderDown == 0 || robot.lenny.getCurrentPosition() < (lennyEncoderDown - 10))) {
+                if (lennyBackPressed || !lennyPressed) lennyTimer.reset();
+                lennyPressed = true;
+                lennyBackPressed = false;
+                robot.lenny.setPower(lennyForwardPower * Math.sin(Math.min(lennyTimer.seconds()*Math.PI, Math.PI/2)));
 //                robot.lenny.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             } else {
+                lennyPressed = false;
                 robot.lenny.setPower(0);
             }
 
