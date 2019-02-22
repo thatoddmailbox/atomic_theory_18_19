@@ -10,7 +10,7 @@ public class WrappedMRRangeSensor extends WrappedSensor<ModernRoboticsI2cRangeSe
 
     public boolean loggingEnabled = false;
 
-    public WrappedMRRangeSensor(ModernRoboticsI2cRangeSensor range, String name) {
+    public WrappedMRRangeSensor(ModernRoboticsI2cRangeSensor range, String name) throws InterruptedException {
         super(range, name);
         cmOpticalStream = new Datastream<Double>("cmOptical");
         cmUltrasonicStream = new Datastream<Double>(" cmUltrasonic");

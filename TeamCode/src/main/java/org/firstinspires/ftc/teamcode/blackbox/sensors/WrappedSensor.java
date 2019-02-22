@@ -6,7 +6,7 @@ public abstract class WrappedSensor<T> implements Datastreamable {
     String _name;
     T _sensor;
 
-    public WrappedSensor(T sensor, String name) {
+    public WrappedSensor(T sensor, String name) throws InterruptedException {
         _name = name;
         _sensor = sensor;
     }

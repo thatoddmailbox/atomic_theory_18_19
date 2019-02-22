@@ -22,6 +22,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.Consts;
+import org.firstinspires.ftc.teamcode.blackbox.sensors.SensorFactory;
+import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedBNO055IMU;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedMRRangeSensor;
 import org.firstinspires.ftc.teamcode.utils.Direction;
@@ -55,7 +57,7 @@ public class Robot {
     public static final int MOTOR_PORT_BACK_LEFT = 2;
     public static final int MOTOR_PORT_BACK_RIGHT = 3;
 
-    public static final int LATCH_DISTANCE = 7960;
+    public static final int LATCH_DISTANCE = 7360;
 
     public static final double MAX_LENNY_RETRO_VELOCITY = Double.MAX_VALUE; // ticks per millisecond
 
@@ -102,7 +104,7 @@ public class Robot {
      * sensors
      */
 
-    public BNO055IMU imu;
+    public WrappedBNO055IMU imu;
 
     public WebcamName leftWebcam;
     public WebcamName rightWebcam;
@@ -191,25 +193,7 @@ public class Robot {
         /*
          * sensor - imu
          */
-        BNO055IMU.Parameters imuParameters = new BNO055IMU.Parameters();
-
-        imuParameters.mode                = BNO055IMU.SensorMode.NDOF;
-        imuParameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        imuParameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        imuParameters.loggingEnabled      = false;
-
-        imu = opMode.hardwareMap.get(BNO055IMU.class, "imu");
-
-        imu.initialize(imuParameters);
-
-        // axis remap? maybe?
-        Thread.sleep(100);
-        imu.write8(BNO055IMU.Register.OPR_MODE, BNO055IMU.SensorMode.CONFIG.bVal);
-        Thread.sleep(100);
-        imu.write8(BNO055IMU.Register.AXIS_MAP_CONFIG, 0x24);
-        imu.write8(BNO055IMU.Register.AXIS_MAP_SIGN, 0x05);
-        imu.write8(BNO055IMU.Register.OPR_MODE, BNO055IMU.SensorMode.IMU.bVal);
-        Thread.sleep(100);
+        imu = SensorFactory.getSensor(opMode.hardwareMap, BNO055IMU.class, "imu", "imu");
 
         /*
          * sensor - vision
@@ -232,10 +216,10 @@ public class Robot {
         /*
          * sensor - range
          */
-        rangeFrontRight = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_left"), "range front right");
-        rangeBackRight = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_right"), "range back right");
-        rangeFrontLeft = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_front_left"), "range front left");
-        rangeBackLeft = new WrappedMRRangeSensor(opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range_back_left"), "range back left");
+        rangeFrontRight = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range front right", "range_left");
+        rangeBackRight = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range back right", "range_right");
+        rangeFrontLeft = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range front left", "range_front_left");
+        rangeBackLeft = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range back left", "range_back_left");
 
         aligner = new AutoAligner(this);
 
@@ -296,14 +280,14 @@ public class Robot {
     }
 
     public void driveTicks(int ticks, double fl, double fr, double bl, double br) {
-        int targetPosition = frontLeft.getCurrentPosition() + ticks;
+        int targetPosition = (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2 + ticks;
 //        PIDController pid = new PIDController(new PIDCoefficients(0.01, 0, 0), true, Math.abs(fl));
         PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
 
         lastTargetHeading = this.getHeading();
 
         double ogDiffSign = Math.signum(targetPosition - frontLeft.getCurrentPosition());
-        while (Math.abs(targetPosition - frontLeft.getCurrentPosition()) > 10 && opMode.opModeIsActive()) {
+        while (Math.abs(targetPosition - (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2) > 10 && opMode.opModeIsActive()) {
 
             // Angle correction
             double currentHeading = this.getHeading();
@@ -314,7 +298,7 @@ public class Robot {
 
             angleCorrection = 0;
 //            double currentPower = power;
-            double diffu = targetPosition - frontLeft.getCurrentPosition();
+            double diffu = targetPosition - (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2;
             double diff = Math.abs(diffu);
             double sign = ogDiffSign * Math.signum(diffu);
 //            double output = pid.step(frontLeft.getCurrentPosition(), targetPosition);
@@ -327,7 +311,7 @@ public class Robot {
 //            opMode.telemetry.addData("frp", frp + angleCorrection);
 //            opMode.telemetry.addData("blp", blp - angleCorrection);
 //            opMode.telemetry.addData("brp", brp + angleCorrection);
-            opMode.telemetry.addData("current position", frontLeft.getCurrentPosition());
+            opMode.telemetry.addData("current position", (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2);
             opMode.telemetry.addData("target position", targetPosition);
             opMode.telemetry.addData("front left power", flp);
             opMode.telemetry.update();
@@ -486,13 +470,13 @@ public class Robot {
             float mineralTypeFactor = (r.getLabel().equals(Consts.TFOD_LABEL_GOLD)) ? 1 : -1;
             double centerX = (r.getLeft() + r.getRight())/2;
             if (centerX > 200 && centerX < 400) {
-                if (Math.abs(recognitions.get(MineralPosition.CENTER)) > r.getConfidence()) continue;
+                if (recognitions.containsKey(MineralPosition.CENTER) && Math.abs(recognitions.get(MineralPosition.CENTER)) > r.getConfidence()) continue;
                 recognitions.put(MineralPosition.CENTER, mineralTypeFactor * r.getConfidence());
             } else if (centerX <= 200) {
-                if (Math.abs(recognitions.get(MineralPosition.LEFT)) > r.getConfidence()) continue;
+                if (recognitions.containsKey(MineralPosition.LEFT) && Math.abs(recognitions.get(MineralPosition.LEFT)) > r.getConfidence()) continue;
                 recognitions.put(MineralPosition.LEFT, mineralTypeFactor * r.getConfidence());
             } else if (centerX >= 400) {
-                if (Math.abs(recognitions.get(MineralPosition.RIGHT)) > r.getConfidence()) continue;
+                if (recognitions.containsKey(MineralPosition.RIGHT) && Math.abs(recognitions.get(MineralPosition.RIGHT)) > r.getConfidence()) continue;
                 recognitions.put(MineralPosition.RIGHT, mineralTypeFactor * r.getConfidence());
             }
         }
