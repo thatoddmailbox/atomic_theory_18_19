@@ -208,6 +208,17 @@ public class AutoAligner {
         robot.driveMotors(motorPower + Math.signum(motorPower) * (distanceDiff - distanceError), motorPower + Math.signum(motorPower) * (-distanceDiff + distanceError),motorPower + Math.signum(motorPower) * (distanceDiff + distanceError), motorPower + Math.signum(motorPower) * (- distanceDiff - distanceError));
     }
 
+    // Called once
+    public void driveAlignDistanceTicks(double motorPower, double targetWallDistance, int ticks, boolean followWithSensors) {
+        robot.setupGetPowerForTicks(ticks);
+        double targetPower = motorPower;
+        while (robot.opMode.opModeIsActive() && targetPower != 0) {
+            targetPower = robot.getPowerForPresetTicks(motorPower);
+            driveAlignDistance(targetPower, targetWallDistance, followWithSensors);
+        }
+        robot.driveMotors(0, 0, 0,0);
+    }
+
     //NOTE: Supply a negative targetOrthogonalWallDistance to go backwards, and a positive one to go forwards
     public void driveAlignDistance(double targetWallDistance, double targetOrthogonalWallDistance, double timeout, boolean shouldLog) {
         double leftDistance;

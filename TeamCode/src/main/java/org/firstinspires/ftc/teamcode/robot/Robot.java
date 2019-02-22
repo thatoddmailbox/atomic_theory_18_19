@@ -325,7 +325,6 @@ public class Robot implements AutoCloseable {
 
     public void driveTicks(int ticks, double fl, double fr, double bl, double br) {
         int targetPosition = (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2 + ticks;
-//        PIDController pid = new PIDController(new PIDCoefficients(0.01, 0, 0), true, Math.abs(fl));
         PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
 
         lastTargetHeading = this.getHeading();
@@ -345,8 +344,7 @@ public class Robot implements AutoCloseable {
             double diffu = targetPosition - (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2;
             double diff = Math.abs(diffu);
             double sign = ogDiffSign * Math.signum(diffu);
-//            double output = pid.step(frontLeft.getCurrentPosition(), targetPosition);
-//            opMode.telemetry.addData("diff", diff);
+
             double flp = sign*Math.signum(fl)*Math.min(Math.max(diff/400.0, 0.4), Math.abs(fl));
             double frp = sign*Math.signum(fr)*Math.min(Math.max(diff/400.0, 0.4), Math.abs(fr));
             double blp = sign*Math.signum(bl)*Math.min(Math.max(diff/400.0, 0.4), Math.abs(bl));
@@ -361,10 +359,43 @@ public class Robot implements AutoCloseable {
             opMode.telemetry.update();
 
             driveMotors(flp - angleCorrection, frp + angleCorrection, blp - angleCorrection, brp + angleCorrection);
-//            driveMotors(output, output * Math.signum(fr) * Math.signum(fl), output * Math.signum(fr) * Math.signum(bl), output * Math.signum(fr) * Math.signum(br));
         }
         driveMotors(0, 0, 0, 0);
     }
+
+    private double internalOGDiffSign;
+    private double internalTargetPosition;
+
+    public void setupGetPowerForTicks(int ticks) {
+        this.internalTargetPosition = (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2 + ticks;
+        this.internalOGDiffSign = Math.signum(this.internalTargetPosition - (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2);
+    }
+
+    // MUST RUN ABOVE METHOD FIRST!!!
+    public double getPowerForPresetTicks(double motorPower) {
+        PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
+
+        lastTargetHeading = this.getHeading();
+
+        // Angle correction
+        double currentHeading = this.getHeading();
+        if (Math.abs(currentHeading - lastTargetHeading) < 0.25) {
+            currentHeading = lastTargetHeading;
+        }
+        double angleCorrection = anglePID.step(currentHeading, lastTargetHeading);
+
+        angleCorrection = 0;
+
+        double diffu = this.internalTargetPosition - (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2;
+        double diff = Math.abs(diffu);
+        if (diff < 10) return 0;
+        double sign = this.internalOGDiffSign * Math.signum(diffu);
+
+        double outputMotorPower = sign*Math.signum(motorPower)*Math.min(Math.max(diff/400.0, 0.4), Math.abs(motorPower));
+
+        return outputMotorPower;
+    }
+
 
     /*
      * sensor functions - hub
