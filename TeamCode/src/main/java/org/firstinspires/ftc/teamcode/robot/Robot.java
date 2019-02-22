@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.robot;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxNackException;
+import com.qualcomm.hardware.lynx.commands.core.LynxGetADCCommand;
+import com.qualcomm.hardware.lynx.commands.core.LynxGetADCResponse;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataCommand;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
@@ -407,6 +409,17 @@ public class Robot implements AutoCloseable {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public double readADCFromHub(LynxModule hub, LynxGetADCCommand.Channel channel) {
+        LynxGetADCCommand command = new LynxGetADCCommand(hub, channel, LynxGetADCCommand.Mode.ENGINEERING);
+        try {
+            LynxGetADCResponse response = command.sendReceive();
+            return response.getValue();
+        } catch (InterruptedException | RuntimeException | LynxNackException e) {
+            e.printStackTrace();
+        }
+        return Double.MAX_VALUE;
     }
 
     /*

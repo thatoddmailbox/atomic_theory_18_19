@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import com.qualcomm.hardware.lynx.commands.core.LynxGetADCCommand;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -204,6 +205,15 @@ public class MechanumTele extends LinearOpMode {
                 telemetry.addData("FR position", bulkData.getEncoder(Robot.MOTOR_PORT_FRONT_RIGHT));
                 telemetry.addData("BL position", bulkData.getEncoder(Robot.MOTOR_PORT_BACK_LEFT));
                 telemetry.addData("BR position", bulkData.getEncoder(Robot.MOTOR_PORT_BACK_RIGHT));
+//                telemetry.addData("Hub 1 - battery", robot.readADCFromHub(robot.expansionHub1, LynxGetADCCommand.Channel.BATTERY_MONITOR));
+//                telemetry.addData("Hub 1 - five volt", robot.readADCFromHub(robot.expansionHub1, LynxGetADCCommand.Channel.FIVE_VOLT_MONITOR));
+//                telemetry.addData("Hub 1 - temp", robot.readADCFromHub(robot.expansionHub1, LynxGetADCCommand.Channel.CONTROLLER_TEMPERATURE));
+//                telemetry.addData("Hub 1 - total current", robot.readADCFromHub(robot.expansionHub1, LynxGetADCCommand.Channel.BATTERY_CURRENT));
+//                telemetry.addData("Hub 1 - servo current", robot.readADCFromHub(robot.expansionHub1, LynxGetADCCommand.Channel.SERVO_CURRENT));
+//                telemetry.addData("Hub 2 - motor 0 current", robot.readADCFromHub(robot.expansionHub2, LynxGetADCCommand.Channel.MOTOR0_CURRENT));
+//                telemetry.addData("Hub 2 - motor 1 current", robot.readADCFromHub(robot.expansionHub2, LynxGetADCCommand.Channel.MOTOR1_CURRENT));
+//                telemetry.addData("Hub 2 - motor 2 current", robot.readADCFromHub(robot.expansionHub2, LynxGetADCCommand.Channel.MOTOR2_CURRENT));
+//                telemetry.addData("Hub 2 - motor 3 current", robot.readADCFromHub(robot.expansionHub2, LynxGetADCCommand.Channel.MOTOR3_CURRENT));
                 telemetry.update();
 
                 try {
