@@ -20,13 +20,16 @@ public abstract class AutoMain extends LinearOpMode {
     public int MINERAL_TICKS = 700;
     @Override
     public void runOpMode() throws InterruptedException {
+
+        //When init is pressed  make an instance of Robot
         telemetry.addData("Status", "Starting...");
         telemetry.update();
 
         PersistentHeading.clearSavedHeading();
-
         Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, true);
 
+
+        //Once robot has inited, telemetrize ready and move team marker
         telemetry.addData("Status", "Ready to go");
         telemetry.addData("Starting position", getStartingPosition());
         telemetry.update();
@@ -34,6 +37,7 @@ public abstract class AutoMain extends LinearOpMode {
         robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
         robot.resetHeading();
 
+        //Wait for play button, then begin timer
         waitForStart();
 
         ElapsedTime superTimer = new ElapsedTime();
@@ -44,7 +48,13 @@ public abstract class AutoMain extends LinearOpMode {
 
         robot.activateTfod();
 
-        // Unlatch
+        /*
+
+        UNLATCH
+         - Different set powers account for weird motor discrepency
+         - latchLeft and latchRight start reset encoder values
+
+         */
         int latchLeftStart = robot.latchLeft.getCurrentPosition();
         int latchRightStart = robot.latchRight.getCurrentPosition();
 
@@ -54,6 +64,8 @@ public abstract class AutoMain extends LinearOpMode {
         robot.latchLeft.setTargetPosition(latchLeftStart-Robot.LATCH_DISTANCE);
         robot.latchRight.setTargetPosition(latchRightStart-Robot.LATCH_DISTANCE);
 
+
+        // Reset camera votes and reads to 0
         double goldCenterVote = 0;
         int totalCenterVotes = 0;
         double goldLeftVote = 0;
@@ -63,7 +75,14 @@ public abstract class AutoMain extends LinearOpMode {
 
         int totalReads = 0;
 
-        // Record votes for mineral position
+
+        /*
+
+        READ SAMPLE
+        - Record votes for mineral position
+        - Begins taking readings until latch approaches bottom (30 ticks away)
+
+         */
         while ((Math.abs(robot.latchLeft.getCurrentPosition() - (latchLeftStart-Robot.LATCH_DISTANCE)) > 30 || Math.abs(robot.latchRight.getCurrentPosition() - (latchRightStart-Robot.LATCH_DISTANCE)) > 30) && opModeIsActive()){
             HashMap<MineralPosition, Float> reading = robot.findGoldMineralDifferent();
 
@@ -82,6 +101,7 @@ public abstract class AutoMain extends LinearOpMode {
 
             totalReads++;
 
+            //Log votes to telemetry
             sleep(10);
             telemetry.addData("gold left vote", goldLeftVote / totalLeftVotes);
             telemetry.addData("gold center vote", goldCenterVote / totalCenterVotes);
@@ -99,7 +119,12 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("Heading - unlatched", robot.getHeading());
         telemetry.update();
 
-        // Take average
+        /*
+
+        SAMPLE DECISION LOGIC
+        - Simple logic, side with the most gold counts is gold
+
+         */
         goldCenterVote /= totalCenterVotes;
         goldLeftVote /= totalLeftVotes;
         goldRightVote /= totalRightVotes;
@@ -117,15 +142,18 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("final gold mineral prediction:", goldMineral.name());
         telemetry.update();
 
+
         // Drive backwards to unlatch
         robot.driveTicks(-100, -0.9, -0.9, -0.9, -0.9);
 
+        //drive latch downwards once unlatched (all the way to bottom)
         robot.latchLeft.setPower(0.8);
         robot.latchRight.setPower(1);
 
         robot.latchLeft.setTargetPosition(latchLeftStart);
         robot.latchRight.setTargetPosition(latchRightStart);
 
+        //Take half a second to face the minerals
         robot.turn(0, 0.5);
 
         ElapsedTime timer = new ElapsedTime();
