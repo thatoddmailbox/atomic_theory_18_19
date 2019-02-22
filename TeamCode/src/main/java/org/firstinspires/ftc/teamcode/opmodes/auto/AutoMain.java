@@ -191,7 +191,6 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.turn(45);
                 robot.driveTicks(800,0.9, -0.9, -0.9, 0.9);
             }
-//                robot.aligner.driveToDistance(Direction.RIGHT, Direction.RIGHT, false, 100, 1.5, true);
         } else if (getStartingPosition() == StartingPosition.CRATER) {
             // Hit cube
             if (goldMineral == MineralPosition.LEFT) {
@@ -235,16 +234,16 @@ public abstract class AutoMain extends LinearOpMode {
             timer.reset();
 
             // Drive to depot (ENCODE!!!)
+//            robot.aligner.driveAlignDistanceTicks(0.9, 90, 2100, false);
+            // IN CASE SENSORS DON'T WORK:
+//            robot.driveTicks(2100, 0.9, 0.9, 0.9, 0.9);
+
             while (opModeIsActive()) {
-//                    robot.driveMotors(0.9, 0.9, 0.9, 0.9);
                 robot.aligner.driveAlignDistance(0.9, 100, false);
                 if (timer.seconds() > 1.05) break;
                 idle();
             }
             robot.driveMotors(0, 0, 0, 0);
-
-            // CHANGE?
-//                robot.aligner.driveToDistance(Direction.RIGHT, Direction.RIGHT, false, 100, 0.5, true);
 
             robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
             sleep(500);
@@ -256,15 +255,26 @@ public abstract class AutoMain extends LinearOpMode {
         timer.reset();
 
         // Head back to crater (ENCODE!!!)
+//        if (getStartingPosition() == StartingPosition.CRATER) {
+//            robot.aligner.driveAlignDistanceTicks(0.9, 90, 3200, false);
+//             IN CASE SENSORS DON'T WORK:
+//            robot.driveTicks(3200, 0.9, 0.9, 0.9, 0.9);
+//        } else {
+//            if (!shouldEndInOtherCrater()) {
+//                robot.aligner.driveAlignDistanceTicks(-0.9, 90, -3200, false);
+//             IN CASE SENSORS DON'T WORK:
+//                robot.driveTicks(-3200, -0.9, -0.9, -0.9, -0.9);
+//            } else {
+//                robot.aligner.driveAlignDistanceTicks(0.9, 90, 2800, false);
+//             IN CASE SENSORS DON'T WORK:
+//                robot.driveTicks(2800, 0.9, 0.9, 0.9, 0.9);
+//            }
+//        }
         while (opModeIsActive()) {
             if (!shouldEndInOtherCrater()) {
                 robot.aligner.driveAlignDistance(-0.9, 100, false);
-                // IN CASE SENSORS DON'T WORK:
-//                    robot.driveMotors(-0.9, -0.9, -0.9, -0.9);
             } else {
                 robot.aligner.driveAlignDistance(0.9, 100, false);
-                // IN CASE SENSORS DON'T WORK:
-//                    robot.driveMotors(0.9, 0.9, 0.9, 0.9);
             }
             if (getStartingPosition() == StartingPosition.CRATER) {
                 if (timer.seconds() > 0.95) break;
