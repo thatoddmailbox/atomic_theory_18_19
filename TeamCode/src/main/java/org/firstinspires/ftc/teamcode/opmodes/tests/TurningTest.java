@@ -143,8 +143,8 @@ public class TurningTest extends LinearOpMode {
             telemetry.addData("New target", newTarget);
             telemetry.addData("Target", targetHeading);
             telemetry.addData("Current", currentHeading);
-            telemetry.addData("Heading offset", robot.headingOffset);
-            telemetry.addData("Raw heading", robot.imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
+            telemetry.addData("Heading offset", robot.imu.headingOffset);
+            telemetry.addData("Raw heading", robot.imu.getRawZAngle());
             telemetry.addData("Output", output);
             telemetry.addData("Total error", pid.errorSum);
             telemetry.addData("Anti-windup enabled", pid.enableAntiWindup);

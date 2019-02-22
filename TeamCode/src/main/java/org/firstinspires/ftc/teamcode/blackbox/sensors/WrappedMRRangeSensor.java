@@ -11,7 +11,7 @@ public class WrappedMRRangeSensor extends WrappedSensor<ModernRoboticsI2cRangeSe
     public WrappedMRRangeSensor(ModernRoboticsI2cRangeSensor range, String name) throws InterruptedException {
         super(range, name);
         cmOpticalStream = new Datastream<Double>("cmOptical");
-        cmUltrasonicStream = new Datastream<Double>(" cmUltrasonic");
+        cmUltrasonicStream = new Datastream<Double>("cmUltrasonic");
     }
 
     @Override

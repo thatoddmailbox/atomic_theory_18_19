@@ -133,7 +133,6 @@ public class Robot implements AutoCloseable {
     public LinearOpMode opMode;
     public AutoAligner aligner;
 
-    public double headingOffset = 0;
     public double lastTargetHeading = 0;
     public int initialTicks = 0;
     public ElapsedTime timer = new ElapsedTime();
@@ -414,27 +413,11 @@ public class Robot implements AutoCloseable {
      * sensor functions - imu
      */
     public double getHeading() {
-        double angle = imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-        double sign = Math.signum(headingOffset);
-        if (headingOffset > 0) {
-            if (angle > -180 && angle < headingOffset - 180){
-                return 360 - Math.abs(angle) - headingOffset;
-            } else {
-                return angle - headingOffset;
-            }
-        } else {
-            if (angle < 180 && angle > headingOffset + 180){
-                return -(360 - Math.abs(angle) + headingOffset);
-            } else {
-                return angle - headingOffset;
-            }
-        }
-
-        //return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle - headingOffset;
+        return imu.getHeading();
     }
 
     public void resetHeading() {
-        headingOffset = imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        imu.resetHeading();
     }
 
     public void turn(double targetHeading) {

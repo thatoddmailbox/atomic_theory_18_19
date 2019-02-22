@@ -9,8 +9,20 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.blackbox.Datastream;
 
 public class WrappedBNO055IMU extends WrappedSensor<BNO055IMU> {
+    private Datastream<Float> _xAngleRawStream;
+    private Datastream<Float> _yAngleRawStream;
+    private Datastream<Float> _zAngleRawStream;
+    private Datastream<Double> _zAngleOffsetStream;
+
+    public float headingOffset = 0;
+
     public WrappedBNO055IMU(BNO055IMU sensor, String name) throws InterruptedException {
         super(sensor, name);
+
+        _xAngleRawStream = new Datastream<Float>("xAngle (raw)");
+        _yAngleRawStream = new Datastream<Float>("yAngle (raw)");
+        _zAngleRawStream = new Datastream<Float>("zAngle (raw)");
+        _zAngleOffsetStream = new Datastream<Double>("zAngle (offset)");
 
         BNO055IMU.Parameters imuParameters = new BNO055IMU.Parameters();
 
@@ -34,7 +46,9 @@ public class WrappedBNO055IMU extends WrappedSensor<BNO055IMU> {
     @Override
     public Datastream[] getDatastreams() {
         return new Datastream[] {
-
+                _xAngleRawStream,
+                _yAngleRawStream,
+                _zAngleRawStream
         };
     }
 
@@ -42,7 +56,52 @@ public class WrappedBNO055IMU extends WrappedSensor<BNO055IMU> {
         return _sensor.isGyroCalibrated();
     }
 
+    private Orientation getAngularOrientationInternal(AxesReference extrinsic, AxesOrder zyx, AngleUnit degrees) {
+        return _sensor.getAngularOrientation(extrinsic, AxesOrder.ZYX, degrees);
+    }
+
+    @Deprecated
     public Orientation getAngularOrientation(AxesReference extrinsic, AxesOrder zyx, AngleUnit degrees) {
-        return _sensor.getAngularOrientation(extrinsic, zyx, degrees);
+        return getAngularOrientationInternal(extrinsic, zyx, degrees);
+    }
+
+    public float getRawXAngle() {
+        Orientation orientation = getAngularOrientationInternal(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        _xAngleRawStream.storeReading(orientation.thirdAngle);
+        return orientation.thirdAngle;
+    }
+
+    public float getRawYAngle() {
+        Orientation orientation = getAngularOrientationInternal(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        _yAngleRawStream.storeReading(orientation.secondAngle);
+        return orientation.secondAngle;
+    }
+
+    public float getRawZAngle() {
+        Orientation orientation = getAngularOrientationInternal(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        _zAngleRawStream.storeReading(orientation.firstAngle);
+        return orientation.firstAngle;
+    }
+
+    public void resetHeading() {
+        headingOffset = getRawZAngle();
+    }
+
+    public double getHeading() {
+        double angle = getRawZAngle();
+        double sign = Math.signum(headingOffset);
+        if (headingOffset > 0) {
+            if (angle > -180 && angle < headingOffset - 180){
+                return 360 - Math.abs(angle) - headingOffset;
+            } else {
+                return angle - headingOffset;
+            }
+        } else {
+            if (angle < 180 && angle > headingOffset + 180){
+                return -(360 - Math.abs(angle) + headingOffset);
+            } else {
+                return angle - headingOffset;
+            }
+        }
     }
 }

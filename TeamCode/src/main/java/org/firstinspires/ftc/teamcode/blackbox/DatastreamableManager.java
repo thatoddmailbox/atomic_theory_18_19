@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.blackbox;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -18,7 +23,7 @@ public class DatastreamableManager implements AutoCloseable {
                 try {
                     // set up datastreamable path
                     File contextPath = context.getContextPath();
-                    File datastreamablePath = new File(contextPath, "/ds/" + Integer.toString(id));
+                    File datastreamablePath = new File(contextPath, "/datastreamables/" + Integer.toString(id));
                     datastreamablePath.mkdirs();
 
                     // set up datastream writers
@@ -50,11 +55,30 @@ public class DatastreamableManager implements AutoCloseable {
                         }
                     }
 
+                    // save actual data
                     for (PrintWriter writer : datastreamWriters) {
                         writer.flush();
                         writer.close();
                     }
-                } catch (IOException e) {
+
+                    // save datastreamable info
+                    JSONObject datastreamableInfoJSON = new JSONObject();
+                    datastreamableInfoJSON.put("name", _datastreamable.getName());
+
+                    JSONArray datastreamsJSON = new JSONArray();
+                    for (Datastream datastream : datastreams) {
+                        JSONObject datastreamJSON = new JSONObject();
+                        datastreamJSON.put("name", datastream.name);
+                        datastreamsJSON.put(datastreamJSON);
+                    }
+
+                    datastreamableInfoJSON.put("datastreams", datastreamsJSON);
+
+                    File datastreamableInfoFile = new File(datastreamablePath, "info.json");
+                    PrintWriter writer = new PrintWriter(new FileOutputStream(datastreamableInfoFile, false));
+                    writer.print(datastreamableInfoJSON.toString());
+                    writer.close();
+                } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
             }

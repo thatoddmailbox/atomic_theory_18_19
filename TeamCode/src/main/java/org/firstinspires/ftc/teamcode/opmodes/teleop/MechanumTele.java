@@ -18,7 +18,7 @@ public class MechanumTele extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         try (Robot robot = new Robot(MatchPhase.TELEOP, this, false)) {
             telemetry.addData("Status", "Ready to go");
-            telemetry.addData("Heading offset", robot.headingOffset);
+            telemetry.addData("Heading offset", robot.imu.headingOffset);
             telemetry.update();
 
             waitForStart();
@@ -194,7 +194,7 @@ public class MechanumTele extends LinearOpMode {
                 telemetry.addData("Latch Left position", robot.latchLeft.getCurrentPosition());
                 telemetry.addData("Latch Right position", robot.latchRight.getCurrentPosition());
                 telemetry.addData("Turn compensation", turnCompensation);
-                telemetry.addData("Heading offset", robot.headingOffset);
+                telemetry.addData("Heading offset", robot.imu.headingOffset);
                 telemetry.addData("Heading", robot.getHeading());
                 telemetry.addData("Lenny encoder", robot.lenny.getCurrentPosition());
                 telemetry.addData("Lenny down", lennyEncoderDown);
