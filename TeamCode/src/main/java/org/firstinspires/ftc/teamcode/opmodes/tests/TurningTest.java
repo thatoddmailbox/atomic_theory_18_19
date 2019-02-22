@@ -25,141 +25,141 @@ import java.net.UnknownHostException;
 public class TurningTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(MatchPhase.TEST, this, false);
+        try (Robot robot = new Robot(MatchPhase.TEST, this, false)) {
+            telemetry.addLine("Ready to init");
+            telemetry.update();
 
-        telemetry.addLine("stuff");
-        telemetry.update();
+            waitForStart();
 
-        waitForStart();
-
-        PIDLogger pidLogger = null;
-        try {
-            pidLogger = new PIDLogger("192.168.49.2");
-        } catch (SocketException | UnknownHostException e) {
-            e.printStackTrace();
-        }
+            PIDLogger pidLogger = null;
+            try {
+                pidLogger = new PIDLogger("192.168.49.2");
+            } catch (SocketException | UnknownHostException e) {
+                e.printStackTrace();
+            }
 
 //        PIDController pid = new PIDController(new PIDCoefficients(0.062, 0.00001, 0.36), false, 1);
-        PIDController pid = new PIDController(new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
+            PIDController pid = new PIDController(new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
 //        PIDController pid = new PIDController(new PIDCoefficients(0.01, 0.0, 0.0), true, 1);
-        Gamepad lastGamepad = new Gamepad();
-        double targetHeading = 0;
-        int newTarget = (int) targetHeading;
-        int selectedCoefficient = 0;
+            Gamepad lastGamepad = new Gamepad();
+            double targetHeading = 0;
+            int newTarget = (int) targetHeading;
+            int selectedCoefficient = 0;
 
-        pid.reset();
+            pid.reset();
 
-        /*
-         *
-         *   fl ---- fr
-         *   |        |
-         *   |        |
-         *   |        |
-         *   |        |
-         *   bl ---- br
-         *
-         *   positive heading = clockwise
-         *   therefore (sp - pv) > 0 => clockwise turn
-         *   clockwise turn = fl, bl positive and fr, br negative
-         *   except flipped
-         *
-         */
-
-        while (opModeIsActive()) {
             /*
-             * pid control loop
+             *
+             *   fl ---- fr
+             *   |        |
+             *   |        |
+             *   |        |
+             *   |        |
+             *   bl ---- br
+             *
+             *   positive heading = clockwise
+             *   therefore (sp - pv) > 0 => clockwise turn
+             *   clockwise turn = fl, bl positive and fr, br negative
+             *   except flipped
+             *
              */
-            double currentHeading = robot.getHeading();
 
-            if (Math.abs(currentHeading - targetHeading) < 0.25) {
-                currentHeading = targetHeading;
-            }
+            while (opModeIsActive()) {
+                /*
+                 * pid control loop
+                 */
+                double currentHeading = robot.getHeading();
 
-            double output = -pid.step(currentHeading, targetHeading);
+                if (Math.abs(currentHeading - targetHeading) < 0.25) {
+                    currentHeading = targetHeading;
+                }
+
+                double output = -pid.step(currentHeading, targetHeading);
 
 //            robot.driveMotors(-output, output, -output, output);
-            /*
-             * gamepad input
-             */
-            boolean fineMode = gamepad1.right_bumper;
-            double step = (selectedCoefficient == 1 ? (fineMode ? 0.0001 : 0.001) : (fineMode ? 0.001 : 0.01));
+                /*
+                 * gamepad input
+                 */
+                boolean fineMode = gamepad1.right_bumper;
+                double step = (selectedCoefficient == 1 ? (fineMode ? 0.0001 : 0.001) : (fineMode ? 0.001 : 0.01));
 
-            if (gamepad1.dpad_up && !lastGamepad.dpad_up) {
-                if (selectedCoefficient != 0) {
-                    selectedCoefficient--;
-                }
-            } else if (gamepad1.dpad_down && !lastGamepad.dpad_down) {
-                if (selectedCoefficient != 3) {
-                    selectedCoefficient++;
-                }
-            }
-
-            if (gamepad1.dpad_left && !lastGamepad.dpad_left) {
-                if (selectedCoefficient == 0) {
-                    pid.coefficients.p -= step;
-                    if (pid.coefficients.p < 0) {
-                        pid.coefficients.p = 0;
+                if (gamepad1.dpad_up && !lastGamepad.dpad_up) {
+                    if (selectedCoefficient != 0) {
+                        selectedCoefficient--;
                     }
-                } else if (selectedCoefficient == 1) {
-                    pid.coefficients.i -= step / 10;
-                    if (pid.coefficients.i < 0) {
-                        pid.coefficients.i = 0;
+                } else if (gamepad1.dpad_down && !lastGamepad.dpad_down) {
+                    if (selectedCoefficient != 3) {
+                        selectedCoefficient++;
                     }
-                } else if (selectedCoefficient == 2) {
-                    pid.coefficients.d -= step;
-                    if (pid.coefficients.d < 0) {
-                        pid.coefficients.d = 0;
+                }
+
+                if (gamepad1.dpad_left && !lastGamepad.dpad_left) {
+                    if (selectedCoefficient == 0) {
+                        pid.coefficients.p -= step;
+                        if (pid.coefficients.p < 0) {
+                            pid.coefficients.p = 0;
+                        }
+                    } else if (selectedCoefficient == 1) {
+                        pid.coefficients.i -= step / 10;
+                        if (pid.coefficients.i < 0) {
+                            pid.coefficients.i = 0;
+                        }
+                    } else if (selectedCoefficient == 2) {
+                        pid.coefficients.d -= step;
+                        if (pid.coefficients.d < 0) {
+                            pid.coefficients.d = 0;
+                        }
+                    } else if (selectedCoefficient == 3) {
+                        newTarget -= (fineMode ? 1 : 5);
                     }
-                } else if (selectedCoefficient == 3) {
-                    newTarget -= (fineMode ? 1 : 5);
+                } else if (gamepad1.dpad_right && !lastGamepad.dpad_right) {
+                    if (selectedCoefficient == 0) {
+                        pid.coefficients.p += step;
+                    } else if (selectedCoefficient == 1) {
+                        pid.coefficients.i += step / 10;
+                    } else if (selectedCoefficient == 2) {
+                        pid.coefficients.d += step;
+                    } else if (selectedCoefficient == 3) {
+                        newTarget += (fineMode ? 1 : 5);
+                    }
                 }
-            } else if (gamepad1.dpad_right && !lastGamepad.dpad_right) {
-                if (selectedCoefficient == 0) {
-                    pid.coefficients.p += step;
-                } else if (selectedCoefficient == 1) {
-                    pid.coefficients.i += step / 10;
-                } else if (selectedCoefficient == 2) {
-                    pid.coefficients.d += step;
-                } else if (selectedCoefficient == 3) {
-                    newTarget += (fineMode ? 1 : 5);
+
+                if (gamepad1.a && !lastGamepad.a) {
+                    targetHeading = newTarget;
+                    pid.reset();
                 }
-            }
+                if (gamepad1.x && !lastGamepad.x) {
+                    pid.enableAntiWindup = !pid.enableAntiWindup;
+                    pid.reset();
+                }
+                if (gamepad1.y && !lastGamepad.y) {
+                    pid.reset();
+                }
 
-            if (gamepad1.a && !lastGamepad.a) {
-                targetHeading = newTarget;
-                pid.reset();
-            }
-            if (gamepad1.x && !lastGamepad.x) {
-                pid.enableAntiWindup = !pid.enableAntiWindup;
-                pid.reset();
-            }
-            if (gamepad1.y && !lastGamepad.y) {
-                pid.reset();
-            }
-
-            /*
-             * telemetry
-             */
-            telemetry.addData("New target", newTarget);
-            telemetry.addData("Target", targetHeading);
-            telemetry.addData("Current", currentHeading);
-            telemetry.addData("Heading offset", robot.imu.headingOffset);
-            telemetry.addData("Raw heading", robot.imu.getRawZAngle());
-            telemetry.addData("Output", output);
-            telemetry.addData("Total error", pid.errorSum);
-            telemetry.addData("Anti-windup enabled", pid.enableAntiWindup);
-            telemetry.addData("Integration enabled", !pid.isIntegrationDisabled());
-            telemetry.addData("Coefficients", pid.coefficients.toString());
-            telemetry.addData("Selected parameter", "PIDH".charAt(selectedCoefficient));
-            telemetry.addData("Gamepad step", step);
-            telemetry.update();
+                /*
+                 * telemetry
+                 */
+                telemetry.addData("New target", newTarget);
+                telemetry.addData("Target", targetHeading);
+                telemetry.addData("Current", currentHeading);
+                telemetry.addData("Heading offset", robot.imu.headingOffset);
+                telemetry.addData("Raw heading", robot.imu.getRawZAngle());
+                telemetry.addData("Output", output);
+                telemetry.addData("Total error", pid.errorSum);
+                telemetry.addData("Anti-windup enabled", pid.enableAntiWindup);
+                telemetry.addData("Integration enabled", !pid.isIntegrationDisabled());
+                telemetry.addData("Coefficients", pid.coefficients.toString());
+                telemetry.addData("Selected parameter", "PIDH".charAt(selectedCoefficient));
+                telemetry.addData("Gamepad step", step);
+                telemetry.update();
 
 //            pidLogger.sendPacket(targetHeading, currentHeading, output);
 
-            try {
-                lastGamepad.copy(gamepad1);
-            } catch (RobotCoreException e) {
-                e.printStackTrace();
+                try {
+                    lastGamepad.copy(gamepad1);
+                } catch (RobotCoreException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
