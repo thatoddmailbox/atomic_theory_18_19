@@ -275,9 +275,9 @@ public class Robot {
         setClippedMotorPower(backRight, br);
     }
 
-    public void driveTargetTicks(int target, double fl, double fr, double bl, double br) {
-        driveTicks(target - frontLeft.getCurrentPosition(), fl, fr, bl, br);
-    }
+//    public void driveTargetTicks(int target, double fl, double fr, double bl, double br) {
+//        driveTicks(target - frontLeft.getCurrentPosition(), fl, fr, bl, br);
+//    }
 
     public void driveTicks(int ticks, double fl, double fr, double bl, double br) {
         int targetPosition = (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2 + ticks;
@@ -286,7 +286,7 @@ public class Robot {
 
         lastTargetHeading = this.getHeading();
 
-        double ogDiffSign = Math.signum(targetPosition - frontLeft.getCurrentPosition());
+        double ogDiffSign = Math.signum(targetPosition - (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2);
         while (Math.abs(targetPosition - (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2) > 10 && opMode.opModeIsActive()) {
 
             // Angle correction

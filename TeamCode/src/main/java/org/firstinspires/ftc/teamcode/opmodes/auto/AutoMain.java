@@ -43,7 +43,7 @@ public abstract class AutoMain extends LinearOpMode {
 
         robot.activateTfod();
 
-        // unlatch
+        // Unlatch
         int latchLeftStart = robot.latchLeft.getCurrentPosition();
         int latchRightStart = robot.latchRight.getCurrentPosition();
 
@@ -62,6 +62,7 @@ public abstract class AutoMain extends LinearOpMode {
 
         int totalReads = 0;
 
+        // Record votes for mineral position
         while ((Math.abs(robot.latchLeft.getCurrentPosition() - (latchLeftStart-Robot.LATCH_DISTANCE)) > 30 || Math.abs(robot.latchRight.getCurrentPosition() - (latchRightStart-Robot.LATCH_DISTANCE)) > 30) && opModeIsActive()){
             HashMap<MineralPosition, Float> reading = robot.findGoldMineralDifferent();
 
@@ -81,7 +82,6 @@ public abstract class AutoMain extends LinearOpMode {
             totalReads++;
 
             sleep(10);
-//            telemetry.addData("raw reading", reading);
             telemetry.addData("gold left vote", goldLeftVote / totalLeftVotes);
             telemetry.addData("gold center vote", goldCenterVote / totalCenterVotes);
             telemetry.addData("gold right vote", goldRightVote / totalRightVotes);
@@ -116,16 +116,8 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.addData("final gold mineral prediction:", goldMineral.name());
         telemetry.update();
 
-        // strafe away from lander //TODO: These two shouldn't be different times + ENCODE
-        //robot.driveMotors(-1, -1, -1, -1);
+        // Drive backwards to unlatch
         robot.driveTicks(-100, -0.9, -0.9, -0.9, -0.9);
-        //sleep(70);
-        //robot.driveMotors(0, 0, 0, 0);
-
-//        robot.driveMotors(1, -1, -1, 1);
-//        sleep(200);
-//        robot.driveMotors(0, 0, 0, 0);
-//        robot.driveTicks();
 
         robot.latchLeft.setPower(0.8);
         robot.latchRight.setPower(1);
@@ -133,22 +125,14 @@ public abstract class AutoMain extends LinearOpMode {
         robot.latchLeft.setTargetPosition(latchLeftStart);
         robot.latchRight.setTargetPosition(latchRightStart);
 
-        // turn to realign
         robot.turn(0, 0.5);
 
         ElapsedTime timer = new ElapsedTime();
 
         robot.backLeftServo.setPosition(Robot.SENSOR_REV_SERVO_ZERO);
 
-        // Get centered on minerals/lander
-        //robot.aligner.centerInCorner(2.0, true);
-
-        // Get close to minerals (away from lander)
-        //robot.aligner.driveToDistance(Direction.RIGHT, Direction.RIGHT, true, 850, 2.5, true, false);
-
+        // Get away from lander
         robot.driveTicks(650, 0.9, -0.9, -0.9, 0.9);
-
-//            robot.turn(0, 0.5);
 
         // Get in front of cube
         if (goldMineral == MineralPosition.LEFT) {
@@ -163,7 +147,7 @@ public abstract class AutoMain extends LinearOpMode {
             robot.driveTicks(150, 0.9, 0.9, 0.9, 0.9);
         }
 
-//            robot.turn(0, 0.5);
+        // Turn to drive head on into cube
         robot.turn(-90, 1.5);
 
         if (getStartingPosition() == StartingPosition.DEPOT) {
@@ -177,12 +161,10 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.driveTicks(1650, 1, 1, 1, 1);
                 //robot.aligner.driveToDistance(Direction.RIGHT, Direction.RIGHT, true, 100, 2.0, true);
             } else {
-//                    robot.turn(-90);
                 robot.driveTicks(1650, 1, 1, 1, 1);
-//                    robot.turn(0, 1.5);
 //                    robot.aligner.driveToDistance(Direction.RIGHT, Direction.LEFT, true, 200, 1.5, true);
             }
-//                robot.turn(0, 0.5);
+
             robot.turn(0, 1.5);
 
             // Recenter
@@ -196,20 +178,12 @@ public abstract class AutoMain extends LinearOpMode {
 //                    robot.driveTicks(100 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
             }
 
-            //if (goldMineral != MineralPosition.CENTER) {
-//                    robot.aligner.centerInCorner(2, true);
-//                    if (goldMineral == MineralPosition.LEFT) {
-//                        robot.driveTicks(-MINERAL_TICKS, -1.0);
-//                    } else {
-//                        robot.driveTicks(MINERAL_TICKS, 1.0);
-//                    }
-//                }
-
             robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
             robot.setupSimpleServos(Direction.RIGHT);
 
             sleep(400);
 
+            // Turn and strafe into wall
             if (!shouldEndInOtherCrater()) {
                 robot.turn(-45);
                 robot.driveTicks(600,0.9, -0.9, -0.9, 0.9);
@@ -217,25 +191,19 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.turn(45);
                 robot.driveTicks(800,0.9, -0.9, -0.9, 0.9);
             }
-
 //                robot.aligner.driveToDistance(Direction.RIGHT, Direction.RIGHT, false, 100, 1.5, true);
-        }
-        if (getStartingPosition() == StartingPosition.CRATER) {
+        } else if (getStartingPosition() == StartingPosition.CRATER) {
             // Hit cube
             if (goldMineral == MineralPosition.LEFT) {
+                robot.driveTicks(800, 0.9, 0.9, 0.9, 0.9);
+                robot.driveTicks(-250, -0.9, -0.9, -0.9, -0.9);
 //                    robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
-                robot.driveTicks(-800, -0.9, -0.9, -0.9, -0.9);
-                robot.driveTicks(250, 0.9, 0.9, 0.9, 0.9);
 //                    robot.driveTicks(-650, -0.9, 0.9, 0.9, -0.9);
-                //robot.aligner.driveToDistance(Direction.RIGHT, Direction.LEFT, true, 320, 1.0, true);
-                //robot.aligner.driveToDistance(Direction.RIGHT, Direction.LEFT, true, 580, 1.0, true);
             } else if (goldMineral == MineralPosition.RIGHT) {
                 robot.driveTicks(800, 0.9, 0.9, 0.9, 0.9);
                 robot.driveTicks(-250, -0.9, -0.9, -0.9, -0.9);
 //                    robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
 //                    robot.driveTicks(-650, -0.9, 0.9, 0.9, -0.9);
-                //robot.aligner.driveToDistance(Direction.RIGHT, Direction.RIGHT, true, 320, 1.0, true);
-                //robot.aligner.driveToDistance(Direction.RIGHT, Direction.RIGHT, true, 580, 1.0, true);
             } else {
 //                    robot.turn(-90);
                 robot.driveTicks(800,0.9, 0.9, 0.9, 0.9);
@@ -253,36 +221,26 @@ public abstract class AutoMain extends LinearOpMode {
             } else {
                 robot.driveTicks(2000, 0.9, 0.9, 0.9, 0.9);
             }
-//                robot.aligner.driveToDistance(Direction.FORWARD, Direction.RIGHT, true, 300, 2.0, true);
 
-//                double angle = robot.getHeading();
-//                double relativeError = angle / 45;
-//                robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_FULL + (relativeError - 1) * (Robot.SENSOR_SERVO_FULL-Robot.SENSOR_SERVO_HALF));
-//                robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_FULL + (1 - relativeError) * (Robot.SENSOR_REV_SERVO_FULL-Robot.SENSOR_REV_SERVO_HALF));
-//                sleep(200);
             robot.setupSimpleServos(Direction.RIGHT);
 
+            // Turn and strafe to wall
             robot.turn(45);
 
             robot.driveTicks(250, 0.9, -0.9, -0.9, 0.9);
 
+            // Possible wait for alliance to do their thing
 //                sleep(4000);
 
             timer.reset();
-//                robot.driveTicks(3000, 0.9, 0.9, 0.9, 0.9);
+
+            // Drive to depot (ENCODE!!!)
             while (opModeIsActive()) {
 //                    robot.driveMotors(0.9, 0.9, 0.9, 0.9);
                 robot.aligner.driveAlignDistance(0.9, 100, false);
                 if (timer.seconds() > 1.05) break;
                 idle();
             }
-//                while (opModeIsActive() && robot.rangeFrontLeft.cmUltrasonic() > 10) {
-//                    telemetry.addData("front left", robot.frontLeft.getCurrentPosition());
-//                    telemetry.update();
-//                    robot.aligner.driveAlignDistance(0.9, 100, false);
-//                    if (timer.seconds() > 1.1) break;
-//                    idle();
-//                }
             robot.driveMotors(0, 0, 0, 0);
 
             // CHANGE?
@@ -297,13 +255,15 @@ public abstract class AutoMain extends LinearOpMode {
 
         timer.reset();
 
-        // Head back to crater
+        // Head back to crater (ENCODE!!!)
         while (opModeIsActive()) {
             if (!shouldEndInOtherCrater()) {
                 robot.aligner.driveAlignDistance(-0.9, 100, false);
+                // IN CASE SENSORS DON'T WORK:
 //                    robot.driveMotors(-0.9, -0.9, -0.9, -0.9);
             } else {
                 robot.aligner.driveAlignDistance(0.9, 100, false);
+                // IN CASE SENSORS DON'T WORK:
 //                    robot.driveMotors(0.9, 0.9, 0.9, 0.9);
             }
             if (getStartingPosition() == StartingPosition.CRATER) {
@@ -315,6 +275,7 @@ public abstract class AutoMain extends LinearOpMode {
             idle();
         }
 
+        // Turn and unfurl arm
         if (getStartingPosition() == StartingPosition.DEPOT) {
             if (!shouldEndInOtherCrater()) {
                 robot.turn(135, 2.5);
@@ -329,7 +290,7 @@ public abstract class AutoMain extends LinearOpMode {
             robot.lenny.setPower(0.0);
         }
 
-        // save heading
+        // Save heading
         PersistentHeading.saveHeading(robot.getHeading());
     }
 }
