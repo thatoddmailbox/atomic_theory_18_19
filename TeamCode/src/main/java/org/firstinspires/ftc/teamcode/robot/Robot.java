@@ -6,7 +6,9 @@ import com.qualcomm.hardware.lynx.LynxNackException;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataCommand;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
@@ -22,6 +24,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.Consts;
+import org.firstinspires.ftc.teamcode.blackbox.LogSession;
+import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
+import org.firstinspires.ftc.teamcode.blackbox.MatchType;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.SensorFactory;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedBNO055IMU;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
@@ -29,11 +34,13 @@ import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedMRRangeSensor;
 import org.firstinspires.ftc.teamcode.utils.Direction;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
+import org.json.JSONException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-public class Robot {
+public class Robot implements AutoCloseable {
     /*
      * constants
      */
@@ -118,6 +125,8 @@ public class Robot {
      * state
      */
 
+    public final LogSession logSession;
+
     public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
     public VuforiaLocalizer vuforia;
     public TFObjectDetector tfod;
@@ -129,7 +138,7 @@ public class Robot {
     public int initialTicks = 0;
     public ElapsedTime timer = new ElapsedTime();
 
-    public Robot(LinearOpMode opModeIn, boolean enableVision) throws InterruptedException {
+    public Robot(MatchPhase phase, LinearOpMode opModeIn, boolean enableVision) throws InterruptedException {
         opMode = opModeIn;
 
         /*
@@ -238,7 +247,42 @@ public class Robot {
             tfod.loadModelFromAsset(Consts.TFOD_MODEL_FILE, Consts.TFOD_LABEL_GOLD, Consts.TFOD_LABEL_SILVER);
         }
 
+
+        /*
+         * set up logging
+         */
+        try {
+            logSession = new LogSession(opMode, phase, MatchType.OTHER, "");
+        } catch (IOException e) {
+            // TODO: this is dumb
+            throw new RuntimeException(e);
+        }
+
+        // TODO: clean me up
+        String opModeName = "";
+        if (opModeIn.getClass().getAnnotation(Autonomous.class) != null) {
+            opModeName = opModeIn.getClass().getAnnotation(Autonomous.class).name();
+        } else {
+            opModeName = opModeIn.getClass().getAnnotation(TeleOp.class).name();
+        }
+        logSession.setFact("Name", opModeName);
+
+        logSession.attachDatastreamable(rangeFrontLeft);
+        logSession.attachDatastreamable(rangeFrontRight);
+        logSession.attachDatastreamable(rangeBackLeft);
+        logSession.attachDatastreamable(rangeBackRight);
+        logSession.attachDatastreamable(imu);
+
         initialTicks = frontLeft.getCurrentPosition();
+    }
+
+    @Override
+    public void close() {
+        try {
+            logSession.close();
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     /*

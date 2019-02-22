@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.internal.network.WifiDirectAgent;
+import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
 
@@ -17,7 +18,7 @@ public class CameraTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         waitForStart();
 
-        Robot robot = new Robot(this, true);
+        Robot robot = new Robot(MatchPhase.TEST, this, true);
 
         robot.activateTfod();
 

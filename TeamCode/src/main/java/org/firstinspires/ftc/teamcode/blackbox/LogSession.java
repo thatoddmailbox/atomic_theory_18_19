@@ -1,12 +1,32 @@
 package org.firstinspires.ftc.teamcode.blackbox;
 
+import android.annotation.SuppressLint;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class LogSession implements AutoCloseable {
+    @SuppressLint("SdCardPath")
+    public static final String BASE_PATH = "/sdcard/blackbox/sessions";
+
+    private final File _basePath = new File(BASE_PATH);
+    private File _sessionPath;
+
+    private int _id;
+
     private MatchPhase _phase;
     private MatchType _type;
     private String _label;
@@ -14,20 +34,67 @@ public class LogSession implements AutoCloseable {
     private LogContext _root;
 
     private ArrayList<LogContext> _contexts;
+    private LinearOpMode _opMode;
 
-    public LogSession(MatchPhase phase, MatchType type, String label) {
+    public LogSession(LinearOpMode opMode, MatchPhase phase, MatchType type, String label) throws IOException {
         _contexts = new ArrayList<LogContext>();
+
+        if (!_basePath.exists()) {
+            _basePath.mkdirs();
+        }
+
+        _id = getNextSessionID();
+
+        _sessionPath = new File(_basePath, "/" + Integer.toString(_id) + "/");
+        _sessionPath.mkdirs();
 
         _phase = phase;
         _type = type;
         _label = label;
-        _root = new LogContext("Opmode");
+        _root = new LogContext(this, 0, "Opmode");
+        _opMode = opMode;
         _contexts.add(_root);
     }
 
+    public int getNextSessionID() throws IOException {
+        File lastIDFile = new File(_basePath, "last_id.txt");
+        int newSessionID = 0;
+
+        if (lastIDFile.exists()) {
+            BufferedReader lastIDReader = new BufferedReader(new FileReader(lastIDFile));
+            int lastSessionID = Integer.parseInt(lastIDReader.readLine().trim());
+            lastIDReader.close();
+            newSessionID = lastSessionID + 1;
+        }
+
+        saveLastSessionID(lastIDFile, newSessionID);
+        return newSessionID;
+    }
+
+    private void saveLastSessionID(File lastIDFile, int lastSessionID) throws FileNotFoundException {
+        PrintWriter nextIDOut = new PrintWriter(new FileOutputStream(lastIDFile, false));
+        nextIDOut.print(lastSessionID);
+        nextIDOut.close();
+    }
+
+    public File getSessionPath() {
+        return _sessionPath;
+    }
+
+    public boolean isStopRequested() {
+        return _opMode.isStopRequested();
+    }
+
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException, JSONException {
         _root.close();
+
+        File saveFile = new File(_sessionPath, "session.json");
+
+        JSONObject session = serializeToJSON();
+        PrintWriter writer = new PrintWriter(new FileOutputStream(saveFile, false));
+        writer.print(session.toString());
+        writer.close();
     }
 
     public JSONObject serializeToJSON() throws JSONException {
@@ -50,8 +117,12 @@ public class LogSession implements AutoCloseable {
         _root.attachDatastreamable(datastreamable);
     }
 
+    public void setFact(String key, Object value) {
+        _root.setFact(key, value);
+    }
+
     public LogContext createContext(String contextName) {
-        LogContext context = new LogContext(contextName);
+        LogContext context = new LogContext(this, _contexts.size(), contextName);
         _contexts.add(context);
         return context;
     }

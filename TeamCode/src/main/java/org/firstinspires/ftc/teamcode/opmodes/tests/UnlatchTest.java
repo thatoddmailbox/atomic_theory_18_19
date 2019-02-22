@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PIDLogger;
@@ -21,7 +22,7 @@ public class UnlatchTest extends LinearOpMode {
         telemetry.addData("Status", "Starting...");
         telemetry.update();
 
-        Robot robot = new Robot(this, false);
+        Robot robot = new Robot(MatchPhase.TEST, this, false);
 
         telemetry.addData("Status", "Ready to go");
         telemetry.update();

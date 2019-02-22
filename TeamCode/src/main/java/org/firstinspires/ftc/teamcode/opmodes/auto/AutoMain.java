@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.Direction;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
@@ -24,7 +25,7 @@ public abstract class AutoMain extends LinearOpMode {
 
         PersistentHeading.clearSavedHeading();
 
-        Robot robot = new Robot(this, true);
+        Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, true);
 
         telemetry.addData("Status", "Ready to go");
         telemetry.addData("Starting position", getStartingPosition());

@@ -4,34 +4,60 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LogContext implements AutoCloseable {
-    public ArrayList<Datastreamable> datastreamables;
     public HashMap<String, Object> facts;
     public long startTime;
     public long endTime;
 
+    private ArrayList<Datastreamable> _datastreamables;
+    private ArrayList<DatastreamableManager> _datastreamableManagers;
+
     private String _name;
     private boolean _closed;
+    private LogSession _session;
+    private File _path;
 
-    public LogContext(String name) {
-        datastreamables = new ArrayList<Datastreamable>();
+    public LogContext(LogSession session, int id, String name) {
         facts = new HashMap<String, Object>();
-
         startTime = System.currentTimeMillis();
         endTime = 0;
 
+        _datastreamables = new ArrayList<Datastreamable>();
+        _datastreamableManagers = new ArrayList<DatastreamableManager>();
+
         _name = name;
         _closed = false;
+        _session = session;
+        _path = new File(session.getSessionPath(), "/ctx/" + Integer.toString(id));
+        _path.mkdirs();
     }
 
     public void attachDatastreamable(Datastreamable datastreamable) {
         if (_closed) {
             throw new RuntimeException("Tried to attachDatastreamable() to a closed LogContext!");
         }
-        datastreamables.add(datastreamable);
+        _datastreamables.add(datastreamable);
+        _datastreamableManagers.add(new DatastreamableManager(this, _datastreamableManagers.size(), datastreamable));
+    }
+
+    public String getName() {
+        return _name;
+    }
+
+    public LogSession getSession() {
+        return _session;
+    }
+
+    public File getContextPath() {
+        return _path;
+    }
+
+    public void setFact(String key, Object value) {
+        facts.put(key, value);
     }
 
     public JSONObject serializeToJSON() throws JSONException {
@@ -47,27 +73,11 @@ public class LogContext implements AutoCloseable {
         }
         contextJSON.put("facts", factsJSON);
 
-        JSONArray datastreamablesJSON = new JSONArray();
-        for (Datastreamable datastreamable : datastreamables) {
-            JSONObject datastreamableJSON = new JSONObject();
-
-            datastreamableJSON.put("name", datastreamable.getName());
-
-            JSONArray datastreamsJSON = new JSONArray();
-            for (Datastream datastream : datastreamable.getDatastreams()) {
-                datastreamsJSON.put(datastream.serializeToJSON());
-            }
-            datastreamableJSON.put("datastreams", datastreamsJSON);
-
-            datastreamablesJSON.put(datastreamableJSON);
-        }
-        contextJSON.put("datastreamables", datastreamablesJSON);
-
         return contextJSON;
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         endTime = System.currentTimeMillis();
         _closed = true;
     }

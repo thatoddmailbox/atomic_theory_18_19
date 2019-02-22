@@ -1,42 +1,23 @@
 package org.firstinspires.ftc.teamcode.blackbox;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Datastream<T> {
     public String name;
-    public ArrayList<TimestampedReading<T>> data;
+    public LinkedBlockingQueue<TimestampedReading<T>> data;
+    public long lastMillis = 0;
 
     public Datastream(String nameIn) {
         name = nameIn;
-    }
-
-    public void clear() {
-        data.clear();
+        data = new LinkedBlockingQueue<TimestampedReading<T>>();
     }
 
     public void storeReading(T value) {
-        data.add(new TimestampedReading<T>(System.currentTimeMillis(), value));
-    }
-
-    public JSONObject serializeToJSON() throws JSONException {
-        // TODO: make more efficient? less tiny JSONObject allocations, more directly streaming data out
-
-        JSONObject datastreamJSON = new JSONObject();
-        datastreamJSON.put("name", name);
-
-        JSONArray dataJSON = new JSONArray();
-        for (TimestampedReading<T> reading : data) {
-            JSONObject readingJSON = new JSONObject();
-            readingJSON.put("t", reading.time);
-            readingJSON.put("v", reading.value);
-            dataJSON.put(readingJSON);
+        long newMillis = System.currentTimeMillis();
+        if (lastMillis == newMillis) {
+            return;
         }
-        datastreamJSON.put("data", dataJSON);
-
-        return datastreamJSON;
+        lastMillis = newMillis;
+        data.add(new TimestampedReading<T>(newMillis, value));
     }
 }
