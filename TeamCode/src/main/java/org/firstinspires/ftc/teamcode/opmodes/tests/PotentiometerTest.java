@@ -28,7 +28,7 @@ public class PotentiometerTest extends LinearOpMode {
 
         elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        elbowPID = new PIDController(new PIDCoefficients(-1, -0.00005, 0), false, 1);
+        elbowPID = new PIDController("elbow", new PIDCoefficients(-1, -0.00005, 0), false, 1);
 
         while (opModeIsActive()) {
             if (gamepad1.a) {

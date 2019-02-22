@@ -203,10 +203,7 @@ public class Robot implements AutoCloseable {
          */
         imu = SensorFactory.getSensor(opMode.hardwareMap, BNO055IMU.class, "imu", "imu");
 
-        /*
-         * sensor - vision
-         */
-        if (enableVision) {
+//        if (enableVision) {
             while (!opMode.isStopRequested() && !imu.isGyroCalibrated()) {
                 Thread.sleep(50);
                 opMode.telemetry.addLine("calibrating");
@@ -214,10 +211,13 @@ public class Robot implements AutoCloseable {
                 opMode.idle();
 //            break;
             }
-        }
+//        }
 
         resetHeading();
 
+        /*
+         * sensor - vision
+         */
         leftWebcam = opMode.hardwareMap.get(WebcamName.class, "left_webcam");
         rightWebcam = opMode.hardwareMap.get(WebcamName.class, "right_webcam");
 
@@ -324,7 +324,7 @@ public class Robot implements AutoCloseable {
 
     public void driveTicks(int ticks, double fl, double fr, double bl, double br) {
         int targetPosition = (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2 + ticks;
-        PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
+        PIDController anglePID = new PIDController("angle", new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
 
         lastTargetHeading = this.getHeading();
 
@@ -372,7 +372,7 @@ public class Robot implements AutoCloseable {
 
     // MUST RUN ABOVE METHOD FIRST!!!
     public double getPowerForPresetTicks(double motorPower) {
-        PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
+        PIDController anglePID = new PIDController("angle", new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
 
         lastTargetHeading = this.getHeading();
 
@@ -425,7 +425,7 @@ public class Robot implements AutoCloseable {
     }
 
     public void turn(double targetHeading, double timeout) {
-        PIDController pid = new PIDController(new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
+        PIDController pid = new PIDController("turn", new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
 
         ElapsedTime timer = new ElapsedTime();
         int correctFrames = 0;

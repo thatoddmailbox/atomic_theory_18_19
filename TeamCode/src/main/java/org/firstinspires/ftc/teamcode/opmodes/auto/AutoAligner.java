@@ -93,9 +93,9 @@ public class AutoAligner {
 
         double lastDistanceDiff;
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.002, 0.00000075, 0), true, 0.8);
+        PIDController pid = new PIDController("corner", new PIDCoefficients(0.002, 0.00000075, 0), true, 0.8);
 
-        PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
+        PIDController anglePID = new PIDController("corner angle", new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
         double targetHeading = robot.getHeading();
 
         ElapsedTime timer = new ElapsedTime();
@@ -225,7 +225,7 @@ public class AutoAligner {
 
         double orthogonalWallDistanceDiff;
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.005, 0.000005, 0.75), true, 0.8);
+        PIDController pid = new PIDController("alignDistance", new PIDCoefficients(0.005, 0.000005, 0.75), true, 0.8);
 
         ElapsedTime timer = new ElapsedTime();
         int correctFrames = 0;
@@ -329,11 +329,11 @@ public class AutoAligner {
         //0.000004
         //0.0005
 
-        PIDController centerCornerPID = new PIDController(new PIDCoefficients(0.002, 0.00000075, 0), true, 0.6);
+        PIDController centerCornerPID = new PIDController("center corner", new PIDCoefficients(0.002, 0.00000075, 0), true, 0.6);
 
-        PIDController pid = new PIDController(new PIDCoefficients(0.006, 0.0000015, 0.0), true, 0.8);
+        PIDController pid = new PIDController("distance", new PIDCoefficients(0.006, 0.0000015, 0.0), true, 0.8);
 
-        PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
+        PIDController anglePID = new PIDController("angle", new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
         double targetHeading = robot.getHeading();
 
         ElapsedTime timer = new ElapsedTime();
@@ -467,10 +467,10 @@ public class AutoAligner {
         double targetYDistance = getYDistance(targetLeft, targetRight);
         double targetXDistance = getXDistance(targetLeft, targetRight);
 
-        PIDController xPID = new PIDController(new PIDCoefficients(0.002, 0, 0), true, 0.8);
-        PIDController yPID = new PIDController(new PIDCoefficients(0.005, 0.0000075, 0.5), true, 0.8);
+        PIDController xPID = new PIDController("x", new PIDCoefficients(0.002, 0, 0), true, 0.8);
+        PIDController yPID = new PIDController("y", new PIDCoefficients(0.005, 0.0000075, 0.5), true, 0.8);
 
-        PIDController anglePID = new PIDController(new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
+        PIDController anglePID = new PIDController("angle", new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
         double targetHeading = robot.getHeading();
 
         ElapsedTime timer = new ElapsedTime();
