@@ -46,13 +46,13 @@ public abstract class AutoMain extends LinearOpMode {
 
             robot.activateTfod();
 
-        /*
+            /*
 
-        UNLATCH
-         - Different set powers account for weird motor discrepency
-         - latchLeft and latchRight start reset encoder values
+            UNLATCH
+             - Different set powers account for weird motor discrepency
+             - latchLeft and latchRight start reset encoder values
 
-         */
+             */
             int latchLeftStart = robot.latchLeft.getCurrentPosition();
             int latchRightStart = robot.latchRight.getCurrentPosition();
 
@@ -74,13 +74,13 @@ public abstract class AutoMain extends LinearOpMode {
             int totalReads = 0;
 
 
-        /*
+            /*
 
-        READ SAMPLE
-        - Record votes for mineral position
-        - Begins taking readings until latch approaches bottom (30 ticks away)
+            READ SAMPLE
+            - Record votes for mineral position
+            - Begins taking readings until latch approaches bottom (30 ticks away)
 
-         */
+             */
             while ((Math.abs(robot.latchLeft.getCurrentPosition() - (latchLeftStart - Robot.LATCH_DISTANCE)) > 30 || Math.abs(robot.latchRight.getCurrentPosition() - (latchRightStart - Robot.LATCH_DISTANCE)) > 30) && opModeIsActive()) {
                 HashMap<MineralPosition, Float> reading = robot.findGoldMineralDifferent();
 
@@ -117,12 +117,12 @@ public abstract class AutoMain extends LinearOpMode {
             telemetry.addData("Heading - unlatched", robot.getHeading());
             telemetry.update();
 
-        /*
+            /*
 
-        SAMPLE DECISION LOGIC
-        - Simple logic, side with the most gold counts is gold
+            SAMPLE DECISION LOGIC
+            - Simple logic, side with the most gold counts is gold
 
-         */
+             */
             goldCenterVote /= totalCenterVotes;
             goldLeftVote /= totalLeftVotes;
             goldRightVote /= totalRightVotes;
