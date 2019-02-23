@@ -364,6 +364,59 @@ public class Robot implements AutoCloseable {
         driveMotors(0, 0, 0, 0);
     }
 
+    public void strafeTicks(int ticks, double fl, double fr, double bl, double br) {
+        int targetFrontLeftPosition = frontLeft.getCurrentPosition() + ticks;
+        int targetFrontRightPosition = frontRight.getCurrentPosition() - ticks;
+
+        PIDController anglePID = new PIDController("angle", new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
+
+        lastTargetHeading = this.getHeading();
+
+        double ogFrontLeftDiffSign = Math.signum(targetFrontLeftPosition - frontLeft.getCurrentPosition());
+        double ogFrontRightDiffSign = Math.signum(targetFrontRightPosition - frontRight.getCurrentPosition());
+
+        while (Math.abs(targetFrontLeftPosition - frontLeft.getCurrentPosition()) > 10 && Math.abs(targetFrontRightPosition - frontLeft.getCurrentPosition()) > 10 && opMode.opModeIsActive()) {
+
+            // Angle correction
+            double currentHeading = this.getHeading();
+            if (Math.abs(currentHeading - lastTargetHeading) < 0.25) {
+                currentHeading = lastTargetHeading;
+            }
+            double angleCorrection = anglePID.step(currentHeading, lastTargetHeading);
+
+            angleCorrection = 0;
+//            double currentPower = power;
+            double diffuFrontLeft = targetFrontLeftPosition - frontLeft.getCurrentPosition();
+            double diffFrontLeft = Math.abs(diffuFrontLeft);
+            double signFrontLeft = ogFrontLeftDiffSign * Math.signum(diffuFrontLeft);
+
+            double diffuFrontRight = targetFrontRightPosition - frontRight.getCurrentPosition();
+            double diffFrontRight = Math.abs(diffuFrontRight);
+            double signFrontRight = ogFrontRightDiffSign * Math.signum(diffuFrontRight);
+
+            double flp = signFrontLeft*Math.signum(fl)*Math.min(Math.max(diffFrontLeft/400.0, 0.4), Math.abs(fl));
+            double frp = signFrontRight*Math.signum(fr)*Math.min(Math.max(diffFrontRight/400.0, 0.4), Math.abs(fr));
+            double blp = signFrontRight*Math.signum(bl)*Math.min(Math.max(diffFrontRight/400.0, 0.4), Math.abs(bl));
+            double brp = signFrontLeft*Math.signum(br)*Math.min(Math.max(diffFrontLeft/400.0, 0.4), Math.abs(br));
+//            opMode.telemetry.addData("flp", flp - angleCorrection);
+//            opMode.telemetry.addData("frp", frp + angleCorrection);
+//            opMode.telemetry.addData("blp", blp - angleCorrection);
+//            opMode.telemetry.addData("brp", brp + angleCorrection);
+            opMode.telemetry.addData("current front left position", frontLeft.getCurrentPosition());
+            opMode.telemetry.addData("target front left position", targetFrontLeftPosition);
+            opMode.telemetry.addData("front left power", flp);
+            opMode.telemetry.addData("current front right position", frontLeft.getCurrentPosition());
+            opMode.telemetry.addData("target front right position", targetFrontLeftPosition);
+            opMode.telemetry.addData("front right power", flp);
+
+            opMode.telemetry.update();
+
+            driveMotors(flp - angleCorrection, frp + angleCorrection, blp - angleCorrection, brp + angleCorrection);
+        }
+        driveMotors(0, 0, 0, 0);
+    }
+
+
     private double internalOGDiffSign;
     private double internalTargetPosition;
 
