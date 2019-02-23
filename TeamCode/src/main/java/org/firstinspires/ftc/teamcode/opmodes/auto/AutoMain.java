@@ -21,13 +21,13 @@ public abstract class AutoMain extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        //When init is pressed  make an instance of Robot
+        // When init is pressed make an instance of Robot
         telemetry.addData("Status", "Starting...");
         telemetry.update();
 
         PersistentHeading.clearSavedHeading();
         try (Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, true)) {
-            //Once robot has inited, telemetrize ready and move team marker
+            // Once robot has initialized, start telemetry and move team marker
             telemetry.addData("Status", "Ready to go");
             telemetry.addData("Starting position", getStartingPosition());
             telemetry.update();
@@ -35,7 +35,7 @@ public abstract class AutoMain extends LinearOpMode {
             robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
             robot.resetHeading();
 
-            //Wait for play button, then begin timer
+            // Wait for play button, then begin timer
             waitForStart();
 
             ElapsedTime superTimer = new ElapsedTime();
@@ -49,7 +49,7 @@ public abstract class AutoMain extends LinearOpMode {
             /*
 
             UNLATCH
-             - Different set powers account for weird motor discrepency
+             - Different set powers account for weird motor discrepancy
              - latchLeft and latchRight start reset encoder values
 
              */
@@ -63,7 +63,7 @@ public abstract class AutoMain extends LinearOpMode {
             robot.latchRight.setTargetPosition(latchRightStart - Robot.LATCH_DISTANCE);
 
 
-            // Reset camera votes and reads to 0
+            // Set camera votes and reads to 0
             double goldCenterVote = 0;
             int totalCenterVotes = 0;
             double goldLeftVote = 0;
@@ -72,7 +72,6 @@ public abstract class AutoMain extends LinearOpMode {
             int totalRightVotes = 0;
 
             int totalReads = 0;
-
 
             /*
 
@@ -99,7 +98,7 @@ public abstract class AutoMain extends LinearOpMode {
 
                 totalReads++;
 
-                //Log votes to telemetry
+                // Log votes to telemetry
                 sleep(10);
                 telemetry.addData("gold left vote", goldLeftVote / totalLeftVotes);
                 telemetry.addData("gold center vote", goldCenterVote / totalCenterVotes);
@@ -120,7 +119,7 @@ public abstract class AutoMain extends LinearOpMode {
             /*
 
             SAMPLE DECISION LOGIC
-            - Simple logic, side with the most gold counts is gold
+            - Side with the highest gold vote average is gold
 
              */
             goldCenterVote /= totalCenterVotes;
@@ -144,14 +143,14 @@ public abstract class AutoMain extends LinearOpMode {
             // Drive backwards to unlatch
             robot.driveTicks(-100, -0.9, -0.9, -0.9, -0.9);
 
-            //drive latch downwards once unlatched (all the way to bottom)
+            // Drive latch downwards once unlatched (all the way to bottom)
             robot.latchLeft.setPower(0.8);
             robot.latchRight.setPower(1);
 
             robot.latchLeft.setTargetPosition(latchLeftStart);
             robot.latchRight.setTargetPosition(latchRightStart);
 
-            //Take half a second to face the minerals
+            // Take half a second to face the minerals
             robot.turn(0, 0.5);
 
             ElapsedTime timer = new ElapsedTime();
@@ -161,7 +160,7 @@ public abstract class AutoMain extends LinearOpMode {
             // Get away from lander
             robot.driveTicks(650, 0.9, -0.9, -0.9, 0.9);
 
-            robot.turn(0);
+            robot.turn(0,1.0);
 
             // Get in front of cube
             // TODO: change me at competition - this is "very sketch" and probably relies on our lander being dumb
@@ -192,13 +191,11 @@ public abstract class AutoMain extends LinearOpMode {
             if (getStartingPosition() == StartingPosition.DEPOT) {
                 // Hit cube
                 if (goldMineral == MineralPosition.LEFT) {
-//                    robot.driveTicks(1650, 0.9, -0.9, -0.9, 0.9);
                     robot.driveTicks(1350, 1, 1, 1, 1);
-                    //robot.aligner.driveToDistance(Direction.RIGHT, Direction.LEFT, true, 100, 2.0, true);
+//                    robot.aligner.driveToDistance(Direction.RIGHT, Direction.LEFT, true, 100, 2.0, true);
                 } else if (goldMineral == MineralPosition.RIGHT) {
-//                    robot.driveTicks(1650, 0.9, -0.9, -0.9, 0.9);
                     robot.driveTicks(1350, 1, 1, 1, 1);
-                    //robot.aligner.driveToDistance(Direction.RIGHT, Direction.RIGHT, true, 100, 2.0, true);
+//                    robot.aligner.driveToDistance(Direction.RIGHT, Direction.RIGHT, true, 100, 2.0, true);
                 } else {
                     robot.driveTicks(1350, 1, 1, 1, 1);
 //                    robot.aligner.driveToDistance(Direction.RIGHT, Direction.LEFT, true, 200, 1.5, true);
@@ -209,14 +206,11 @@ public abstract class AutoMain extends LinearOpMode {
                 // Recenter
                 if (goldMineral == MineralPosition.LEFT) {
                     robot.driveTicks(-MINERAL_TICKS, -1, -1, -1, -1);
-//                    robot.driveTicks(100 - MINERAL_TICKS - 100, -0.9, -0.9, -0.9, -0.9);
-//                    robot.driveTicks(100 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
                 } else if (goldMineral == MineralPosition.RIGHT) {
                     robot.driveTicks(MINERAL_TICKS, 1, 1, 1, 1);
-//                    robot.driveTicks(100 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
-//                    robot.driveTicks(100 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
                 }
 
+                // Drop team marker
                 robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
                 robot.setupSimpleServos(Direction.RIGHT);
 
@@ -231,25 +225,19 @@ public abstract class AutoMain extends LinearOpMode {
                     robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
                 }
             } else if (getStartingPosition() == StartingPosition.CRATER) {
-                // Hit cube
+                // Hit cube and back up again
                 if (goldMineral == MineralPosition.LEFT) {
                     robot.driveTicks(700, 1, 1, 1, 1);
                     robot.driveTicks(-400, -1, -1, -1, -1);
-//                    robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
-//                    robot.driveTicks(-650, -0.9, 0.9, 0.9, -0.9);
                 } else if (goldMineral == MineralPosition.RIGHT) {
                     robot.driveTicks(700, 1, 1, 1, 1);
                     robot.driveTicks(-400, -1, -1, -1, -1);
-//                    robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
-//                    robot.driveTicks(-650, -0.9, 0.9, 0.9, -0.9);
                 } else {
-//                    robot.turn(-90);
                     robot.driveTicks(700, 1, 1, 1, 1);
                     robot.driveTicks(-400, -1, -1, -1, -1);
-//                    robot.turn(0, 1.5);
                 }
 
-                robot.turn(0, 2.0);
+                robot.turn(0, 1.5);
 
                 // Drive to wall
                 if (goldMineral == MineralPosition.LEFT) {
@@ -287,7 +275,7 @@ public abstract class AutoMain extends LinearOpMode {
                 sleep(100);
 
                 // turn to place team marker
-                robot.turn(45 + 45, 1.5);
+                robot.turn(90, 1.5);
 
                 robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
                 sleep(500);
@@ -300,36 +288,22 @@ public abstract class AutoMain extends LinearOpMode {
 
             timer.reset();
 
-            // Head back to crater (ENCODE!!!)
-        if (getStartingPosition() == StartingPosition.CRATER) {
-            robot.aligner.driveAlignDistanceTicks(-0.9, 100, -2400, false);
-//             IN CASE SENSORS DON'T WORK:
-//            robot.driveTicks(3200, 0.9, 0.9, 0.9, 0.9);
-        } else {
-            if (!shouldEndInOtherCrater()) {
+            // Head back to crater
+            if (getStartingPosition() == StartingPosition.CRATER) {
                 robot.aligner.driveAlignDistanceTicks(-0.9, 100, -2400, false);
-//             IN CASE SENSORS DON'T WORK:
-//                robot.driveTicks(-3200, -0.9, -0.9, -0.9, -0.9);
+    //             IN CASE SENSORS DON'T WORK:
+    //            robot.driveTicks(3200, 0.9, 0.9, 0.9, 0.9);
             } else {
-                robot.aligner.driveAlignDistanceTicks(0.9, 100, 2000, false);
-//             IN CASE SENSORS DON'T WORK:
-//                robot.driveTicks(2800, 0.9, 0.9, 0.9, 0.9);
+                if (!shouldEndInOtherCrater()) {
+                    robot.aligner.driveAlignDistanceTicks(-0.9, 100, -2400, false);
+    //             IN CASE SENSORS DON'T WORK:
+    //                robot.driveTicks(-3200, -0.9, -0.9, -0.9, -0.9);
+                } else {
+                    robot.aligner.driveAlignDistanceTicks(0.9, 100, 2000, false);
+    //             IN CASE SENSORS DON'T WORK:
+    //                robot.driveTicks(2800, 0.9, 0.9, 0.9, 0.9);
+                }
             }
-        }
-//            while (opModeIsActive()) {
-//                if (!shouldEndInOtherCrater()) {
-//                    robot.aligner.driveAlignDistance(-0.9, 100, false);
-//                } else {
-//                    robot.aligner.driveAlignDistance(0.9, 100, false);
-//                }
-//                if (getStartingPosition() == StartingPosition.CRATER) {
-//                    if (timer.seconds() > 1.1) break;
-//                } else {
-//                    if (timer.seconds() > 0.7) break;
-//                }
-//
-//                idle();
-//            }
 
             // Turn and unfurl arm
             if (getStartingPosition() == StartingPosition.DEPOT) {

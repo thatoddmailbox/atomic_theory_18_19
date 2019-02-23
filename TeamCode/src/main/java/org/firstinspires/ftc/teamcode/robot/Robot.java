@@ -328,7 +328,7 @@ public class Robot implements AutoCloseable {
         int targetPosition = (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2 + ticks;
         PIDController anglePID = new PIDController("angle", new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
 
-        lastTargetHeading = this.getHeading();
+//        lastTargetHeading = this.getHeading();
 
         double ogDiffSign = Math.signum(targetPosition - (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2);
         while (Math.abs(targetPosition - (frontLeft.getCurrentPosition() + backRight.getCurrentPosition())/2) > 10 && opMode.opModeIsActive()) {
@@ -370,7 +370,7 @@ public class Robot implements AutoCloseable {
 
         PIDController anglePID = new PIDController("angle", new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
 
-        lastTargetHeading = this.getHeading();
+//        lastTargetHeading = this.getHeading();
 
         double ogFrontLeftDiffSign = Math.signum(targetFrontLeftPosition - frontLeft.getCurrentPosition());
         double ogFrontRightDiffSign = Math.signum(targetFrontRightPosition - frontRight.getCurrentPosition());
@@ -405,9 +405,9 @@ public class Robot implements AutoCloseable {
             opMode.telemetry.addData("current front left position", frontLeft.getCurrentPosition());
             opMode.telemetry.addData("target front left position", targetFrontLeftPosition);
             opMode.telemetry.addData("front left power", flp);
-            opMode.telemetry.addData("current front right position", frontLeft.getCurrentPosition());
-            opMode.telemetry.addData("target front right position", targetFrontLeftPosition);
-            opMode.telemetry.addData("front right power", flp);
+            opMode.telemetry.addData("current front right position", frontRight.getCurrentPosition());
+            opMode.telemetry.addData("target front right position", targetFrontRightPosition);
+            opMode.telemetry.addData("front right power", frp);
 
             opMode.telemetry.update();
 
@@ -429,7 +429,7 @@ public class Robot implements AutoCloseable {
     public double getPowerForPresetTicks(double motorPower) {
         PIDController anglePID = new PIDController("angle", new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.1);
 
-        lastTargetHeading = this.getHeading();
+//        lastTargetHeading = this.getHeading();
 
         // Angle correction
         double currentHeading = this.getHeading();
