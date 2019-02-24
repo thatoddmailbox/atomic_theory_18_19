@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.blackbox.sensors;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -14,6 +15,7 @@ public class SensorFactory {
     static {
         _mapping.put(ModernRoboticsI2cRangeSensor.class, WrappedMRRangeSensor.class);
         _mapping.put(BNO055IMU.class, WrappedBNO055IMU.class);
+        _mapping.put(LynxModule.class, WrappedLynxModule.class);
     }
 
     public static <T extends WrappedSensor<Q>, Q> T getSensor(HardwareMap hwMap, Class<Q> sensorClass, String niceName, String configName) {

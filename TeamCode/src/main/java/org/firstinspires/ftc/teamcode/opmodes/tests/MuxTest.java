@@ -18,7 +18,7 @@ public class MuxTest extends LinearOpMode {
 
         Robot robot = new Robot(MatchPhase.TEST, this, false);
         DigitalChannel muxReset = hardwareMap.digitalChannel.get("mux_reset");
-        UltrasonicHub hub = new UltrasonicHub(hardwareMap.appContext, robot.expansionHub2, 1, muxReset);
+        UltrasonicHub hub = new UltrasonicHub(hardwareMap.appContext, robot.expansionHub2.getRawHub(), 1, muxReset);
 
         hub.reset();
 

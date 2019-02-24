@@ -59,6 +59,10 @@ public class WrappedLynxModule extends WrappedSensor<LynxModule> {
         }
     }
 
+    public LynxModule getRawHub() {
+        return _sensor;
+    }
+
     /*
      * communication functions
      */
