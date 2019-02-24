@@ -31,9 +31,11 @@ import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.blackbox.MatchType;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.SensorFactory;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedBNO055IMU;
+import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedLynxModule;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedMRRangeSensor;
 import org.firstinspires.ftc.teamcode.utils.Direction;
+import org.firstinspires.ftc.teamcode.utils.LynxPumperRunnable;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 import org.json.JSONException;
@@ -74,8 +76,8 @@ public class Robot implements AutoCloseable {
      * expansion hubs
      */
 
-    public LynxModule expansionHub1;
-    public LynxModule expansionHub2;
+    public WrappedLynxModule expansionHub1;
+    public WrappedLynxModule expansionHub2;
 
     /*
      * motors
@@ -145,8 +147,8 @@ public class Robot implements AutoCloseable {
         /*
          * expansion hub initialization
          */
-        expansionHub1 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 1");
-        expansionHub2 = opMode.hardwareMap.get(LynxModule.class, "Expansion Hub 2");
+        expansionHub1 = SensorFactory.getSensor(opMode.hardwareMap, LynxModule.class, "expansion hub 1", "Expansion Hub 1");
+        expansionHub2 = SensorFactory.getSensor(opMode.hardwareMap, LynxModule.class, "expansion hub 2", "Expansion Hub 2");
 
         /*
          * motor initialization
@@ -268,13 +270,27 @@ public class Robot implements AutoCloseable {
         }
         logSession.setFact("Name", opModeName);
 
+        logSession.attachDatastreamable(expansionHub1);
+        logSession.attachDatastreamable(expansionHub2);
+        logSession.attachDatastreamable(imu);
         logSession.attachDatastreamable(rangeFrontLeft);
         logSession.attachDatastreamable(rangeFrontRight);
         logSession.attachDatastreamable(rangeBackLeft);
         logSession.attachDatastreamable(rangeBackRight);
-        logSession.attachDatastreamable(imu);
 
         initialTicks = frontLeft.getCurrentPosition();
+    }
+
+    /*
+     * logging functions
+     */
+    public void handleMatchStart() {
+        logSession.startMatch();
+
+        Thread lynxPumper = new Thread(new LynxPumperRunnable(opMode, new WrappedLynxModule[] {
+                expansionHub1, expansionHub2
+        }));
+        lynxPumper.start();
     }
 
     @Override
@@ -448,31 +464,6 @@ public class Robot implements AutoCloseable {
         double outputMotorPower = sign*Math.signum(motorPower)*Math.min(Math.max(diff/400.0, 0.4), Math.abs(motorPower));
 
         return outputMotorPower;
-    }
-
-
-    /*
-     * sensor functions - hub
-     */
-    public LynxGetBulkInputDataResponse getBulkData(LynxModule hub) {
-        LynxGetBulkInputDataCommand bulkInputDataCommand = new LynxGetBulkInputDataCommand(hub);
-        try {
-            return bulkInputDataCommand.sendReceive();
-        } catch (InterruptedException | LynxNackException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public double readADCFromHub(LynxModule hub, LynxGetADCCommand.Channel channel) {
-        LynxGetADCCommand command = new LynxGetADCCommand(hub, channel, LynxGetADCCommand.Mode.ENGINEERING);
-        try {
-            LynxGetADCResponse response = command.sendReceive();
-            return response.getValue();
-        } catch (InterruptedException | RuntimeException | LynxNackException e) {
-            e.printStackTrace();
-        }
-        return Double.MAX_VALUE;
     }
 
     /*

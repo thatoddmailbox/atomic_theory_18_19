@@ -5,6 +5,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -20,6 +23,7 @@ public class LogContext implements AutoCloseable {
     private boolean _closed;
     private LogSession _session;
     private File _path;
+    private File _datastreamableCountFile;
 
     public LogContext(LogSession session, int id, String name) {
         facts = new HashMap<String, Object>();
@@ -34,6 +38,13 @@ public class LogContext implements AutoCloseable {
         _session = session;
         _path = new File(session.getSessionPath(), "/ctx/" + Integer.toString(id));
         _path.mkdirs();
+
+        _datastreamableCountFile = new File(_path, "datastreamables/count.txt");
+        try {
+            _datastreamableCountFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void attachDatastreamable(Datastreamable datastreamable) {
@@ -42,6 +53,15 @@ public class LogContext implements AutoCloseable {
         }
         _datastreamables.add(datastreamable);
         _datastreamableManagers.add(new DatastreamableManager(this, _datastreamableManagers.size(), datastreamable));
+
+        try {
+            PrintWriter writer = new PrintWriter(_datastreamableCountFile);
+            writer.print(_datastreamables.size());
+            writer.flush();
+            writer.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getName() {

@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.utils.OptionsManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +18,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class LogSession implements AutoCloseable {
     @SuppressLint("SdCardPath")
@@ -30,14 +32,18 @@ public class LogSession implements AutoCloseable {
     private MatchPhase _phase;
     private MatchType _type;
     private String _label;
+    private long _matchStart;
+    private HashMap<String, String> _options;
 
     private LogContext _root;
 
     private ArrayList<LogContext> _contexts;
+
     private LinearOpMode _opMode;
 
     public LogSession(LinearOpMode opMode, MatchPhase phase, MatchType type, String label) throws IOException {
         _contexts = new ArrayList<LogContext>();
+        _options = OptionsManager.getDisplayList();
 
         if (!_basePath.exists()) {
             _basePath.mkdirs();
@@ -103,6 +109,13 @@ public class LogSession implements AutoCloseable {
         sessionJSON.put("phase", _phase);
         sessionJSON.put("type", _type);
         sessionJSON.put("label", _label);
+        sessionJSON.put("matchStart", _matchStart);
+
+        JSONObject optionsJSON = new JSONObject();
+        for (HashMap.Entry<String, String> option : _options.entrySet()) {
+            optionsJSON.put(option.getKey(), option.getValue());
+        }
+        sessionJSON.put("options", optionsJSON);
 
         JSONArray contextsJSON = new JSONArray();
         for (LogContext context : _contexts) {
@@ -125,5 +138,9 @@ public class LogSession implements AutoCloseable {
         LogContext context = new LogContext(this, _contexts.size(), contextName);
         _contexts.add(context);
         return context;
+    }
+
+    public void startMatch() {
+        _matchStart = System.currentTimeMillis();
     }
 }

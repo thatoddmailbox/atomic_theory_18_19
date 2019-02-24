@@ -4,7 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
+import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedLynxModule;
 import org.firstinspires.ftc.teamcode.robot.Robot;
+import org.firstinspires.ftc.teamcode.utils.LynxPumperRunnable;
 import org.firstinspires.ftc.teamcode.utils.Direction;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
 import org.firstinspires.ftc.teamcode.utils.OptionsManager;
@@ -53,6 +55,7 @@ public abstract class AutoMain extends LinearOpMode {
 
             // Wait for play button, then begin timer
             waitForStart();
+            robot.handleMatchStart();
 
             ElapsedTime superTimer = new ElapsedTime();
             superTimer.reset();

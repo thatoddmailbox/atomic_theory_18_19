@@ -48,7 +48,8 @@ public class WrappedBNO055IMU extends WrappedSensor<BNO055IMU> {
         return new Datastream[] {
                 _xAngleRawStream,
                 _yAngleRawStream,
-                _zAngleRawStream
+                _zAngleRawStream,
+                _zAngleOffsetStream
         };
     }
 
@@ -87,7 +88,7 @@ public class WrappedBNO055IMU extends WrappedSensor<BNO055IMU> {
         headingOffset = getRawZAngle();
     }
 
-    public double getHeading() {
+    private double getHeadingInternal() {
         double angle = getRawZAngle();
         double sign = Math.signum(headingOffset);
         if (headingOffset > 0) {
@@ -103,5 +104,11 @@ public class WrappedBNO055IMU extends WrappedSensor<BNO055IMU> {
                 return angle - headingOffset;
             }
         }
+    }
+
+    public double getHeading() {
+        double heading = getHeadingInternal();
+        _zAngleOffsetStream.storeReading(heading);
+        return heading;
     }
 }

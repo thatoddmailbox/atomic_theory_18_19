@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
-import com.qualcomm.hardware.lynx.commands.core.LynxGetADCCommand;
 import com.qualcomm.hardware.lynx.commands.core.LynxGetBulkInputDataResponse;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -23,6 +22,7 @@ public class MechanumTele extends LinearOpMode {
             telemetry.update();
 
             waitForStart();
+            robot.handleMatchStart();
 
             telemetry.addData("Status", "Running");
             telemetry.update();
@@ -188,7 +188,7 @@ public class MechanumTele extends LinearOpMode {
                     robot.latchRight.setPower(0);
                 }
 
-                LynxGetBulkInputDataResponse bulkData = robot.getBulkData(robot.expansionHub2);
+                LynxGetBulkInputDataResponse bulkData = robot.expansionHub2.getBulkData();
 
                 telemetry.addData("Zero power", robot.driveMotorZeroPowerBehavior.toString());
                 telemetry.addData("Nom power", nomPower);
