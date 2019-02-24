@@ -9,8 +9,12 @@
     <application>
         <activity
             android:name=".activities.ATChannelChangeActivity"
-            android:theme="@android:style/Theme.Material.Light"
-            android:label="@string/at_change_channel_title"></activity>
+            android:label="@string/at_change_channel_title"
+            android:theme="@android:style/Theme.Material.Light" />
+        <activity
+            android:name=".activities.ATOptionsActivity"
+            android:label="@string/at_options_title"
+            android:theme="@android:style/Theme.Material.Light" />
     </application>
 
 </manifest>

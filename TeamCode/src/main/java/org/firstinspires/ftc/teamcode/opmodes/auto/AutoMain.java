@@ -7,9 +7,12 @@ import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.Direction;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
+import org.firstinspires.ftc.teamcode.utils.OptionsManager;
 import org.firstinspires.ftc.teamcode.utils.PersistentHeading;
 import org.firstinspires.ftc.teamcode.utils.StartingPosition;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 public abstract class AutoMain extends LinearOpMode {
@@ -20,16 +23,27 @@ public abstract class AutoMain extends LinearOpMode {
     public int MINERAL_TICKS = 700;
     @Override
     public void runOpMode() throws InterruptedException {
+        try {
+            OptionsManager.init(hardwareMap.appContext);
+        } catch (XmlPullParserException | IOException e) {
+            e.printStackTrace();
+        }
+
+        boolean endInOtherCrater = OptionsManager.getBooleanSetting("alternateCrater");
 
         // When init is pressed make an instance of Robot
         telemetry.addData("Status", "Starting...");
         telemetry.update();
 
         PersistentHeading.clearSavedHeading();
-        try (Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, true)) {
-            // Once robot has initialized, start telemetry and move team marker
+        try (Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, false)) {
+            // print telemetry
+            HashMap<String, String> displayList = OptionsManager.getDisplayList();
             telemetry.addData("Status", "Ready to go");
             telemetry.addData("Starting position", getStartingPosition());
+            for (HashMap.Entry<String, String> entry : displayList.entrySet()) {
+                telemetry.addData(entry.getKey(), entry.getValue());
+            }
             telemetry.update();
 
             robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
@@ -217,7 +231,7 @@ public abstract class AutoMain extends LinearOpMode {
                 sleep(400);
 
                 // Turn and strafe into wall
-                if (!shouldEndInOtherCrater()) {
+                if (!endInOtherCrater) {
                     robot.turn(-45, 1.5);
                     robot.driveTicks(600, 0.9, -0.9, -0.9, 0.9);
                 } else {
@@ -294,7 +308,7 @@ public abstract class AutoMain extends LinearOpMode {
     //             IN CASE SENSORS DON'T WORK:
     //            robot.driveTicks(3200, 0.9, 0.9, 0.9, 0.9);
             } else {
-                if (!shouldEndInOtherCrater()) {
+                if (!endInOtherCrater) {
                     robot.aligner.driveAlignDistanceTicks(-0.9, 100, -2400, false);
     //             IN CASE SENSORS DON'T WORK:
     //                robot.driveTicks(-3200, -0.9, -0.9, -0.9, -0.9);
@@ -307,7 +321,7 @@ public abstract class AutoMain extends LinearOpMode {
 
             // Turn and unfurl arm
             if (getStartingPosition() == StartingPosition.DEPOT) {
-                if (!shouldEndInOtherCrater()) {
+                if (!endInOtherCrater) {
                     robot.turn(135, 2.5);
                 }
             } else {

@@ -45,6 +45,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       android:orderInCategory="150"
       android:showAsAction="never"
       android:title="@string/change_channel_menu_item"/>
+  <item
+      android:id="@+id/action_options"
+      android:orderInCategory="175"
+      android:showAsAction="never"
+      android:title="@string/options_menu_item"/>
   <!-- END MODIFICATION -->
 
   <item

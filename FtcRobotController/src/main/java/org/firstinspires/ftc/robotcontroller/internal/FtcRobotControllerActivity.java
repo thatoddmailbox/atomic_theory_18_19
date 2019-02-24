@@ -563,6 +563,16 @@ public class FtcRobotControllerActivity extends Activity
       Intent intent = new Intent(AppUtil.getDefContext(), channelChanger);
       startActivity(intent);
       return true;
+    } else if (id == R.id.action_options) {
+      Class options = null;
+      try {
+        options = Class.forName("org.firstinspires.ftc.teamcode.activities.ATOptionsActivity");
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+      }
+      Intent intent = new Intent(AppUtil.getDefContext(), options);
+      startActivity(intent);
+      return true;
     }
     // END MODIFICATION
 

@@ -53,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!-- START MODIFICATION -->
   <string name="change_channel_menu_item">Change Channel</string>
+  <string name="options_menu_item">Autonomous Options</string>
   <!-- END MODIFICATION -->
 
   <!-- Toast messages -->

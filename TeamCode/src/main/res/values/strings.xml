@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="at_change_channel_title">Change 5GHz Wi-Fi Channel</string>
+    <string name="at_options_title">Autonomous options</string>
 </resources>

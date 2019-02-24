@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:icon="@drawable/ic_leak_add_black_24dp"
+        android:key="useUltrasonic"
+        android:title="Use ultrasonic sensors"
+        android:summary="Use Modern Robotics Range Sensors for alignment"
+        android:defaultValue="true" />
+
+    <EditTextPreference
+        android:icon="@drawable/ic_timer_black_24dp"
+        android:key="timeDelay"
+        android:title="Time delay"
+        android:summary="Wait before moving towards the depot and placing the team marker (in seconds)"
+        android:inputType="numberDecimal"
+        android:digits="0123456789."
+        android:defaultValue="0" />
+
+    <SwitchPreference
+        android:icon="@drawable/ic_repeat_black_24dp"
+        android:key="alternateCrater"
+        android:title="Alternate crater"
+        android:summary="Go towards other alliance's crater after placing team marker"
+        android:defaultValue="false" />
+
+    <SwitchPreference
+        android:icon="@drawable/ic_restaurant_black_24dp"
+        android:key="endNom"
+        android:title="Nom at end"
+        android:summary="Attempt to nom minerals from the crater at the end of auto"
+        android:defaultValue="true" />
+</PreferenceScreen>
