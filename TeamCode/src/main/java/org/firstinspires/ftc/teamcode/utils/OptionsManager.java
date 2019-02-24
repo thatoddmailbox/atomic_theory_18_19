@@ -83,7 +83,7 @@ public class OptionsManager {
 
         String value = PreferenceManager.getDefaultSharedPreferences(_context).getString(key, defaultValue);
 
-        return Double.parseDouble(defaultValue);
+        return Double.parseDouble(value);
     }
 
     public static String getStringSetting(String key) {

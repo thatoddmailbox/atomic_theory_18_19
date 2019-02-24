@@ -18,7 +18,6 @@ import java.util.HashMap;
 public abstract class AutoMain extends LinearOpMode {
 
     public abstract StartingPosition getStartingPosition();
-    public abstract boolean shouldEndInOtherCrater();
 
     public int MINERAL_TICKS = 700;
     @Override
@@ -29,7 +28,10 @@ public abstract class AutoMain extends LinearOpMode {
             e.printStackTrace();
         }
 
+        boolean useUltrasonic = OptionsManager.getBooleanSetting("useUltrasonic");
         boolean endInOtherCrater = OptionsManager.getBooleanSetting("alternateCrater");
+        double timeDelay = OptionsManager.getDoubleSetting("timeDelay");
+        boolean endNom = OptionsManager.getBooleanSetting("endNom");
 
         // When init is pressed make an instance of Robot
         telemetry.addData("Status", "Starting...");
@@ -270,7 +272,7 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.driveTicks(450, 1, -1, -1, 1);
 
                 // Possible wait for alliance to do their thing
-//                sleep(4000);
+                sleep(Math.round(timeDelay * 1000));
 
                 timer.reset();
 
