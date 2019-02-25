@@ -40,7 +40,7 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.update();
 
         PersistentHeading.clearSavedHeading();
-        try (Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, false)) {
+        try (Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, true)) {
             // print telemetry
             HashMap<String, String> displayList = OptionsManager.getDisplayList();
             telemetry.addData("Status", "Ready to go");

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.blackbox;
 
+import android.graphics.Bitmap;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 
 public class DatastreamableManager implements AutoCloseable {
@@ -29,9 +32,20 @@ public class DatastreamableManager implements AutoCloseable {
                     // set up datastream writers
                     Datastream[] datastreams = _datastreamable.getDatastreams();
                     ArrayList<PrintWriter> datastreamWriters = new ArrayList<PrintWriter>();
+                    ArrayList<File> datastreamAttachedImageFolders = new ArrayList<File>();
                     for (int i = 0; i < datastreams.length; i++) {
                         File datastreamFile = new File(datastreamablePath, Integer.toString(i) + ".csv");
                         datastreamFile.createNewFile();
+
+                        if (datastreams[i].hasAttachedImages()) {
+                            // create folder for images
+                            File attachedImageFolder = new File(datastreamablePath, Integer.toString(i) + "_img");
+                            attachedImageFolder.mkdirs();
+                            datastreamAttachedImageFolders.add(attachedImageFolder);
+                        } else {
+                            // add dummy entry to arraylist
+                            datastreamAttachedImageFolders.add(null);
+                        }
 
                         PrintWriter datastreamWriter = new PrintWriter(datastreamFile);
                         datastreamWriter.println("time,value");
@@ -51,6 +65,13 @@ public class DatastreamableManager implements AutoCloseable {
                                 datastreamWriter.print(reading.time);
                                 datastreamWriter.print(",");
                                 datastreamWriter.println(reading.value);
+
+                                if (reading.image != null && datastream.hasAttachedImages()) {
+                                    // save the image
+                                    try (FileOutputStream imageOut = new FileOutputStream(new File(datastreamAttachedImageFolders.get(i), Long.toString(reading.time) + ".png"))) {
+                                        reading.image.compress(Bitmap.CompressFormat.PNG, 100, imageOut);
+                                    }
+                                }
                             }
                         }
                     }
@@ -69,6 +90,7 @@ public class DatastreamableManager implements AutoCloseable {
                     for (Datastream datastream : datastreams) {
                         JSONObject datastreamJSON = new JSONObject();
                         datastreamJSON.put("name", datastream.name);
+                        datastreamJSON.put("images", datastream.hasAttachedImages());
                         datastreamsJSON.put(datastreamJSON);
                     }
 

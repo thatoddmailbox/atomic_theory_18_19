@@ -32,6 +32,7 @@ import org.firstinspires.ftc.teamcode.blackbox.MatchType;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.SensorFactory;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedBNO055IMU;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedLynxModule;
+import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedTFObjectDetector;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedMRRangeSensor;
 import org.firstinspires.ftc.teamcode.utils.Direction;
@@ -133,7 +134,7 @@ public class Robot implements AutoCloseable {
 
     public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
     public VuforiaLocalizer vuforia;
-    public TFObjectDetector tfod;
+    public WrappedTFObjectDetector tfod;
     public LinearOpMode opMode;
     public AutoAligner aligner;
 
@@ -246,7 +247,8 @@ public class Robot implements AutoCloseable {
 
             int tfodMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
             TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+            TFObjectDetector tfodRaw = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+            tfod = new WrappedTFObjectDetector(tfodRaw, "tfod");
             tfod.loadModelFromAsset(Consts.TFOD_MODEL_FILE, Consts.TFOD_LABEL_GOLD, Consts.TFOD_LABEL_SILVER);
         }
 
@@ -277,6 +279,9 @@ public class Robot implements AutoCloseable {
         logSession.attachDatastreamable(rangeFrontRight);
         logSession.attachDatastreamable(rangeBackLeft);
         logSession.attachDatastreamable(rangeBackRight);
+        if (tfod != null) {
+            logSession.attachDatastreamable(tfod);
+        }
 
         initialTicks = frontLeft.getCurrentPosition();
     }
