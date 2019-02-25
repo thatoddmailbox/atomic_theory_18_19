@@ -20,7 +20,6 @@ public class WrappedTFObjectDetector extends WrappedSensor<TFObjectDetector> {
     private Method _frameGetCopiedBitmap;
 
     private Datastream<RecognitionResults> _frameStream;
-    private long _lastFrameTime = 0;
 
     public WrappedTFObjectDetector(TFObjectDetector sensor, String name) throws InterruptedException {
         super(sensor, name);
@@ -72,12 +71,7 @@ public class WrappedTFObjectDetector extends WrappedSensor<TFObjectDetector> {
 
             Bitmap frameBitmap = (Bitmap) _frameGetCopiedBitmap.invoke(frameAnnotated.getFrame());
 
-            long currentTime = System.currentTimeMillis();
-
-            if (currentTime - _lastFrameTime > 100) {
-                _frameStream.storeReading(new RecognitionResults(recognitionList), frameBitmap);
-                _lastFrameTime = currentTime;
-            }
+            _frameStream.storeReading(new RecognitionResults(recognitionList), frameBitmap);
 
             return recognitionList;
         } catch (IllegalAccessException | InvocationTargetException e) {

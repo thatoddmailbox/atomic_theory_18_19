@@ -48,7 +48,7 @@ public class WrappedLynxModule extends WrappedSensor<LynxModule> {
     public void pumpDatastream() {
         long currentTime = System.currentTimeMillis();
         long difference = currentTime - lastDatastreamUpdate;
-        if (difference < 10) {
+        if (difference > 10) {
             _twelveVoltStream.storeReading(readADCFromHub(LynxGetADCCommand.Channel.BATTERY_MONITOR));
             _fiveVoltStream.storeReading(readADCFromHub(LynxGetADCCommand.Channel.FIVE_VOLT_MONITOR));
             _batteryCurrentStream.storeReading(readADCFromHub(LynxGetADCCommand.Channel.BATTERY_CURRENT));
@@ -56,6 +56,7 @@ public class WrappedLynxModule extends WrappedSensor<LynxModule> {
             _motor1Stream.storeReading(readADCFromHub(LynxGetADCCommand.Channel.MOTOR1_CURRENT));
             _motor2Stream.storeReading(readADCFromHub(LynxGetADCCommand.Channel.MOTOR2_CURRENT));
             _motor3Stream.storeReading(readADCFromHub(LynxGetADCCommand.Channel.MOTOR3_CURRENT));
+            lastDatastreamUpdate = System.currentTimeMillis();
         }
     }
 
