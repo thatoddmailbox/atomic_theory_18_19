@@ -26,6 +26,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.Consts;
+import org.firstinspires.ftc.teamcode.blackbox.LogContext;
 import org.firstinspires.ftc.teamcode.blackbox.LogSession;
 import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.blackbox.MatchType;
@@ -487,47 +488,51 @@ public class Robot implements AutoCloseable {
     }
 
     public void turn(double targetHeading, double timeout) {
-        PIDController pid = new PIDController("turn", new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
+        try (LogContext context = logSession.createContext("turn")) {
+            PIDController pid = new PIDController("turn", new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
 
-        ElapsedTime timer = new ElapsedTime();
-        int correctFrames = 0;
+            context.attachDatastreamable(pid);
 
-        timer.reset();
+            ElapsedTime timer = new ElapsedTime();
+            int correctFrames = 0;
 
-        lastTargetHeading = targetHeading;
+            timer.reset();
 
-        while (opMode.opModeIsActive() && timer.seconds() < timeout) {
-            //if (true) break;
-            /*
-             * pid control loop
-             */
-            double currentHeading = getHeading();
+            lastTargetHeading = targetHeading;
 
-            if (Math.abs(currentHeading - targetHeading) < 0.25) {
-                currentHeading = targetHeading;
-            }
+            while (opMode.opModeIsActive() && timer.seconds() < timeout) {
+                //if (true) break;
+                /*
+                 * pid control loop
+                 */
+                double currentHeading = getHeading();
 
-            if (Math.abs(currentHeading - targetHeading) < 0.5) {
-                correctFrames += 1;
-                if (correctFrames > 20) {
-                    break;
+                if (Math.abs(currentHeading - targetHeading) < 0.25) {
+                    currentHeading = targetHeading;
                 }
-            } else {
-                correctFrames = 0;
+
+                if (Math.abs(currentHeading - targetHeading) < 0.5) {
+                    correctFrames += 1;
+                    if (correctFrames > 20) {
+                        break;
+                    }
+                } else {
+                    correctFrames = 0;
+                }
+
+                double output = pid.step(currentHeading, targetHeading);
+
+                driveMotors(-output, output, -output, output);
+
+                opMode.telemetry.addData("Target", targetHeading);
+                opMode.telemetry.addData("Current", currentHeading);
+                opMode.telemetry.addData("Output", output);
+                opMode.telemetry.addData("Correct frames", correctFrames);
+                opMode.telemetry.update();
             }
 
-            double output = pid.step(currentHeading, targetHeading);
-
-            driveMotors(-output, output, -output, output);
-
-            opMode.telemetry.addData("Target", targetHeading);
-            opMode.telemetry.addData("Current", currentHeading);
-            opMode.telemetry.addData("Output", output);
-            opMode.telemetry.addData("Correct frames", correctFrames);
-            opMode.telemetry.update();
+            driveMotors(0, 0, 0, 0);
         }
-
-        driveMotors(0, 0, 0,0);
     }
 
     /*
