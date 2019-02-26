@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.hardware.UltrasonicHub;
 import org.firstinspires.ftc.teamcode.robot.Robot;
+import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 
 @Autonomous(name="Mux test", group="Tests")
 public class MuxTest extends LinearOpMode {
@@ -16,7 +17,7 @@ public class MuxTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         waitForStart();
 
-        Robot robot = new Robot(MatchPhase.TEST, this, false);
+        Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {});
         DigitalChannel muxReset = hardwareMap.digitalChannel.get("mux_reset");
         UltrasonicHub hub = new UltrasonicHub(hardwareMap.appContext, robot.expansionHub2.getRawHub(), 1, muxReset);
 

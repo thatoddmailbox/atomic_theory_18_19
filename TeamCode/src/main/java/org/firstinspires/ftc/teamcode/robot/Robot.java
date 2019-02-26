@@ -40,6 +40,7 @@ import org.firstinspires.ftc.teamcode.utils.Direction;
 import org.firstinspires.ftc.teamcode.utils.LynxPumperRunnable;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
+import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -133,6 +134,8 @@ public class Robot implements AutoCloseable {
 
     public final LogSession logSession;
 
+    private RobotFeature[] _features;
+
     public DcMotor.ZeroPowerBehavior driveMotorZeroPowerBehavior;
     public VuforiaLocalizer vuforia;
     public WrappedTFObjectDetector tfod;
@@ -143,7 +146,7 @@ public class Robot implements AutoCloseable {
     public int initialTicks = 0;
     public ElapsedTime timer = new ElapsedTime();
 
-    public Robot(MatchPhase phase, LinearOpMode opModeIn, boolean enableVision) throws InterruptedException {
+    public Robot(MatchPhase phase, LinearOpMode opModeIn, RobotFeature[] features) throws InterruptedException {
         opMode = opModeIn;
 
         /*
@@ -209,15 +212,14 @@ public class Robot implements AutoCloseable {
          */
         imu = SensorFactory.getSensor(opMode.hardwareMap, BNO055IMU.class, "imu", "imu");
 
-//        if (enableVision) {
+        if (isFeatureRequested(RobotFeature.IMU)) {
             while (!opMode.isStopRequested() && !imu.isGyroCalibrated()) {
                 Thread.sleep(50);
                 opMode.telemetry.addLine("calibrating");
                 opMode.telemetry.update();
                 opMode.idle();
-//            break;
             }
-//        }
+        }
 
         resetHeading();
 
@@ -240,7 +242,7 @@ public class Robot implements AutoCloseable {
         /*
          * initialize sensors
          */
-        if (enableVision) {
+        if (isFeatureRequested(RobotFeature.CAMERA)) {
             VuforiaLocalizer.Parameters vuforiaParameters = new VuforiaLocalizer.Parameters();
             vuforiaParameters.vuforiaLicenseKey = Consts.VUFORIA_KEY;
             vuforiaParameters.cameraName = leftWebcam;
@@ -285,6 +287,18 @@ public class Robot implements AutoCloseable {
         }
 
         initialTicks = frontLeft.getCurrentPosition();
+    }
+
+    /*
+     * feature functions
+     */
+    public boolean isFeatureRequested(RobotFeature featureToCheck) {
+        for (RobotFeature feature : _features) {
+            if (featureToCheck == feature) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /*

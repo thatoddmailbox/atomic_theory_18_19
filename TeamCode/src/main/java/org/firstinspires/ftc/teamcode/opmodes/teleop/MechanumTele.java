@@ -10,13 +10,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.robot.Robot;
+import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 
 @TeleOp(name="Mechanum Tele-op")
 public class MechanumTele extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        try (Robot robot = new Robot(MatchPhase.TELEOP, this, false)) {
+        try (Robot robot = new Robot(MatchPhase.TELEOP, this, new RobotFeature[] {})) {
             telemetry.addData("Status", "Ready to go");
             telemetry.addData("Heading offset", robot.imu.headingOffset);
             telemetry.update();

@@ -9,12 +9,13 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
+import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 
 @Autonomous(name="Marker test", group="Tests")
 public class MarkerTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(MatchPhase.TEST, this, false);
+        Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {});
 
         waitForStart();
 

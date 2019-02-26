@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.utils.Direction;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
 import org.firstinspires.ftc.teamcode.utils.OptionsManager;
 import org.firstinspires.ftc.teamcode.utils.PersistentHeading;
+import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 import org.firstinspires.ftc.teamcode.utils.StartingPosition;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -40,7 +41,10 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.update();
 
         PersistentHeading.clearSavedHeading();
-        try (Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, true)) {
+        try (Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, new RobotFeature[] {
+                RobotFeature.CAMERA,
+                RobotFeature.IMU
+        })) {
             // print telemetry
             HashMap<String, String> displayList = OptionsManager.getDisplayList();
             telemetry.addData("Status", "Ready to go");

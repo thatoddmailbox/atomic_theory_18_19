@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PIDLogger;
+import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -25,7 +26,9 @@ import java.net.UnknownHostException;
 public class TurningTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        try (Robot robot = new Robot(MatchPhase.TEST, this, false)) {
+        try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
+                RobotFeature.IMU
+        })) {
             telemetry.addLine("Ready to init");
             telemetry.update();
 
