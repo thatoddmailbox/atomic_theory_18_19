@@ -339,6 +339,16 @@ public class FtcRobotControllerActivity extends Activity
     if (preferencesHelper.readBoolean(getString(R.string.pref_wifi_automute), false)) {
       initWifiMute(true);
     }
+
+    // START MODIFICATION
+    Class blackboxWebServer = null;
+    try {
+      blackboxWebServer = Class.forName("org.firstinspires.ftc.teamcode.blackbox.BlackboxWebServer");
+      blackboxWebServer.newInstance();
+    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+      e.printStackTrace();
+    }
+    // END MODIFICATION
   }
 
   protected UpdateUI createUpdateUI() {
