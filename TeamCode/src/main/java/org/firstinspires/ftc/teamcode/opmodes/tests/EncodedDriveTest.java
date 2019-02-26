@@ -12,14 +12,15 @@ public class EncodedDriveTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        waitForStart();
-
-        Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
+        try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
                 RobotFeature.IMU
-        });
+        })) {
+            waitForStart();
+            robot.handleMatchStart();
 
-        robot.driveTicks(1000, 0.9, 0.9, 0.9, 0.9);
+            robot.driveTicks(1000, 0.9, 0.9, 0.9, 0.9);
 
-        sleep(20000);
+            sleep(20000);
+        }
     }
 }

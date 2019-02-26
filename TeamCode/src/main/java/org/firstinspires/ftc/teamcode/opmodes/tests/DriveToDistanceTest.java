@@ -14,13 +14,13 @@ public class DriveToDistanceTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        waitForStart();
-
-        Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
+        try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
                 RobotFeature.IMU
-        });
+        })) {
+            waitForStart();
+            robot.handleMatchStart();
 
-
-        robot.aligner.driveToDistance(Direction.FORWARD, Direction.RIGHT, true,300, 5, true);
+            robot.aligner.driveToDistance(Direction.FORWARD, Direction.RIGHT, true, 300, 5, true);
+        }
     }
 }

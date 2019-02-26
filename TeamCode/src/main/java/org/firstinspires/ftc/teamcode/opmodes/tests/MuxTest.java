@@ -15,23 +15,25 @@ public class MuxTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        waitForStart();
+        try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {})) {
+            waitForStart();
+            robot.handleMatchStart();
 
-        Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {});
-        DigitalChannel muxReset = hardwareMap.digitalChannel.get("mux_reset");
-        UltrasonicHub hub = new UltrasonicHub(hardwareMap.appContext, robot.expansionHub2.getRawHub(), 1, muxReset);
+            DigitalChannel muxReset = hardwareMap.digitalChannel.get("mux_reset");
+            UltrasonicHub hub = new UltrasonicHub(hardwareMap.appContext, robot.expansionHub2.getRawHub(), 1, muxReset);
 
-        hub.reset();
+            hub.reset();
 
-        while (opModeIsActive()) {
-            try {
-                telemetry.addData("Reading", hub.getReadingFromSensor(0));
-            } catch (LynxNackException e) {
-                telemetry.addData("Reading", "error");
-                e.printStackTrace();
+            while (opModeIsActive()) {
+                try {
+                    telemetry.addData("Reading", hub.getReadingFromSensor(0));
+                } catch (LynxNackException e) {
+                    telemetry.addData("Reading", "error");
+                    e.printStackTrace();
+                }
+                telemetry.update();
+                idle();
             }
-            telemetry.update();
-            idle();
         }
     }
 }

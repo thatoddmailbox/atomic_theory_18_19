@@ -17,21 +17,22 @@ public class CameraTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        waitForStart();
-
-        Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
+        try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
                 RobotFeature.CAMERA
-        });
+        })) {
+            waitForStart();
+            robot.handleMatchStart();
 
-        robot.activateTfod();
+            robot.activateTfod();
 
-        while (opModeIsActive()) {
-            sleep(100);
+            while (opModeIsActive()) {
+                sleep(100);
 //            MineralPosition goldMineral = robot.findGoldMineralDifferent();
 //            telemetry.addData("gold mineral", goldMineral.name());
-            telemetry.update();
-        }
+                telemetry.update();
+            }
 
-        robot.deactivateTfod();
+            robot.deactivateTfod();
+        }
     }
 }

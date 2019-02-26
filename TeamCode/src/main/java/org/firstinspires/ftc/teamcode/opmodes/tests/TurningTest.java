@@ -33,6 +33,7 @@ public class TurningTest extends LinearOpMode {
             telemetry.update();
 
             waitForStart();
+            robot.handleMatchStart();
 
             PIDLogger pidLogger = null;
             try {

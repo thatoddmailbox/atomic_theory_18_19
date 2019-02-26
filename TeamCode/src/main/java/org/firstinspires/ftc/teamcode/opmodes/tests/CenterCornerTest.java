@@ -12,12 +12,13 @@ public class CenterCornerTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        waitForStart();
-
-        Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
+        try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
                 RobotFeature.IMU
-        });
+        })) {
+            waitForStart();
+            robot.handleMatchStart();
 
-        robot.aligner.centerInCorner(2, true);
+            robot.aligner.centerInCorner(2, true);
+        }
     }
 }

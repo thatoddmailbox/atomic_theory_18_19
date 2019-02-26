@@ -12,20 +12,21 @@ import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 public class SuperTurningTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
+        try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
                 RobotFeature.IMU
-        });
+        })) {
+            robot.resetHeading();
 
-        robot.resetHeading();
+            waitForStart();
+            robot.handleMatchStart();
 
-        waitForStart();
+            ElapsedTime timer = new ElapsedTime();
+            timer.reset();
+            robot.turn(90);
+            telemetry.addData("Turn length", timer.milliseconds() / 1000);
+            telemetry.update();
 
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
-        robot.turn(90);
-        telemetry.addData("Turn length", timer.milliseconds() / 1000);
-        telemetry.update();
-
-        sleep(2000);
+            sleep(2000);
+        }
     }
 }

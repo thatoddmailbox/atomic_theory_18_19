@@ -23,45 +23,46 @@ public class UnlatchTest extends LinearOpMode {
         telemetry.addData("Status", "Starting...");
         telemetry.update();
 
-        Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {});
+        try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {})) {
+            telemetry.addData("Status", "Ready to go");
+            telemetry.update();
 
-        telemetry.addData("Status", "Ready to go");
-        telemetry.update();
+            waitForStart();
+            robot.handleMatchStart();
 
-        waitForStart();
+            int latchLeftStart = robot.latchLeft.getCurrentPosition();
+            int latchRightStart = robot.latchRight.getCurrentPosition();
 
-        int latchLeftStart = robot.latchLeft.getCurrentPosition();
-        int latchRightStart = robot.latchRight.getCurrentPosition();
+            while (opModeIsActive()) {
+                if (gamepad2.y) {
+                    robot.latchLeft.setPower(-0.8);
+                    robot.latchRight.setPower(-1.0);
+                    robot.latchRight.setTargetPosition(robot.latchRight.getCurrentPosition() - 100);
+                    robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition() - 100);
 
-        while (opModeIsActive()) {
-            if(gamepad2.y){
-                robot.latchLeft.setPower(-0.8);
-                robot.latchRight.setPower(-1.0);
-                robot.latchRight.setTargetPosition(robot.latchRight.getCurrentPosition()-100);
-                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()-100);
+                } else if (gamepad2.a) {
+                    robot.latchLeft.setPower(0.8);
+                    robot.latchRight.setPower(1.0);
+                    robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition() + 100);
+                    robot.latchRight.setTargetPosition(robot.latchRight.getCurrentPosition() + 100);
 
-            } else if(gamepad2.a){
-                robot.latchLeft.setPower(0.8);
-                robot.latchRight.setPower(1.0);
-                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+100);
-                robot.latchRight.setTargetPosition(robot.latchRight.getCurrentPosition()+100);
+                } else if (gamepad2.dpad_left) {
+                    robot.latchLeft.setPower(-0.8);
+                    robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition() - 15);
 
-            } else if(gamepad2.dpad_left){
-                robot.latchLeft.setPower(-0.8);
-                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()-15);
+                } else if (gamepad2.dpad_right) {
+                    robot.latchLeft.setPower(+0.8);
+                    robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition() + 15);
 
-            } else if(gamepad2.dpad_right){
-                robot.latchLeft.setPower(+0.8);
-                robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition()+15);
-
-            } else {
-                robot.latchLeft.setPower(0);
-                robot.latchRight.setPower(0);
+                } else {
+                    robot.latchLeft.setPower(0);
+                    robot.latchRight.setPower(0);
+                }
+                idle();
             }
-            idle();
-        }
 
-        robot.latchLeft.setPower(0);
-        robot.latchRight.setPower(0);
+            robot.latchLeft.setPower(0);
+            robot.latchRight.setPower(0);
+        }
     }
 }

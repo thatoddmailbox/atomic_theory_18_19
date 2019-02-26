@@ -11,12 +11,13 @@ import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 public class FixedTurningTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
+        try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {
                 RobotFeature.IMU
-        });
+        })) {
+            waitForStart();
+            robot.handleMatchStart();
 
-        waitForStart();
-
-        robot.turn(90);
+            robot.turn(90);
+        }
     }
 }

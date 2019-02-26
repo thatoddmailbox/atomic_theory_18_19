@@ -15,18 +15,19 @@ import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 public class MarkerTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {});
+        try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {})) {
+            waitForStart();
+            robot.handleMatchStart();
 
-        waitForStart();
+            while (opModeIsActive()) {
 
-        while (opModeIsActive()) {
-
-            if (gamepad1.dpad_up) {
-                robot.teamMarker.setPosition(1);
-            } else if (gamepad1.dpad_down) {
-                robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
-            } else {
-                robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
+                if (gamepad1.dpad_up) {
+                    robot.teamMarker.setPosition(1);
+                } else if (gamepad1.dpad_down) {
+                    robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
+                } else {
+                    robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_HELD);
+                }
             }
         }
     }
