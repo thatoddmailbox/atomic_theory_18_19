@@ -233,8 +233,8 @@ public class Robot implements AutoCloseable {
         /*
          * sensor - range
          */
-        rangeFrontRight = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range front right", "range_left");
-        rangeBackRight = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range back right", "range_right");
+        rangeFrontRight = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range front right", "range_front_right");
+        rangeBackRight = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range back right", "range_back_right");
         rangeFrontLeft = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range front left", "range_front_left");
         rangeBackLeft = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range back left", "range_back_left");
 
@@ -504,7 +504,7 @@ public class Robot implements AutoCloseable {
 
     public void turn(double targetHeading, double timeout) {
         try (LogContext context = logSession.createContext("turn")) {
-            context.setFact("target", targetHeading);
+            context.setFact("Target", targetHeading);
 
             PIDController pid = new PIDController("turn", new PIDCoefficients(0.032, 0.00005, 0.72), true, 1);
 
