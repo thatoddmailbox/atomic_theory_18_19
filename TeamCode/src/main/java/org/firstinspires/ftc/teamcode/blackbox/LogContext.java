@@ -48,6 +48,10 @@ public class LogContext implements AutoCloseable {
     }
 
     public void attachDatastreamable(Datastreamable datastreamable) {
+        if (true) {
+            return;
+        }
+
         if (_closed) {
             throw new RuntimeException("Tried to attachDatastreamable() to a closed LogContext!");
         }

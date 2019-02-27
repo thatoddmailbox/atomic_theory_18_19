@@ -148,6 +148,7 @@ public class Robot implements AutoCloseable {
 
     public Robot(MatchPhase phase, LinearOpMode opModeIn, RobotFeature[] features) throws InterruptedException {
         opMode = opModeIn;
+        _features = features;
 
         /*
          * expansion hub initialization
@@ -212,14 +213,14 @@ public class Robot implements AutoCloseable {
          */
         imu = SensorFactory.getSensor(opMode.hardwareMap, BNO055IMU.class, "imu", "imu");
 
-        if (isFeatureRequested(RobotFeature.IMU)) {
+//        if (isFeatureRequested(RobotFeature.IMU)) {
             while (!opMode.isStopRequested() && !imu.isGyroCalibrated()) {
                 Thread.sleep(50);
                 opMode.telemetry.addLine("calibrating");
                 opMode.telemetry.update();
                 opMode.idle();
             }
-        }
+//        }
 
         resetHeading();
 
@@ -307,10 +308,10 @@ public class Robot implements AutoCloseable {
     public void handleMatchStart() {
         logSession.startMatch();
 
-        Thread lynxPumper = new Thread(new LynxPumperRunnable(opMode, new WrappedLynxModule[] {
-                expansionHub1, expansionHub2
-        }));
-        lynxPumper.start();
+//        Thread lynxPumper = new Thread(new LynxPumperRunnable(opMode, new WrappedLynxModule[] {
+//                expansionHub1, expansionHub2
+//        }));
+//        lynxPumper.start();
     }
 
     @Override
@@ -503,7 +504,9 @@ public class Robot implements AutoCloseable {
 
     public void turn(double targetHeading, double timeout) {
         try (LogContext context = logSession.createContext("turn")) {
-            PIDController pid = new PIDController("turn", new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
+            context.setFact("target", targetHeading);
+
+            PIDController pid = new PIDController("turn", new PIDCoefficients(0.032, 0.00005, 0.72), true, 1);
 
             context.attachDatastreamable(pid);
 

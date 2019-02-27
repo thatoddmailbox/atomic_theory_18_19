@@ -13,6 +13,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 import fi.iki.elonen.NanoHTTPD;
 
@@ -63,6 +66,15 @@ public class BlackboxWebServer extends NanoHTTPD {
 
         File sessionsFile = new File(LogSession.BASE_PATH);
         String[] folderContents = sessionsFile.list();
+
+//        Arrays.sort(folderContents, new Comparator<String>() {
+//            @Override
+//            public int compare(String lhs, String rhs) {
+//                Integer lhsInt = Integer.parseInt(lhs.split("-")[0]);
+//                Integer rhsInt = Integer.parseInt(rhs.split("-")[0]);
+//                return Integer.compare(lhsInt, rhsInt);
+//            }
+//        });
 
         for (String entry : folderContents) {
             File folderFile = new File(sessionsFile, entry);

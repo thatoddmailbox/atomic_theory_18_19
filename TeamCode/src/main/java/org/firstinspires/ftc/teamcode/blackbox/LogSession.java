@@ -127,7 +127,7 @@ public class LogSession implements AutoCloseable {
     }
 
     public void attachDatastreamable(Datastreamable datastreamable) {
-        _root.attachDatastreamable(datastreamable);
+//        _root.attachDatastreamable(datastreamable);
     }
 
     public void setFact(String key, Object value) {

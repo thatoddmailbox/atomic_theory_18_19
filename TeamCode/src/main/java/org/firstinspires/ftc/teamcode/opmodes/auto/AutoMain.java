@@ -42,8 +42,7 @@ public abstract class AutoMain extends LinearOpMode {
 
         PersistentHeading.clearSavedHeading();
         try (Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, new RobotFeature[] {
-                RobotFeature.CAMERA,
-                RobotFeature.IMU
+                RobotFeature.CAMERA
         })) {
             // print telemetry
             HashMap<String, String> displayList = OptionsManager.getDisplayList();
@@ -181,7 +180,7 @@ public abstract class AutoMain extends LinearOpMode {
             robot.backLeftServo.setPosition(Robot.SENSOR_REV_SERVO_ZERO);
 
             // Get away from lander
-            robot.driveTicks(650, 1, -1, -1, 1);
+            robot.driveTicks(900, 1, -1, -1, 1);
 
             robot.turn(0,0.5);
 
@@ -198,19 +197,19 @@ public abstract class AutoMain extends LinearOpMode {
             // TODO: change me at competition - this is "very sketch" and probably relies on our lander being dumb
             if (goldMineral == MineralPosition.LEFT) {
                 if (getStartingPosition() == StartingPosition.CRATER) {
-                    robot.driveTicks(200 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
+                    robot.driveTicks(300 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
                 } else {
                     robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
                 }
             } else if (goldMineral == MineralPosition.RIGHT) {
                 if (getStartingPosition() == StartingPosition.CRATER) {
-                    robot.driveTicks(400 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
+                    robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
                 } else {
-                    robot.driveTicks(400 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
+                    robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
                 }
             } else {
                 if (getStartingPosition() == StartingPosition.CRATER) {
-                    robot.driveTicks(200, 0.9, 0.9, 0.9, 0.9);
+                    robot.driveTicks(300, 0.9, 0.9, 0.9, 0.9);
                 } else {
                     // TODO: change me
                     robot.driveTicks(0, 0.9, 0.9, 0.9, 0.9);
@@ -222,7 +221,7 @@ public abstract class AutoMain extends LinearOpMode {
 
             if (getStartingPosition() == StartingPosition.DEPOT) {
                 // Hit cube
-                robot.driveTicks(1350, 1, 1, 1, 1);
+                robot.driveTicks(1250, 1, 1, 1, 1);
 
                 robot.turn(0, 1.5);
 
@@ -249,16 +248,8 @@ public abstract class AutoMain extends LinearOpMode {
                 }
             } else if (getStartingPosition() == StartingPosition.CRATER) {
                 // Hit cube and back up again
-                if (goldMineral == MineralPosition.LEFT) {
-                    robot.driveTicks(700, 1, 1, 1, 1);
-                    robot.driveTicks(-400, -1, -1, -1, -1);
-                } else if (goldMineral == MineralPosition.RIGHT) {
-                    robot.driveTicks(700, 1, 1, 1, 1);
-                    robot.driveTicks(-400, -1, -1, -1, -1);
-                } else {
-                    robot.driveTicks(700, 1, 1, 1, 1);
-                    robot.driveTicks(-400, -1, -1, -1, -1);
-                }
+                robot.driveTicks(600, 1, 1, 1, 1);
+                robot.driveTicks(-400, -1, -1, -1, -1);
 
                 robot.turn(0, 1.5);
 
@@ -276,24 +267,18 @@ public abstract class AutoMain extends LinearOpMode {
                 // Turn and strafe to wall
                 robot.turn(45, 1.5);
 
-                robot.driveTicks(450, 1, -1, -1, 1);
+                robot.driveTicks(600, 1, -1, -1, 1);
 
                 // Possible wait for alliance to do their thing
                 sleep(Math.round(timeDelay * 1000));
 
                 timer.reset();
 
-                // Drive to depot (ENCODE!!!)
-//            robot.aligner.driveAlignDistanceTicks(0.9, 90, 2200, false);
-                // IN CASE SENSORS DON'T WORK:
-//            robot.driveTicks(2100, 0.9, 0.9, 0.9, 0.9);
-
-                while (opModeIsActive()) {
-                    robot.aligner.driveAlignDistance(0.9, 100, false);
-                    if (timer.seconds() > 1.05) break;
-                    idle();
+                if (useUltrasonic) {
+                    robot.aligner.driveAlignDistanceTicks(0.9, 90, 2000, false);
+                } else {
+                    robot.driveTicks(2000, 0.9, 0.9, 0.9, 0.9);
                 }
-                robot.driveMotors(0, 0, 0, 0);
 
                 sleep(100);
 
@@ -311,20 +296,28 @@ public abstract class AutoMain extends LinearOpMode {
 
             timer.reset();
 
+            robot.driveTicks(300, 1, -1, -1, 1);
+
             // Head back to crater
             if (getStartingPosition() == StartingPosition.CRATER) {
-                robot.aligner.driveAlignDistanceTicks(-0.9, 100, -2400, false);
-    //             IN CASE SENSORS DON'T WORK:
-    //            robot.driveTicks(3200, 0.9, 0.9, 0.9, 0.9);
+                if (useUltrasonic) {
+                    robot.aligner.driveAlignDistanceTicks(-0.9, 100, -2400, false);
+                } else {
+                    robot.driveTicks(-2400, -0.9, -0.9, -0.9, -0.9);
+                }
             } else {
                 if (!endInOtherCrater) {
-                    robot.aligner.driveAlignDistanceTicks(-0.9, 100, -2400, false);
-    //             IN CASE SENSORS DON'T WORK:
-    //                robot.driveTicks(-3200, -0.9, -0.9, -0.9, -0.9);
+                    if (useUltrasonic) {
+                        robot.aligner.driveAlignDistanceTicks(-0.9, 100, -2400, false);
+                    } else {
+                        robot.driveTicks(-2400, -0.9, -0.9, -0.9, -0.9);
+                    }
                 } else {
-                    robot.aligner.driveAlignDistanceTicks(0.9, 100, 2000, false);
-    //             IN CASE SENSORS DON'T WORK:
-    //                robot.driveTicks(2800, 0.9, 0.9, 0.9, 0.9);
+                    if (useUltrasonic) {
+                        robot.aligner.driveAlignDistanceTicks(0.9, 100, 2000, false);
+                    } else {
+                        robot.driveTicks(2000, 0.9, 0.9, 0.9, 0.9);
+                    }
                 }
             }
 
@@ -337,7 +330,11 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.turn(-135, 2.5);
             }
 
-            if (superTimer.seconds() <= 26) {
+            if (!useUltrasonic) {
+                robot.driveTicks(-300, -1, 1, 1, -1);
+            }
+
+            if (superTimer.seconds() <= 26.5) {
                 robot.lenny.setPower(1.0);
                 sleep(2000);
                 robot.lenny.setPower(0.0);
@@ -351,7 +348,7 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.george.setPower(-1);
                 sleep(moveTime);
                 robot.george.setPower(0.0);
-            } else if (superTimer.seconds() <= 29) {
+            } else if (superTimer.seconds() <= 29.4 && endNom) {
                 robot.driveMotors(0.4, 0.4, 0.4, 0.4);
                 sleep(500);
                 robot.driveMotors(0, 0, 0, 0);
