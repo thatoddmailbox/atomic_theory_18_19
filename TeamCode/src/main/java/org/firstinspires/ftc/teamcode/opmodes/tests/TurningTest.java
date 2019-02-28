@@ -50,6 +50,8 @@ public class TurningTest extends LinearOpMode {
             int newTarget = (int) targetHeading;
             int selectedCoefficient = 0;
 
+            long lastTime = System.currentTimeMillis();
+
             robot.logSession.attachDatastreamable(pid);
 
             pid.reset();
@@ -152,6 +154,10 @@ public class TurningTest extends LinearOpMode {
                 /*
                  * telemetry
                  */
+                long diff = (System.currentTimeMillis() - lastTime);
+                telemetry.addData("Loop time", diff);
+                lastTime = System.currentTimeMillis();
+
                 telemetry.addData("New target", newTarget);
                 telemetry.addData("Target", targetHeading);
                 telemetry.addData("Current", currentHeading);

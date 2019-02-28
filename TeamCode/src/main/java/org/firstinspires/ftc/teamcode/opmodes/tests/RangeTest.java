@@ -15,7 +15,11 @@ public class RangeTest extends LinearOpMode {
         try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {})) {
             waitForStart();
 
+            long lastTime = System.currentTimeMillis();
             while (opModeIsActive()) {
+                long diff = (System.currentTimeMillis() - lastTime);
+                telemetry.addData("Loop time", diff);
+                lastTime = System.currentTimeMillis();
                 robot.logSensors();
             }
         }

@@ -50,7 +50,7 @@ public class LogContext implements AutoCloseable {
     }
 
     public void attachDatastreamable(Datastreamable datastreamable) {
-        if (_enabled) {
+        if (!_enabled) {
             return;
         }
 
