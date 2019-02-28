@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -33,15 +34,20 @@ import org.firstinspires.ftc.teamcode.blackbox.MatchType;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.SensorFactory;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedBNO055IMU;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedLynxModule;
+import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedMuxedRangeSensor;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedTFObjectDetector;
+import org.firstinspires.ftc.teamcode.hardware.MuxedRangeSensor;
+import org.firstinspires.ftc.teamcode.hardware.UltrasonicHub;
 import org.firstinspires.ftc.teamcode.opmodes.auto.AutoAligner;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedMRRangeSensor;
 import org.firstinspires.ftc.teamcode.utils.Direction;
 import org.firstinspires.ftc.teamcode.utils.LynxPumperRunnable;
 import org.firstinspires.ftc.teamcode.utils.MineralPosition;
+import org.firstinspires.ftc.teamcode.utils.OptionsManager;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 import org.json.JSONException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -118,15 +124,18 @@ public class Robot implements AutoCloseable {
      * sensors
      */
 
+    public DigitalChannel muxReset;
+    public UltrasonicHub ultrasonicHub;
+
     public WrappedBNO055IMU imu;
 
     public WebcamName leftWebcam;
     public WebcamName rightWebcam;
 
-    public WrappedMRRangeSensor rangeFrontRight;
-    public WrappedMRRangeSensor rangeBackRight;
-    public WrappedMRRangeSensor rangeFrontLeft;
-    public WrappedMRRangeSensor rangeBackLeft;
+    public WrappedMuxedRangeSensor rangeFrontLeft; // port 0
+    public WrappedMuxedRangeSensor rangeFrontRight; // port 1
+    public WrappedMuxedRangeSensor rangeBackRight; // port 2
+    public WrappedMuxedRangeSensor rangeBackLeft; // port 3
 
     /*
      * state
@@ -149,6 +158,12 @@ public class Robot implements AutoCloseable {
     public Robot(MatchPhase phase, LinearOpMode opModeIn, RobotFeature[] features) throws InterruptedException {
         opMode = opModeIn;
         _features = features;
+
+        try {
+            OptionsManager.init(opMode.hardwareMap.appContext);
+        } catch (XmlPullParserException | IOException e) {
+            e.printStackTrace();
+        }
 
         /*
          * expansion hub initialization
@@ -233,10 +248,13 @@ public class Robot implements AutoCloseable {
         /*
          * sensor - range
          */
-        rangeFrontRight = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range front right", "range_front_right");
-        rangeBackRight = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range back right", "range_back_right");
-        rangeFrontLeft = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range front left", "range_front_left");
-        rangeBackLeft = SensorFactory.getSensor(opMode.hardwareMap, ModernRoboticsI2cRangeSensor.class, "range back left", "range_back_left");
+        muxReset = opMode.hardwareMap.digitalChannel.get("mux_reset");
+        ultrasonicHub = new UltrasonicHub(opMode.hardwareMap.appContext, expansionHub2.getRawHub(), 1, muxReset);
+
+        rangeFrontLeft = new WrappedMuxedRangeSensor(new MuxedRangeSensor(ultrasonicHub, 0), "range front left");
+        rangeFrontRight = new WrappedMuxedRangeSensor(new MuxedRangeSensor(ultrasonicHub, 1), "range front right");
+        rangeBackLeft = new WrappedMuxedRangeSensor(new MuxedRangeSensor(ultrasonicHub, 3), "range back left");
+        rangeBackRight = new WrappedMuxedRangeSensor(new MuxedRangeSensor(ultrasonicHub, 2), "range back right");
 
         aligner = new AutoAligner(this);
 
@@ -256,6 +274,8 @@ public class Robot implements AutoCloseable {
             tfod.loadModelFromAsset(Consts.TFOD_MODEL_FILE, Consts.TFOD_LABEL_GOLD, Consts.TFOD_LABEL_SILVER);
         }
 
+        ultrasonicHub.reset();
+        ultrasonicHub.enableBroadcastMode(opMode.hardwareMap.appContext);
 
         /*
          * set up logging

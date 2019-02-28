@@ -30,8 +30,7 @@ public class LogSession implements AutoCloseable {
     private int _id;
 
     private MatchPhase _phase;
-    private MatchType _type;
-    private String _label;
+    private MatchInfo _info;
     private long _matchStart;
     private HashMap<String, String> _options;
 
@@ -40,10 +39,13 @@ public class LogSession implements AutoCloseable {
     private ArrayList<LogContext> _contexts;
 
     private LinearOpMode _opMode;
+    private boolean _enabled;
 
     public LogSession(LinearOpMode opMode, MatchPhase phase, MatchType type, String label) throws IOException {
         _contexts = new ArrayList<LogContext>();
         _options = OptionsManager.getDisplayList();
+
+        _enabled = OptionsManager.getBooleanSetting("logData");
 
         if (!_basePath.exists()) {
             _basePath.mkdirs();
@@ -55,9 +57,8 @@ public class LogSession implements AutoCloseable {
         _sessionPath.mkdirs();
 
         _phase = phase;
-        _type = type;
-        _label = label;
-        _root = new LogContext(this, 0, "Opmode");
+        _info = new MatchInfo(type, label);
+        _root = new LogContext(this, 0, "Opmode", _enabled);
         _opMode = opMode;
         _contexts.add(_root);
     }
@@ -107,8 +108,8 @@ public class LogSession implements AutoCloseable {
         JSONObject sessionJSON = new JSONObject();
 
         sessionJSON.put("phase", _phase);
-        sessionJSON.put("type", _type);
-        sessionJSON.put("label", _label);
+        sessionJSON.put("type", _info.type);
+        sessionJSON.put("label", _info.label);
         sessionJSON.put("matchStart", _matchStart);
 
         JSONObject optionsJSON = new JSONObject();
@@ -127,7 +128,9 @@ public class LogSession implements AutoCloseable {
     }
 
     public void attachDatastreamable(Datastreamable datastreamable) {
-//        _root.attachDatastreamable(datastreamable);
+        if (_enabled) {
+            _root.attachDatastreamable(datastreamable);
+        }
     }
 
     public void setFact(String key, Object value) {
@@ -135,7 +138,7 @@ public class LogSession implements AutoCloseable {
     }
 
     public LogContext createContext(String contextName) {
-        LogContext context = new LogContext(this, _contexts.size(), contextName);
+        LogContext context = new LogContext(this, _contexts.size(), contextName, _enabled);
         _contexts.add(context);
         return context;
     }

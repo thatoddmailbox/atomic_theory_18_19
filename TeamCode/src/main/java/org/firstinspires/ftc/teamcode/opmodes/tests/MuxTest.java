@@ -26,7 +26,7 @@ public class MuxTest extends LinearOpMode {
 
             while (opModeIsActive()) {
                 try {
-                    telemetry.addData("Reading", hub.getReadingFromSensor(0));
+                    telemetry.addData("Reading", hub.cmUltrasonic(0));
                 } catch (LynxNackException e) {
                     telemetry.addData("Reading", "error");
                     e.printStackTrace();

@@ -25,12 +25,6 @@ public abstract class AutoMain extends LinearOpMode {
     public int MINERAL_TICKS = 700;
     @Override
     public void runOpMode() throws InterruptedException {
-        try {
-            OptionsManager.init(hardwareMap.appContext);
-        } catch (XmlPullParserException | IOException e) {
-            e.printStackTrace();
-        }
-
         boolean useUltrasonic = OptionsManager.getBooleanSetting("useUltrasonic");
         boolean endInOtherCrater = OptionsManager.getBooleanSetting("alternateCrater");
         double timeDelay = OptionsManager.getDoubleSetting("timeDelay");

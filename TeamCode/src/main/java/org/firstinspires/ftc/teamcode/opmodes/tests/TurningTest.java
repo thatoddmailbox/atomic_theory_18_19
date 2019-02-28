@@ -43,12 +43,14 @@ public class TurningTest extends LinearOpMode {
             }
 
 //        PIDController pid = new PIDController(new PIDCoefficients(0.062, 0.00001, 0.36), false, 1);
-            PIDController pid = new PIDController("turn", new PIDCoefficients(0.032, 0.00005, 0.36), true, 1);
+            PIDController pid = new PIDController("turn", new PIDCoefficients(0.032, 0.000001, 0), true, 1);
 //        PIDController pid = new PIDController(new PIDCoefficients(0.01, 0.0, 0.0), true, 1);
             Gamepad lastGamepad = new Gamepad();
             double targetHeading = 0;
             int newTarget = (int) targetHeading;
             int selectedCoefficient = 0;
+
+            robot.logSession.attachDatastreamable(pid);
 
             pid.reset();
 
@@ -78,9 +80,9 @@ public class TurningTest extends LinearOpMode {
                     currentHeading = targetHeading;
                 }
 
-                double output = -pid.step(currentHeading, targetHeading);
+                double output = pid.step(currentHeading, targetHeading);
 
-//            robot.driveMotors(-output, output, -output, output);
+                robot.driveMotors(-output, output, -output, output);
                 /*
                  * gamepad input
                  */
@@ -138,6 +140,13 @@ public class TurningTest extends LinearOpMode {
                 }
                 if (gamepad1.y && !lastGamepad.y) {
                     pid.reset();
+                }
+                if (gamepad1.b && !lastGamepad.b) {
+                   if (newTarget == 0) {
+                       newTarget = 90;
+                   } else {
+                       newTarget = 0;
+                   }
                 }
 
                 /*

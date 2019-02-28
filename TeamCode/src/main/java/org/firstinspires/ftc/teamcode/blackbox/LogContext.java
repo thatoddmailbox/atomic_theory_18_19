@@ -24,8 +24,9 @@ public class LogContext implements AutoCloseable {
     private LogSession _session;
     private File _path;
     private File _datastreamableCountFile;
+    private boolean _enabled;
 
-    public LogContext(LogSession session, int id, String name) {
+    public LogContext(LogSession session, int id, String name, boolean enabled) {
         facts = new HashMap<String, Object>();
         startTime = System.currentTimeMillis();
         endTime = 0;
@@ -33,6 +34,7 @@ public class LogContext implements AutoCloseable {
         _datastreamables = new ArrayList<Datastreamable>();
         _datastreamableManagers = new ArrayList<DatastreamableManager>();
 
+        _enabled = enabled;
         _name = name;
         _closed = false;
         _session = session;
@@ -48,7 +50,7 @@ public class LogContext implements AutoCloseable {
     }
 
     public void attachDatastreamable(Datastreamable datastreamable) {
-        if (true) {
+        if (_enabled) {
             return;
         }
 

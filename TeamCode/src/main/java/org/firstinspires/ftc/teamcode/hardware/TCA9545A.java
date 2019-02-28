@@ -54,6 +54,16 @@ public class TCA9545A {
 
         byte controlByte = (byte) (1 << port);
 
+        sendControlByte(controlByte);
+
+        _activePort = port;
+    }
+
+    public void enableBroadcastMode() throws InterruptedException, LynxNackException {
+        sendControlByte((byte) 0b00001111);
+    }
+
+    public void sendControlByte(byte controlByte) throws InterruptedException, LynxNackException {
         // is directly writing these i2c commands, bypassing the i2c lock and existing transaction stuff dangerous? yes
         // is it fast? probably
         // should this be replaced by the more sane usage of a LynxI2CDeviceSynch? maybe
@@ -63,7 +73,5 @@ public class TCA9545A {
         // but that's annoying and slower so hopefully this works :~)
         LynxI2cWriteSingleByteCommand command = new LynxI2cWriteSingleByteCommand(_hub, _hubPort, _address, controlByte);
         command.sendReceive();
-
-        _activePort = port;
     }
 }

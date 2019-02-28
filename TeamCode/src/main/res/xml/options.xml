@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreference
+        android:icon="@drawable/ic_insert_chart_black_24dp"
+        android:key="logData"
+        android:title="Log data"
+        android:summary="Enables logging sensor data"
+        android:defaultValue="true" />
+
+    <SwitchPreference
         android:icon="@drawable/ic_leak_add_black_24dp"
         android:key="useUltrasonic"
         android:title="Use ultrasonic sensors"
