@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.blackbox.LogContext;
 import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.blackbox.sensors.WrappedLynxModule;
 import org.firstinspires.ftc.teamcode.robot.Robot;
@@ -96,32 +97,39 @@ public abstract class AutoMain extends LinearOpMode {
             - Begins taking readings until latch approaches bottom (30 ticks away)
 
              */
-            while ((Math.abs(robot.latchLeft.getCurrentPosition() - (latchLeftStart - Robot.LATCH_DISTANCE)) > 30 || Math.abs(robot.latchRight.getCurrentPosition() - (latchRightStart - Robot.LATCH_DISTANCE)) > 30) && opModeIsActive()) {
-                HashMap<MineralPosition, Float> reading = robot.findGoldMineralDifferent();
+            try (LogContext context = robot.logSession.createContext("unlatch and sample")) {
+                while ((Math.abs(robot.latchLeft.getCurrentPosition() - (latchLeftStart - Robot.LATCH_DISTANCE)) > 30 || Math.abs(robot.latchRight.getCurrentPosition() - (latchRightStart - Robot.LATCH_DISTANCE)) > 30) && opModeIsActive()) {
+                    HashMap<MineralPosition, Float> reading = robot.findGoldMineralDifferent();
 
-                if (reading.containsKey(MineralPosition.CENTER)) {
-                    goldCenterVote += reading.get(MineralPosition.CENTER);
-                    totalCenterVotes += 1;
-                }
-                if (reading.containsKey(MineralPosition.LEFT)) {
-                    goldLeftVote += reading.get(MineralPosition.LEFT);
-                    totalLeftVotes += 1;
-                }
-                if (reading.containsKey(MineralPosition.RIGHT)) {
-                    goldRightVote += reading.get(MineralPosition.RIGHT);
-                    totalRightVotes += 1;
+                    if (reading.containsKey(MineralPosition.CENTER)) {
+                        goldCenterVote += reading.get(MineralPosition.CENTER);
+                        totalCenterVotes += 1;
+                    }
+                    if (reading.containsKey(MineralPosition.LEFT)) {
+                        goldLeftVote += reading.get(MineralPosition.LEFT);
+                        totalLeftVotes += 1;
+                    }
+                    if (reading.containsKey(MineralPosition.RIGHT)) {
+                        goldRightVote += reading.get(MineralPosition.RIGHT);
+                        totalRightVotes += 1;
+                    }
+
+                    totalReads++;
+
+                    // Log votes to telemetry
+                    sleep(10);
+                    telemetry.addData("gold left vote", goldLeftVote / totalLeftVotes);
+                    telemetry.addData("gold center vote", goldCenterVote / totalCenterVotes);
+                    telemetry.addData("gold right vote", goldRightVote / totalRightVotes);
+                    telemetry.addData("total reads", totalReads);
+                    telemetry.update();
+                    idle();
                 }
 
-                totalReads++;
-
-                // Log votes to telemetry
-                sleep(10);
-                telemetry.addData("gold left vote", goldLeftVote / totalLeftVotes);
-                telemetry.addData("gold center vote", goldCenterVote / totalCenterVotes);
-                telemetry.addData("gold right vote", goldRightVote / totalRightVotes);
-                telemetry.addData("total reads", totalReads);
-                telemetry.update();
-                idle();
+                context.setFact("avg gold left vote", goldLeftVote / totalLeftVotes);
+                context.setFact("avg gold center vote", goldCenterVote / totalCenterVotes);
+                context.setFact("avg gold right vote", goldRightVote / totalRightVotes);
+                context.setFact("total reads", totalReads);
             }
 
             sleep(100);
@@ -160,11 +168,11 @@ public abstract class AutoMain extends LinearOpMode {
             robot.driveTicks(-100, -0.9, -0.9, -0.9, -0.9);
 
             // Drive latch downwards once unlatched (all the way to bottom)
-            robot.latchLeft.setPower(0.8);
-            robot.latchRight.setPower(1);
-
-            robot.latchLeft.setTargetPosition(latchLeftStart);
-            robot.latchRight.setTargetPosition(latchRightStart);
+//            robot.latchLeft.setPower(0.8);
+//            robot.latchRight.setPower(1);
+//
+//            robot.latchLeft.setTargetPosition(latchLeftStart);
+//            robot.latchRight.setTargetPosition(latchRightStart);
 
             // Take half a second to face the minerals
             robot.turn(0, 0.5);
@@ -216,7 +224,7 @@ public abstract class AutoMain extends LinearOpMode {
 
             if (getStartingPosition() == StartingPosition.DEPOT) {
                 // Hit cube
-                robot.driveTicks(1250, 1, 1, 1, 1);
+                robot.driveTicks(1600, 1, 1, 1, 1);
 
                 robot.turn(0, 1.5);
 

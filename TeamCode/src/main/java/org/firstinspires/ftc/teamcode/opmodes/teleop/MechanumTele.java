@@ -33,8 +33,8 @@ public class MechanumTele extends LinearOpMode {
             double nomPower = 1;
             boolean turnCompensation = false;
 
-            int latchLeftStart = robot.latchLeft.getCurrentPosition() - Robot.LATCH_DISTANCE;
-            int latchRightStart = robot.latchRight.getCurrentPosition() - Robot.LATCH_DISTANCE;
+            int latchLeftStart = robot.latchLeft.getCurrentPosition(); // - Robot.LATCH_DISTANCE;
+            int latchRightStart = robot.latchRight.getCurrentPosition(); // - Robot.LATCH_DISTANCE;
             int lennyEncoderDown = 0;
 
             ElapsedTime timer = new ElapsedTime();
