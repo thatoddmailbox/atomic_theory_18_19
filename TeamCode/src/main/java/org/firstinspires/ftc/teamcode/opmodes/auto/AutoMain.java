@@ -22,14 +22,9 @@ public abstract class AutoMain extends LinearOpMode {
 
     public abstract StartingPosition getStartingPosition();
 
-    public int MINERAL_TICKS = 700;
+    public int MINERAL_TICKS = 650;
     @Override
     public void runOpMode() throws InterruptedException {
-        boolean useUltrasonic = OptionsManager.getBooleanSetting("useUltrasonic");
-        boolean endInOtherCrater = OptionsManager.getBooleanSetting("alternateCrater");
-        double timeDelay = OptionsManager.getDoubleSetting("timeDelay");
-        boolean endNom = OptionsManager.getBooleanSetting("endNom");
-
         // When init is pressed make an instance of Robot
         telemetry.addData("Status", "Starting...");
         telemetry.update();
@@ -38,6 +33,11 @@ public abstract class AutoMain extends LinearOpMode {
         try (Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, new RobotFeature[] {
                 RobotFeature.CAMERA
         })) {
+            boolean useUltrasonic = OptionsManager.getBooleanSetting("useUltrasonic");
+            boolean endInOtherCrater = OptionsManager.getBooleanSetting("alternateCrater");
+            double timeDelay = OptionsManager.getDoubleSetting("timeDelay");
+            boolean endNom = OptionsManager.getBooleanSetting("endNom");
+
             // print telemetry
             HashMap<String, String> displayList = OptionsManager.getDisplayList();
             telemetry.addData("Status", "Ready to go");
@@ -178,8 +178,10 @@ public abstract class AutoMain extends LinearOpMode {
 
             robot.turn(0,0.5);
 
+            // Get in front of cube
             if (false) {
-                robot.aligner.centerInCorner(1.5, true);
+                robot.aligner.centerInCorner(4, true);
+                sleep(200);
                 if (goldMineral == MineralPosition.LEFT) {
                     robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
                 } else if (goldMineral == MineralPosition.RIGHT) {
@@ -187,7 +189,6 @@ public abstract class AutoMain extends LinearOpMode {
                 }
             }
 
-            // Get in front of cube
             // TODO: change me at competition - this is "very sketch" and probably relies on our lander being dumb
             if (goldMineral == MineralPosition.LEFT) {
                 if (getStartingPosition() == StartingPosition.CRATER) {
@@ -269,7 +270,8 @@ public abstract class AutoMain extends LinearOpMode {
                 timer.reset();
 
                 if (useUltrasonic) {
-                    robot.aligner.driveAlignDistanceTicks(0.9, 90, 2000, false);
+                    robot.aligner.driveAlignDistanceTicks(0.9, 90, 2300, false);
+//                    robot.aligner.driveAlignDistance(90, 40, 6, true);
                 } else {
                     robot.driveTicks(2000, 0.9, 0.9, 0.9, 0.9);
                 }
@@ -318,10 +320,10 @@ public abstract class AutoMain extends LinearOpMode {
             // Turn and unfurl arm
             if (getStartingPosition() == StartingPosition.DEPOT) {
                 if (!endInOtherCrater) {
-                    robot.turn(135, 2.5);
+                    robot.turn(135, 4);
                 }
             } else {
-                robot.turn(-135, 2.5);
+                robot.turn(-135, 4);
             }
 
             if (!useUltrasonic) {
@@ -335,11 +337,10 @@ public abstract class AutoMain extends LinearOpMode {
 
                 long moveTime = Math.max((long) (30 - superTimer.seconds() - 1) * 1000, 3000);
 
-                telemetry.addData("HI", "hello");
                 telemetry.addData("moveTime", moveTime);
                 telemetry.update();
 
-                robot.george.setPower(-1);
+                robot.george.setPower(1);
                 sleep(moveTime);
                 robot.george.setPower(0.0);
             } else if (superTimer.seconds() <= 29.4 && endNom) {
