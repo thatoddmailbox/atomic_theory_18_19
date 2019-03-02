@@ -14,6 +14,7 @@ public class RangeTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {})) {
             waitForStart();
+            robot.handleMatchStart();
 
             long lastTime = System.currentTimeMillis();
             while (opModeIsActive()) {

@@ -187,35 +187,37 @@ public abstract class AutoMain extends LinearOpMode {
             robot.turn(0,0.5);
 
             // Get in front of cube
-            if (false) {
-                robot.aligner.centerInCorner(4, true);
-                sleep(200);
+            if (useUltrasonic) {
+                MINERAL_TICKS -= 50;
+                robot.aligner.centerInCorner(3, true);
+                sleep(100);
                 if (goldMineral == MineralPosition.LEFT) {
                     robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
                 } else if (goldMineral == MineralPosition.RIGHT) {
                     robot.driveTicks(-MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
                 }
-            }
-
-            // TODO: change me at competition - this is "very sketch" and probably relies on our lander being dumb
-            if (goldMineral == MineralPosition.LEFT) {
-                if (getStartingPosition() == StartingPosition.CRATER) {
-                    robot.driveTicks(300 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
-                } else {
-                    robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
-                }
-            } else if (goldMineral == MineralPosition.RIGHT) {
-                if (getStartingPosition() == StartingPosition.CRATER) {
-                    robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
-                } else {
-                    robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
-                }
             } else {
-                if (getStartingPosition() == StartingPosition.CRATER) {
-                    robot.driveTicks(300, 0.9, 0.9, 0.9, 0.9);
+
+                // TODO: change me at competition - this is "very sketch" and probably relies on our lander being dumb
+                if (goldMineral == MineralPosition.LEFT) {
+                    if (getStartingPosition() == StartingPosition.CRATER) {
+                        robot.driveTicks(300 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
+                    } else {
+                        robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
+                    }
+                } else if (goldMineral == MineralPosition.RIGHT) {
+                    if (getStartingPosition() == StartingPosition.CRATER) {
+                        robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
+                    } else {
+                        robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
+                    }
                 } else {
-                    // TODO: change me
-                    robot.driveTicks(0, 0.9, 0.9, 0.9, 0.9);
+                    if (getStartingPosition() == StartingPosition.CRATER) {
+                        robot.driveTicks(300, 0.9, 0.9, 0.9, 0.9);
+                    } else {
+                        // TODO: change me
+                        robot.driveTicks(0, 0.9, 0.9, 0.9, 0.9);
+                    }
                 }
             }
 
@@ -224,7 +226,7 @@ public abstract class AutoMain extends LinearOpMode {
 
             if (getStartingPosition() == StartingPosition.DEPOT) {
                 // Hit cube
-                robot.driveTicks(1600, 1, 1, 1, 1);
+                robot.driveTicks(1500, 1, 1, 1, 1);
 
                 robot.turn(0, 1.5);
 
@@ -278,7 +280,7 @@ public abstract class AutoMain extends LinearOpMode {
                 timer.reset();
 
                 if (useUltrasonic) {
-                    robot.aligner.driveAlignDistanceTicks(0.9, 90, 2300, false);
+                    robot.aligner.driveAlignDistanceTicks(0.9, 90, 2000, false);
 //                    robot.aligner.driveAlignDistance(90, 40, 6, true);
                 } else {
                     robot.driveTicks(2000, 0.9, 0.9, 0.9, 0.9);
@@ -351,9 +353,12 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.george.setPower(1);
                 sleep(moveTime);
                 robot.george.setPower(0.0);
-            } else if (superTimer.seconds() <= 29.4 && endNom) {
+            } else if (superTimer.seconds() <= 29.15 && endNom) {
+                robot.driveMotors(-1, 1, 1, -1);
+                sleep(250);
+                robot.driveMotors(0, 0, 0, 0);
                 robot.driveMotors(0.4, 0.4, 0.4, 0.4);
-                sleep(500);
+                sleep(600);
                 robot.driveMotors(0, 0, 0, 0);
             }
 

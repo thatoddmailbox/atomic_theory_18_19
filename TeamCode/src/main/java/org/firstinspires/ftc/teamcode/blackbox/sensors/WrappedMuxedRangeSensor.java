@@ -29,8 +29,9 @@ public class WrappedMuxedRangeSensor extends WrappedSensor<MuxedRangeSensor> {
         try {
             reading = _sensor.cmOptical();
         } catch (LynxNackException | InterruptedException e) {
-            reading = 255;
+            cmOpticalStream.storeReading(254.0);
             e.printStackTrace();
+            return 255;
         }
         cmOpticalStream.storeReading(reading);
         return reading;
@@ -41,8 +42,9 @@ public class WrappedMuxedRangeSensor extends WrappedSensor<MuxedRangeSensor> {
         try {
             reading = _sensor.cmUltrasonic();
         } catch (LynxNackException | InterruptedException e) {
-            reading = 255;
+            cmUltrasonicStream.storeReading(254.0);
             e.printStackTrace();
+            return 255;
         }
         cmUltrasonicStream.storeReading(reading);
         return reading;

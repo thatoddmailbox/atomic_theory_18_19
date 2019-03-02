@@ -67,6 +67,16 @@ public class UltrasonicHub {
         }
     }
 
+    public boolean pokeMuxAggressively() {
+        try {
+            _mux.enableBroadcastMode();
+            return true;
+        } catch (InterruptedException | LynxNackException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public void reset() throws InterruptedException {
         _mux.startReset();
         Thread.sleep(100);

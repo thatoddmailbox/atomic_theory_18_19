@@ -155,38 +155,33 @@ public class MechanumTele extends LinearOpMode {
                 else if (gamepad2.dpad_down) robot.george.setPower(1);
                 else robot.george.setPower(0);
 
-
                 // latch control: press AND HOLD
-                if (gamepad2.y) {
-                    robot.latchLeft.setPower(-0.8);
-                    robot.latchLeft.setTargetPosition(latchLeftStart);
-                    robot.latchRight.setPower(-1.0);
-                    robot.latchRight.setTargetPosition(latchRightStart);
-
-                    //Alternative
-                    //robot.latchLeft.setPower(-0.9);
-                    //robot.latchRight.setPower(-0.9);
-                } else if (gamepad2.a) {
-                    robot.latchLeft.setPower(0.8);
-                    robot.latchLeft.setTargetPosition(latchLeftStart + robot.LATCH_DISTANCE);
-                    robot.latchRight.setPower(1.0);
-                    robot.latchRight.setTargetPosition(latchRightStart + robot.LATCH_DISTANCE);
-
-                    //Alternative
-                    //robot.latchLeft.setPower(0.9);
-                    //robot.latchRight.setPower(0.9);
-
-                } else if (gamepad2.dpad_left) {
-                    robot.latchLeft.setPower(-0.8);
-                    robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition() - 200);
-
-                } else if (gamepad2.dpad_right) {
-                    robot.latchLeft.setPower(+0.8);
-                    robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition() + 200);
-
+                if (gamepad2.dpad_left || gamepad2.dpad_right) {
+                    if (gamepad2.y) {
+                        robot.latchLeft.setPower(-0.8);
+                        robot.latchRight.setPower(-1.0);
+                    } else if (gamepad2.a) {
+                        robot.latchLeft.setPower(0.8);
+                        robot.latchRight.setPower(1.0);
+                    } else {
+                        robot.latchLeft.setPower(0);
+                        robot.latchRight.setPower(0);
+                    }
                 } else {
-                    robot.latchLeft.setPower(0);
-                    robot.latchRight.setPower(0);
+                    if (gamepad2.y) {
+                        robot.latchLeft.setPower(-0.8);
+                        robot.latchLeft.setTargetPosition(latchLeftStart);
+                        robot.latchRight.setPower(-1.0);
+                        robot.latchRight.setTargetPosition(latchRightStart);
+                    } else if (gamepad2.a) {
+                        robot.latchLeft.setPower(0.8);
+                        robot.latchLeft.setTargetPosition(latchLeftStart + Robot.LATCH_DISTANCE);
+                        robot.latchRight.setPower(1.0);
+                        robot.latchRight.setTargetPosition(latchRightStart + Robot.LATCH_DISTANCE);
+                    } else {
+                        robot.latchLeft.setPower(0);
+                        robot.latchRight.setPower(0);
+                    }
                 }
 
                 LynxGetBulkInputDataResponse bulkData = robot.expansionHub2.getBulkData();

@@ -6,9 +6,12 @@ public class MuxedRangeSensor {
     private UltrasonicHub _hub;
     private int _port;
 
+    private long _lastPoke;
+
     public MuxedRangeSensor(UltrasonicHub hub, int port) {
         _hub = hub;
         _port = port;
+        _lastPoke = System.currentTimeMillis();
     }
 
     public double cmOptical() throws LynxNackException, InterruptedException {
@@ -16,6 +19,11 @@ public class MuxedRangeSensor {
     }
 
     public double cmUltrasonic() throws LynxNackException, InterruptedException {
-        return _hub.cmUltrasonic(_port);
+        double reading = _hub.cmUltrasonic(_port);
+        if (reading == 0 && (System.currentTimeMillis() - _lastPoke) > 10) {
+            _hub.pokeMuxAggressively();
+            _lastPoke = System.currentTimeMillis();
+        }
+        return reading;
     }
 }
