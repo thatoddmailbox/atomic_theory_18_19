@@ -151,8 +151,8 @@ public class MechanumTele extends LinearOpMode {
                 }
 
                 //George Control
-                if (gamepad2.dpad_up) robot.george.setPower(-1);
-                else if (gamepad2.dpad_down) robot.george.setPower(1);
+                if (gamepad2.dpad_up) robot.george.setPower(1);
+                else if (gamepad2.dpad_down) robot.george.setPower(-1);
                 else robot.george.setPower(0);
 
                 // latch control: press AND HOLD

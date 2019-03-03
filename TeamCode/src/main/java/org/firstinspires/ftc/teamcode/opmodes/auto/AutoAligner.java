@@ -4,6 +4,9 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.blackbox.Datastream;
+import org.firstinspires.ftc.teamcode.blackbox.Datastreamable;
+import org.firstinspires.ftc.teamcode.blackbox.LogContext;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.Direction;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
@@ -80,96 +83,132 @@ public class AutoAligner {
     }
 
     public void centerInCorner(double timeout, boolean shouldLog) throws InterruptedException {
-        robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
-        robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
+        try (LogContext context = robot.logSession.createContext("center in corner")) {
+            context.setFact("Timeout", timeout);
 
-        Thread.sleep(110);
+            Datastream<Double> leftDistanceData = new Datastream<Double>("left distance");
+            Datastream<Double> rightDistanceData = new Datastream<Double>("right distance");
+            Datastreamable interpolation = new Datastreamable() {
+                @Override
+                public String getName() {
+                    return "interpolation";
+                }
 
-        double leftDistance;
-        double rightDistance;
-        double lastLeftDistance = 0;
-        double lastRightDistance = 0;
-        double distanceDiff;
+                @Override
+                public Datastream[] getDatastreams() {
+                    return new Datastream[] {
+                            leftDistanceData,
+                            rightDistanceData
+                    };
+                }
+            };
+            context.attachDatastreamable(interpolation);
 
-        double lastDistanceDiff;
+            robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+            robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
 
-        PIDController pid = new PIDController("corner", new PIDCoefficients(0.002, 0.00000075, 0), true, 0.8);
+            Thread.sleep(110);
 
-        PIDController anglePID = new PIDController("corner angle", new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
-        double targetHeading = robot.getHeading();
+            double leftDistance;
+            double rightDistance;
+            double lastLeftDistance = 0;
+            double lastRightDistance = 0;
+            double distanceDiff;
 
-        ElapsedTime timer = new ElapsedTime();
-        int correctFrames = 0;
+            double lastDistanceDiff = 0;
 
-        timer.reset();
+            PIDController pid = new PIDController("corner", new PIDCoefficients(0.0021, 0.00000075, 0), true, 0.8);
 
-        double lastCorrectTime = 0;
-        double lastLoopTime = -0.09;
-        //double errorsInARow = 0;
-        while (timer.seconds() < timeout && robot.opMode.opModeIsActive()) {
-            if (shouldLog) {
-                robot.logSensors();
-            }
+            context.attachDatastreamable(pid);
 
-            leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;
-            rightDistance = robot.rangeBackRight.cmUltrasonic() * 10;
+            PIDController anglePID = new PIDController("corner angle", new PIDCoefficients(0.0064, 0.00001, 0.072), true, 0.2);
+            double targetHeading = robot.getHeading();
 
-            // Angle correction
-            double currentHeading = robot.getHeading();
-            if (Math.abs(currentHeading - targetHeading) < 0.25) {
-                currentHeading = targetHeading;
-            }
-            double angleCorrection = anglePID.step(currentHeading, targetHeading);
+            ElapsedTime timer = new ElapsedTime();
+            int correctFrames = 0;
+
+            timer.reset();
+
+            double lastCorrectTime = 0;
+            double lastLoopTime = -0.09;
+            //double errorsInARow = 0;
+            while (timer.seconds() < timeout && robot.opMode.opModeIsActive()) {
+                if (shouldLog) {
+                    robot.logSensors();
+                }
+
+                leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;
+                rightDistance = robot.rangeBackRight.cmUltrasonic() * 10;
+
+                // Angle correction
+                double currentHeading = robot.getHeading();
+                if (Math.abs(currentHeading - targetHeading) < 0.25) {
+                    currentHeading = targetHeading;
+                }
+                double angleCorrection = anglePID.step(currentHeading, targetHeading);
 //            angleCorrection = 0;
 
-            if (leftDistance == 2550 && rightDistance == 2550) {
-                startSineWave();
-                timeout += timer.seconds() - lastLoopTime;
+                boolean shouldInterpolateLeft = (Math.abs(leftDistance - lastLeftDistance) > 8 && lastLeftDistance != 0);
+                boolean shouldInterpolateRight = (Math.abs(rightDistance - lastRightDistance) > 8 && lastRightDistance != 0);
+
+                if (leftDistance == 2550 && rightDistance == 2550) {
+                    startSineWave();
+                    timeout += timer.seconds() - lastLoopTime;
+                    lastLoopTime = timer.seconds();
+                    leftDistanceData.storeReading(leftDistance);
+                    rightDistanceData.storeReading(rightDistance);
+                    continue;
+                } else if (leftDistance == 2550 || shouldInterpolateLeft) {
+                    if (lastRightDistance == 0) {
+                        startSineWave();
+                        timeout += timer.seconds() - lastLoopTime;
+                        lastLoopTime = timer.seconds();
+                        continue;
+                    }
+                    double rightDiff = rightDistance - lastRightDistance;
+                    leftDistance = lastLeftDistance - rightDiff;
+                } else if (rightDistance == 2550 || shouldInterpolateRight) {
+                    if (lastLeftDistance == 0) {
+                        startSineWave();
+                        timeout += timer.seconds() - lastLoopTime;
+                        lastLoopTime = timer.seconds();
+                        continue;
+                    }
+                    double leftDiff = leftDistance - lastLeftDistance;
+                    rightDistance = lastRightDistance - leftDiff;
+                }
+
                 lastLoopTime = timer.seconds();
-                continue;
-            } else if (leftDistance == 2550) {
-                if (lastRightDistance == 0) {
-                    startSineWave();
-                    timeout += timer.seconds() - lastLoopTime;
-                    lastLoopTime = timer.seconds();
-                    continue;
-                }
-                double rightDiff = rightDistance - lastRightDistance;
-                leftDistance = lastLeftDistance - rightDiff;
-            } else if (rightDistance == 2550) {
-                if (lastLeftDistance == 0) {
-                    startSineWave();
-                    timeout += timer.seconds() - lastLoopTime;
-                    lastLoopTime = timer.seconds();
-                    continue;
-                }
-                double leftDiff = leftDistance - lastLeftDistance;
-                rightDistance = lastRightDistance - leftDiff;
-            }
 
-            lastLoopTime = timer.seconds();
+                distanceDiff = leftDistance - rightDistance;
+//                if (Math.abs(lastDistanceDiff - distanceDiff) > 20 && lastDistanceDiff != 0) {
+//                    distanceDiff = lastDistanceDiff;
+//                }
+//                lastDistanceDiff = distanceDiff;
 
-            distanceDiff = leftDistance - rightDistance;
-
-            if (Math.abs(distanceDiff) < 20) {
+                if (Math.abs(distanceDiff) < 20) {
 //                correctFrames += 1;
 //                if (correctFrames > 20) break;
-                if (lastCorrectTime == 0) lastCorrectTime = timer.seconds();
-                if (timer.seconds() - lastCorrectTime > 0.3) break;
-            } else {
-                lastCorrectTime = 0;
-                //correctFrames = 0;
-            }
+                    if (lastCorrectTime == 0) lastCorrectTime = timer.seconds();
+                    if (timer.seconds() - lastCorrectTime > 0.3) break;
+                } else {
+                    lastCorrectTime = 0;
+                    //correctFrames = 0;
+                }
 
-            double output = pid.step(-distanceDiff, 0);
+                double output = pid.step(-distanceDiff, 0);
 
-            robot.driveMotors(output - angleCorrection, output + angleCorrection, output - angleCorrection, output + angleCorrection);
+                robot.driveMotors(output - angleCorrection, output + angleCorrection, output - angleCorrection, output + angleCorrection);
 //            robot.driveMotors(output, output, output, output);
 
-            lastLeftDistance = leftDistance;
-            lastRightDistance = rightDistance;
+                leftDistanceData.storeReading(leftDistance);
+                rightDistanceData.storeReading(rightDistance);
 
-            robot.opMode.idle();
+                lastLeftDistance = leftDistance;
+                lastRightDistance = rightDistance;
+
+                robot.opMode.idle();
+            }
         }
     }
 

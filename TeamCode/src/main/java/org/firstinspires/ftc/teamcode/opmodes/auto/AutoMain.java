@@ -188,9 +188,9 @@ public abstract class AutoMain extends LinearOpMode {
 
             // Get in front of cube
             if (useUltrasonic) {
-                MINERAL_TICKS -= 50;
-                robot.aligner.centerInCorner(3, true);
-                sleep(100);
+                MINERAL_TICKS += 50;
+                robot.aligner.centerInCorner(2.5, true);
+                sleep(50);
                 if (goldMineral == MineralPosition.LEFT) {
                     robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
                 } else if (goldMineral == MineralPosition.RIGHT) {
@@ -222,9 +222,11 @@ public abstract class AutoMain extends LinearOpMode {
             }
 
             // Turn to drive head on into cube
-            robot.turn(-90, 1.5);
+            robot.turn(-90, 2.0);
 
             if (getStartingPosition() == StartingPosition.DEPOT) {
+                sleep(Math.round(timeDelay * 1000));
+
                 // Hit cube
                 robot.driveTicks(1500, 1, 1, 1, 1);
 
@@ -328,12 +330,25 @@ public abstract class AutoMain extends LinearOpMode {
             }
 
             // Turn and unfurl arm
+            double targetHeading = 0;
             if (getStartingPosition() == StartingPosition.DEPOT) {
                 if (!endInOtherCrater) {
-                    robot.turn(135, 4);
+                    robot.turn(45, 1.5);
+                    robot.turn(135, 2);
+                    targetHeading = 135;
                 }
             } else {
-                robot.turn(-135, 4);
+                robot.turn(-45, 1.5);
+                robot.turn(-135, 2);
+                targetHeading = -135;
+            }
+
+            double currentHeading = robot.imu.getHeading();
+
+            if (targetHeading != 0) {
+                if (Math.abs(currentHeading - targetHeading) > 8) {
+                    return;
+                }
             }
 
             if (!useUltrasonic) {

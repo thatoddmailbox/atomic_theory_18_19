@@ -43,7 +43,7 @@ public class UltrasonicHub {
 
         // 0x30 = front left
         // 0x32 = front right
-        // 0x34 = back right
+        // 0x34 = back right (fake: for penn this is 0x28 bc studer == dumb)
         // 0x36 = back left
 
         _mux = new TCA9545A(_hub, _hubPort, muxReset, false, false);
@@ -57,7 +57,11 @@ public class UltrasonicHub {
 
         for (int i = 0; i < 4; i++) {
             _ultrasonicBroadcastSensors[i] = new LynxI2cDeviceSynchV2(context, _hub, _hubPort);
-            _ultrasonicBroadcastSensors[i].setI2cAddr(I2cAddr.create8bit(ADDRESS_ULTRASONIC_BROADCAST_0 + (ADDRESS_ULTRASONIC_BROADCAST_STEP * i)));
+            I2cAddr addressForSensor = I2cAddr.create8bit(ADDRESS_ULTRASONIC_BROADCAST_0 + (ADDRESS_ULTRASONIC_BROADCAST_STEP * i));
+            if (i == 2) {
+                addressForSensor = I2cAddr.create8bit(0x28);
+            }
+            _ultrasonicBroadcastSensors[i].setI2cAddr(addressForSensor);
         }
 
         try {
