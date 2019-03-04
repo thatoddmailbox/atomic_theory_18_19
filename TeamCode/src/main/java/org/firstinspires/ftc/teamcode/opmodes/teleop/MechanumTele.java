@@ -158,12 +158,18 @@ public class MechanumTele extends LinearOpMode {
                 // latch control: press AND HOLD
                 if (gamepad2.dpad_left || gamepad2.dpad_right) {
                     if (gamepad2.y) {
+                        robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition() - Robot.LATCH_DISTANCE);
+                        robot.latchRight.setTargetPosition(robot.latchRight.getCurrentPosition() - Robot.LATCH_DISTANCE);
                         robot.latchLeft.setPower(-0.8);
                         robot.latchRight.setPower(-1.0);
                     } else if (gamepad2.a) {
+                        robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition() + Robot.LATCH_DISTANCE);
+                        robot.latchRight.setTargetPosition(robot.latchRight.getCurrentPosition() + Robot.LATCH_DISTANCE);
                         robot.latchLeft.setPower(0.8);
                         robot.latchRight.setPower(1.0);
                     } else {
+                        robot.latchLeft.setTargetPosition(robot.latchLeft.getCurrentPosition());
+                        robot.latchRight.setTargetPosition(robot.latchRight.getCurrentPosition());
                         robot.latchLeft.setPower(0);
                         robot.latchRight.setPower(0);
                     }

@@ -7,8 +7,8 @@ import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.robot.Robot;
 import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 
-@Autonomous(name="Lower latch")
-public class LowerLatchTest extends LinearOpMode {
+@Autonomous(name="Raise latch")
+public class RaiseLatchTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         try (Robot robot = new Robot(MatchPhase.TEST, this, new RobotFeature[] {})) {
@@ -19,9 +19,9 @@ public class LowerLatchTest extends LinearOpMode {
             int latchRightStart = robot.latchRight.getCurrentPosition();
 
             robot.latchLeft.setPower(0.8);
-            robot.latchLeft.setTargetPosition(latchLeftStart + Robot.LATCH_DISTANCE);
+            robot.latchLeft.setTargetPosition(latchLeftStart - Robot.LATCH_DISTANCE);
             robot.latchRight.setPower(1.0);
-            robot.latchRight.setTargetPosition(latchRightStart + Robot.LATCH_DISTANCE);
+            robot.latchRight.setTargetPosition(latchRightStart - Robot.LATCH_DISTANCE);
 
             while (robot.latchLeft.isBusy() || robot.latchRight.isBusy()) {
                 idle();

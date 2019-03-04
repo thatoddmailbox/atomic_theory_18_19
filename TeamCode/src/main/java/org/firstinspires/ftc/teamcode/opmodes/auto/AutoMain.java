@@ -31,7 +31,7 @@ public abstract class AutoMain extends LinearOpMode {
         telemetry.update();
 
         PersistentHeading.clearSavedHeading();
-        try (Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, new RobotFeature[] {
+        try (Robot robot = new Robot(MatchPhase.AUTONOMOUS, this, new RobotFeature[]{
                 RobotFeature.CAMERA
         })) {
             boolean useUltrasonic = OptionsManager.getBooleanSetting("useUltrasonic");
@@ -184,7 +184,7 @@ public abstract class AutoMain extends LinearOpMode {
             // Get away from lander
             robot.driveTicks(900, 1, -1, -1, 1);
 
-            robot.turn(0,0.5);
+            robot.turn(0, 0.5);
 
             // Get in front of cube
             if (useUltrasonic) {
@@ -228,8 +228,11 @@ public abstract class AutoMain extends LinearOpMode {
                 sleep(Math.round(timeDelay * 1000));
 
                 // Hit cube
-                robot.driveTicks(1500, 1, 1, 1, 1);
-
+                if (goldMineral == MineralPosition.CENTER) {
+                    robot.driveTicks(1900, 1, 1, 1, 1);
+                } else {
+                    robot.driveTicks(1750, 1, 1, 1, 1);
+                }
                 robot.turn(0, 1.5);
 
                 // Recenter
@@ -248,10 +251,10 @@ public abstract class AutoMain extends LinearOpMode {
                 // Turn and strafe into wall
                 if (!endInOtherCrater) {
                     robot.turn(-45, 1.5);
-                    robot.driveTicks(600, 0.9, -0.9, -0.9, 0.9);
+                    robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
                 } else {
                     robot.turn(45, 1.5);
-                    robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
+                    robot.driveTicks(900, 0.9, -0.9, -0.9, 0.9);
                 }
             } else if (getStartingPosition() == StartingPosition.CRATER) {
                 // Hit cube and back up again
@@ -274,7 +277,7 @@ public abstract class AutoMain extends LinearOpMode {
                 // Turn and strafe to wall
                 robot.turn(45, 1.5);
 
-                robot.driveTicks(600, 1, -1, -1, 1);
+                robot.driveTicks(750, 1, -1, -1, 1);
 
                 // Possible wait for alliance to do their thing
                 sleep(Math.round(timeDelay * 1000));
@@ -322,9 +325,9 @@ public abstract class AutoMain extends LinearOpMode {
                     }
                 } else {
                     if (useUltrasonic) {
-                        robot.aligner.driveAlignDistanceTicks(0.9, 100, 2000, false);
+                        robot.aligner.driveAlignDistanceTicks(0.9, 100, 2400, false);
                     } else {
-                        robot.driveTicks(2000, 0.9, 0.9, 0.9, 0.9);
+                        robot.driveTicks(2400, 0.9, 0.9, 0.9, 0.9);
                     }
                 }
             }
@@ -338,14 +341,14 @@ public abstract class AutoMain extends LinearOpMode {
                     targetHeading = 135;
                 }
             } else {
-                robot.turn(-45, 1.5);
-                robot.turn(-135, 2);
-                targetHeading = -135;
+//                robot.turn(-45, 1.5);
+//                robot.turn(-135, 2);
+//                targetHeading = -135;
             }
 
             double currentHeading = robot.imu.getHeading();
 
-            if (targetHeading != 0) {
+            if (targetHeading != 0 && getStartingPosition() == StartingPosition.DEPOT) {
                 if (Math.abs(currentHeading - targetHeading) > 8) {
                     return;
                 }
@@ -355,25 +358,34 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.driveTicks(-300, -1, 1, 1, -1);
             }
 
-            if (superTimer.seconds() <= 26.5) {
-                robot.lenny.setPower(1.0);
-                sleep(2000);
-                robot.lenny.setPower(0.0);
+            if (getStartingPosition() == StartingPosition.DEPOT) {
+                if (superTimer.seconds() <= 26.5) {
+                    robot.lenny.setPower(1.0);
+                    sleep(2000);
+                    robot.lenny.setPower(0.0);
 
-                long moveTime = Math.max((long) (30 - superTimer.seconds() - 1) * 1000, 3000);
+                    long moveTime = Math.max((long) (30 - superTimer.seconds() - 1) * 1000, 3000);
 
-                telemetry.addData("moveTime", moveTime);
-                telemetry.update();
+                    telemetry.addData("moveTime", moveTime);
+                    telemetry.update();
 
-                robot.george.setPower(1);
-                sleep(moveTime);
-                robot.george.setPower(0.0);
-            } else if (superTimer.seconds() <= 29.15 && endNom) {
-                robot.driveMotors(-1, 1, 1, -1);
+                    robot.george.setPower(1);
+                    sleep(moveTime);
+                    robot.george.setPower(0.0);
+                } else if (superTimer.seconds() <= 29.15 && endNom) {
+                    robot.driveMotors(-1, 1, 1, -1);
+                    sleep(250);
+                    robot.driveMotors(0, 0, 0, 0);
+                    robot.driveMotors(0.4, 0.4, 0.4, 0.4);
+                    sleep(600);
+                    robot.driveMotors(0, 0, 0, 0);
+                }
+            } else {
+                robot.driveMotors(1, -1, -1, 1);
                 sleep(250);
                 robot.driveMotors(0, 0, 0, 0);
-                robot.driveMotors(0.4, 0.4, 0.4, 0.4);
-                sleep(600);
+                robot.driveMotors(-0.4, -0.4, -0.4, -0.4);
+                sleep(700);
                 robot.driveMotors(0, 0, 0, 0);
             }
 

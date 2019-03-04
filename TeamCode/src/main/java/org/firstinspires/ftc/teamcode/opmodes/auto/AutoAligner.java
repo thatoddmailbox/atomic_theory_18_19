@@ -181,10 +181,11 @@ public class AutoAligner {
                 lastLoopTime = timer.seconds();
 
                 distanceDiff = leftDistance - rightDistance;
-//                if (Math.abs(lastDistanceDiff - distanceDiff) > 20 && lastDistanceDiff != 0) {
-//                    distanceDiff = lastDistanceDiff;
-//                }
-//                lastDistanceDiff = distanceDiff;
+                if (Math.abs(lastDistanceDiff - distanceDiff) > 200 && lastDistanceDiff != 0) {
+                    distanceDiff = lastDistanceDiff;
+                } else {
+                    lastDistanceDiff = distanceDiff;
+                }
 
                 if (Math.abs(distanceDiff) < 20) {
 //                correctFrames += 1;
