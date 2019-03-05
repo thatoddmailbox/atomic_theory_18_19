@@ -352,9 +352,15 @@ public abstract class AutoMain extends LinearOpMode {
 
             double currentHeading = robot.imu.getHeading();
 
+            // Guarantee accurate heading to prevent major penalty/desampling in arm deployment
+            if (targetHeading != 0 && getStartingPosition() == StartingPosition.DEPOT) {
+                if (Math.abs(currentHeading - targetHeading) > 8) {
+                    return;
+                }
+            }
+
             if (getStartingPosition() == StartingPosition.DEPOT) {
-                // Guarantee accurate heading & enough time to prevent major penalty in arm deployment
-                if (superTimer.seconds() <= 26.5 && ((targetHeading != 0 && Math.abs(currentHeading - targetHeading) < 8) || targetHeading == 0)) {
+                if (superTimer.seconds() <= 26.5) {
                     robot.lenny.setPower(1.0);
                     sleep(2000);
                     robot.lenny.setPower(0.0);
