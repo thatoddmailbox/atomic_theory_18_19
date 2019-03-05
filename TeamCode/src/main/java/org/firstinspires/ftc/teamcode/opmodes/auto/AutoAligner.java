@@ -88,21 +88,27 @@ public class AutoAligner {
 
             Datastream<Double> leftDistanceData = new Datastream<Double>("left distance");
             Datastream<Double> rightDistanceData = new Datastream<Double>("right distance");
-            Datastreamable interpolation = new Datastreamable() {
+            Datastream<Double> lastLeftDistanceData = new Datastream<Double>("last left distance");
+            Datastream<Double> lastRightDistanceData = new Datastream<Double>("last right distance");
+            Datastream<Double> lastDistanceDiffData = new Datastream<Double>("last distance difference");
+            Datastreamable centeringInternals = new Datastreamable() {
                 @Override
                 public String getName() {
-                    return "interpolation";
+                    return "centering algorithm internals";
                 }
 
                 @Override
                 public Datastream[] getDatastreams() {
                     return new Datastream[] {
                             leftDistanceData,
-                            rightDistanceData
+                            rightDistanceData,
+                            lastLeftDistanceData,
+                            lastRightDistanceData,
+                            lastDistanceDiffData
                     };
                 }
             };
-            context.attachDatastreamable(interpolation);
+            context.attachDatastreamable(centeringInternals);
 
             robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
             robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
@@ -125,17 +131,20 @@ public class AutoAligner {
             double targetHeading = robot.getHeading();
 
             ElapsedTime timer = new ElapsedTime();
-            int correctFrames = 0;
 
             timer.reset();
 
             double lastCorrectTime = 0;
             double lastLoopTime = -0.09;
-            //double errorsInARow = 0;
+
             while (timer.seconds() < timeout && robot.opMode.opModeIsActive()) {
                 if (shouldLog) {
                     robot.logSensors();
                 }
+
+                lastLeftDistanceData.storeReading(lastLeftDistance);
+                lastRightDistanceData.storeReading(lastRightDistance);
+                lastDistanceDiffData.storeReading(lastDistanceDiff);
 
                 leftDistance = robot.rangeFrontRight.cmUltrasonic() * 10;
                 rightDistance = robot.rangeBackRight.cmUltrasonic() * 10;
@@ -146,7 +155,6 @@ public class AutoAligner {
                     currentHeading = targetHeading;
                 }
                 double angleCorrection = anglePID.step(currentHeading, targetHeading);
-//            angleCorrection = 0;
 
                 boolean shouldInterpolateLeft = (Math.abs(leftDistance - lastLeftDistance) > 8 && lastLeftDistance != 0);
                 boolean shouldInterpolateRight = (Math.abs(rightDistance - lastRightDistance) > 8 && lastRightDistance != 0);
@@ -159,7 +167,7 @@ public class AutoAligner {
                     rightDistanceData.storeReading(rightDistance);
                     continue;
                 } else if (leftDistance == 2550 || shouldInterpolateLeft) {
-                    if (lastRightDistance == 0) {
+                    if (lastRightDistance == 0 || lastLeftDistance == 0) {
                         startSineWave();
                         timeout += timer.seconds() - lastLoopTime;
                         lastLoopTime = timer.seconds();
@@ -168,7 +176,7 @@ public class AutoAligner {
                     double rightDiff = rightDistance - lastRightDistance;
                     leftDistance = lastLeftDistance - rightDiff;
                 } else if (rightDistance == 2550 || shouldInterpolateRight) {
-                    if (lastLeftDistance == 0) {
+                    if (lastRightDistance == 0 || lastLeftDistance == 0) {
                         startSineWave();
                         timeout += timer.seconds() - lastLoopTime;
                         lastLoopTime = timer.seconds();
@@ -188,19 +196,17 @@ public class AutoAligner {
                 }
 
                 if (Math.abs(distanceDiff) < 20) {
-//                correctFrames += 1;
-//                if (correctFrames > 20) break;
                     if (lastCorrectTime == 0) lastCorrectTime = timer.seconds();
                     if (timer.seconds() - lastCorrectTime > 0.3) break;
                 } else {
                     lastCorrectTime = 0;
-                    //correctFrames = 0;
                 }
 
                 double output = pid.step(-distanceDiff, 0);
 
+//                angleCorrection *= (1 + Math.max(0, Math.abs(angleCorrection/output) - 0.25));
+
                 robot.driveMotors(output - angleCorrection, output + angleCorrection, output - angleCorrection, output + angleCorrection);
-//            robot.driveMotors(output, output, output, output);
 
                 leftDistanceData.storeReading(leftDistance);
                 rightDistanceData.storeReading(rightDistance);

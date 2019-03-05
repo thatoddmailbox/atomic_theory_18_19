@@ -265,11 +265,11 @@ public abstract class AutoMain extends LinearOpMode {
 
                 // Drive to wall
                 if (goldMineral == MineralPosition.LEFT) {
-                    robot.driveTicks(1800 - MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
+                    robot.driveTicks(1800 - MINERAL_TICKS, 1.0, 1.0, 1.0, 1.0);
                 } else if (goldMineral == MineralPosition.RIGHT) {
-                    robot.driveTicks(1800 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
+                    robot.driveTicks(1800 + MINERAL_TICKS, 1.0, 1.0, 1.0, 1.0);
                 } else {
-                    robot.driveTicks(1800, 0.9, 0.9, 0.9, 0.9);
+                    robot.driveTicks(1800, 1.0, 1.0, 1.0, 1.0);
                 }
 
                 robot.setupSimpleServos(Direction.RIGHT);
@@ -346,20 +346,15 @@ public abstract class AutoMain extends LinearOpMode {
 //                targetHeading = -135;
             }
 
-            double currentHeading = robot.imu.getHeading();
-
-            if (targetHeading != 0 && getStartingPosition() == StartingPosition.DEPOT) {
-                if (Math.abs(currentHeading - targetHeading) > 8) {
-                    return;
-                }
-            }
-
             if (!useUltrasonic) {
                 robot.driveTicks(-300, -1, 1, 1, -1);
             }
 
+            double currentHeading = robot.imu.getHeading();
+
             if (getStartingPosition() == StartingPosition.DEPOT) {
-                if (superTimer.seconds() <= 26.5) {
+                // Guarantee accurate heading & enough time to prevent major penalty in arm deployment
+                if (superTimer.seconds() <= 26.5 && ((targetHeading != 0 && Math.abs(currentHeading - targetHeading) < 8) || targetHeading == 0)) {
                     robot.lenny.setPower(1.0);
                     sleep(2000);
                     robot.lenny.setPower(0.0);
