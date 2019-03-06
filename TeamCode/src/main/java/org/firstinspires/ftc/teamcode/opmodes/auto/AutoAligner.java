@@ -87,7 +87,9 @@ public class AutoAligner {
             context.setFact("Timeout", timeout);
 
             Datastream<Double> leftDistanceData = new Datastream<Double>("left distance");
+            Datastream<Double> interpolatedLeftDistanceData = new Datastream<Double>("interpolated left distance");
             Datastream<Double> rightDistanceData = new Datastream<Double>("right distance");
+            Datastream<Double> interpolatedRightDistanceData = new Datastream<Double>("interpolated right distance");
             Datastream<Double> lastLeftDistanceData = new Datastream<Double>("last left distance");
             Datastream<Double> lastRightDistanceData = new Datastream<Double>("last right distance");
             Datastream<Double> lastDistanceDiffData = new Datastream<Double>("last distance difference");
@@ -101,7 +103,9 @@ public class AutoAligner {
                 public Datastream[] getDatastreams() {
                     return new Datastream[] {
                             leftDistanceData,
+                            interpolatedLeftDistanceData,
                             rightDistanceData,
+                            interpolatedRightDistanceData,
                             lastLeftDistanceData,
                             lastRightDistanceData,
                             lastDistanceDiffData
@@ -156,8 +160,8 @@ public class AutoAligner {
                 }
                 double angleCorrection = anglePID.step(currentHeading, targetHeading);
 
-                boolean shouldInterpolateLeft = (Math.abs(leftDistance - lastLeftDistance) > 8 && lastLeftDistance != 0);
-                boolean shouldInterpolateRight = (Math.abs(rightDistance - lastRightDistance) > 8 && lastRightDistance != 0);
+                boolean shouldInterpolateLeft = (Math.abs(leftDistance - lastLeftDistance) > 80 && lastLeftDistance != 0);
+                boolean shouldInterpolateRight = (Math.abs(rightDistance - lastRightDistance) > 80 && lastRightDistance != 0);
 
                 if (leftDistance == 2550 && rightDistance == 2550) {
                     startSineWave();
@@ -175,6 +179,7 @@ public class AutoAligner {
                     }
                     double rightDiff = rightDistance - lastRightDistance;
                     leftDistance = lastLeftDistance - rightDiff;
+                    interpolatedLeftDistanceData.storeReading(leftDistance);
                 } else if (rightDistance == 2550 || shouldInterpolateRight) {
                     if (lastRightDistance == 0 || lastLeftDistance == 0) {
                         startSineWave();
@@ -184,6 +189,7 @@ public class AutoAligner {
                     }
                     double leftDiff = leftDistance - lastLeftDistance;
                     rightDistance = lastRightDistance - leftDiff;
+                    interpolatedRightDistanceData.storeReading(rightDistance);
                 }
 
                 lastLoopTime = timer.seconds();
