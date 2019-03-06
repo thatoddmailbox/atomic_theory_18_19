@@ -163,7 +163,7 @@ public class AutoAligner {
                 boolean shouldInterpolateLeft = (Math.abs(leftDistance - lastLeftDistance) > 80 && lastLeftDistance != 0);
                 boolean shouldInterpolateRight = (Math.abs(rightDistance - lastRightDistance) > 80 && lastRightDistance != 0);
 
-                if (leftDistance == 2550 && rightDistance == 2550) {
+                if (leftDistance == 2550 && rightDistance == 2550 || (shouldInterpolateLeft && shouldInterpolateRight)) {
                     startSineWave();
                     timeout += timer.seconds() - lastLoopTime;
                     lastLoopTime = timer.seconds();
