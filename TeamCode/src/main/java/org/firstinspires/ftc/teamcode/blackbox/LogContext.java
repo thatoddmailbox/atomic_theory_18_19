@@ -44,6 +44,10 @@ public class LogContext implements AutoCloseable {
         _datastreamableCountFile = new File(_path, "datastreamables/count.txt");
         try {
             _datastreamableCountFile.createNewFile();
+            PrintWriter writer = new PrintWriter(_datastreamableCountFile);
+            writer.print(0);
+            writer.flush();
+            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

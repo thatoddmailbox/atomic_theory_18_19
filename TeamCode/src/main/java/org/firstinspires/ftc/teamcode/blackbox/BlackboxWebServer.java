@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -108,12 +109,29 @@ public class BlackboxWebServer extends NanoHTTPD {
         return newFixedLengthResponse(Response.Status.OK, "application/json", logSessionsJSON.toString());
     }
 
+    public Response listAllCompetitions() {
+        JSONArray competitionsJSON = new JSONArray();
+
+        try {
+            ArrayList<Competition> competitions = CompetitionManager.getCompetitions();
+            for (Competition competition : competitions) {
+                competitionsJSON.put(competition.serializeToJSON());
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+
+        return newFixedLengthResponse(Response.Status.OK, "application/json", competitionsJSON.toString());
+    }
+
     @Override
     public Response serve(IHTTPSession session) {
         String uri = session.getUri();
 
         if (uri.startsWith("/api")) {
-            if (uri.equals("/api/listSessions")) {
+            if (uri.equals("/api/listCompetitions")) {
+                return listAllCompetitions();
+            } else if (uri.equals("/api/listSessions")) {
                 return listAllLogSessions();
             }
             return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "File not found.");
