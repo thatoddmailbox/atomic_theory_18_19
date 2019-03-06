@@ -84,6 +84,7 @@ public class BlackboxWebServer extends NanoHTTPD {
             }
 
             File sessionFile = new File(folderFile, "session.json");
+            boolean addedSessionJSON = false;
             try {
                 BufferedReader sessionFileReader = new BufferedReader(new FileReader(sessionFile));
                 String sessionFileContents = sessionFileReader.readLine();
@@ -101,8 +102,23 @@ public class BlackboxWebServer extends NanoHTTPD {
                 logSessionJSON.put("matchStart", sessionFileJSON.get("matchStart"));
 
                 logSessionsJSON.put(logSessionJSON);
+
+                addedSessionJSON = true;
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
+            }
+
+            if (!addedSessionJSON) {
+                try {
+                    JSONObject logSessionJSON = new JSONObject();
+
+                    logSessionJSON.put("path", entry);
+                    logSessionJSON.put("corrupted", true);
+
+                    logSessionsJSON.put(logSessionJSON);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
