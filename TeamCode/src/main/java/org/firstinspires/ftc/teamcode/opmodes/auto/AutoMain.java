@@ -189,7 +189,7 @@ public abstract class AutoMain extends LinearOpMode {
             // Get in front of cube
             if (useUltrasonic) {
                 MINERAL_TICKS += 50;
-                robot.aligner.centerInCorner(2.5, true);
+                robot.aligner.centerInCorner(2.0, true);
                 sleep(50);
                 if (goldMineral == MineralPosition.LEFT) {
                     robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
@@ -197,7 +197,6 @@ public abstract class AutoMain extends LinearOpMode {
                     robot.driveTicks(-MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
                 }
             } else {
-
                 // TODO: change me at competition - this is "very sketch" and probably relies on our lander being dumb
                 if (goldMineral == MineralPosition.LEFT) {
                     if (getStartingPosition() == StartingPosition.CRATER) {
@@ -215,7 +214,6 @@ public abstract class AutoMain extends LinearOpMode {
                     if (getStartingPosition() == StartingPosition.CRATER) {
                         robot.driveTicks(300, 0.9, 0.9, 0.9, 0.9);
                     } else {
-                        // TODO: change me
                         robot.driveTicks(0, 0.9, 0.9, 0.9, 0.9);
                     }
                 }

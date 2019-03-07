@@ -86,7 +86,7 @@ public class AutoAligner {
         try (LogContext context = robot.logSession.createContext("center in corner")) {
             context.setFact("Timeout", timeout);
 
-            Datastream<Double> leftDistanceData = new Datastream<Double>("left distance");
+            Datastream<Double> leftDistanceData = new Datastream<>("left distance");
             Datastream<Double> interpolatedLeftDistanceData = new Datastream<Double>("interpolated left distance");
             Datastream<Double> rightDistanceData = new Datastream<Double>("right distance");
             Datastream<Double> interpolatedRightDistanceData = new Datastream<Double>("interpolated right distance");
@@ -160,6 +160,7 @@ public class AutoAligner {
                 }
                 double angleCorrection = anglePID.step(currentHeading, targetHeading);
 
+                // Interpolation & sensor error handling
                 boolean shouldInterpolateLeft = (Math.abs(leftDistance - lastLeftDistance) > 80 && lastLeftDistance != 0);
                 boolean shouldInterpolateRight = (Math.abs(rightDistance - lastRightDistance) > 80 && lastRightDistance != 0);
 
@@ -195,12 +196,14 @@ public class AutoAligner {
                 lastLoopTime = timer.seconds();
 
                 distanceDiff = leftDistance - rightDistance;
+                // Last line of defense error handling
                 if (Math.abs(lastDistanceDiff - distanceDiff) > 200 && lastDistanceDiff != 0) {
                     distanceDiff = lastDistanceDiff;
                 } else {
                     lastDistanceDiff = distanceDiff;
                 }
 
+                // Check to see if robot is ~ centered
                 if (Math.abs(distanceDiff) < 20) {
                     if (lastCorrectTime == 0) lastCorrectTime = timer.seconds();
                     if (timer.seconds() - lastCorrectTime > 0.3) break;
@@ -210,7 +213,8 @@ public class AutoAligner {
 
                 double output = pid.step(-distanceDiff, 0);
 
-//                angleCorrection *= (1 + Math.max(0, Math.abs(angleCorrection/output) - 0.25));
+                // Update saturation magnitude dynamically
+//                angleCorrection *= (1 + Math.max(0, Math.abs(angleCorrection/Math.max(output, 0.2)) - 0.25));
 
                 robot.driveMotors(output - angleCorrection, output + angleCorrection, output - angleCorrection, output + angleCorrection);
 
