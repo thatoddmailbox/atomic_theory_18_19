@@ -42,6 +42,8 @@ public class LogSession implements AutoCloseable {
     private boolean _enabled;
 
     public LogSession(LinearOpMode opMode, MatchPhase phase, MatchType type, String label) throws IOException {
+        CompetitionManager.init();
+
         _contexts = new ArrayList<LogContext>();
         _options = OptionsManager.getDisplayList();
 

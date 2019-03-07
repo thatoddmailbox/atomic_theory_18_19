@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -83,6 +84,7 @@ public class BlackboxWebServer extends NanoHTTPD {
             }
 
             File sessionFile = new File(folderFile, "session.json");
+            boolean addedSessionJSON = false;
             try {
                 BufferedReader sessionFileReader = new BufferedReader(new FileReader(sessionFile));
                 String sessionFileContents = sessionFileReader.readLine();
@@ -100,12 +102,42 @@ public class BlackboxWebServer extends NanoHTTPD {
                 logSessionJSON.put("matchStart", sessionFileJSON.get("matchStart"));
 
                 logSessionsJSON.put(logSessionJSON);
+
+                addedSessionJSON = true;
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
+            }
+
+            if (!addedSessionJSON) {
+                try {
+                    JSONObject logSessionJSON = new JSONObject();
+
+                    logSessionJSON.put("path", entry);
+                    logSessionJSON.put("corrupted", true);
+
+                    logSessionsJSON.put(logSessionJSON);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
         return newFixedLengthResponse(Response.Status.OK, "application/json", logSessionsJSON.toString());
+    }
+
+    public Response listAllCompetitions() {
+        JSONArray competitionsJSON = new JSONArray();
+
+        try {
+            ArrayList<Competition> competitions = CompetitionManager.getCompetitions();
+            for (Competition competition : competitions) {
+                competitionsJSON.put(competition.serializeToJSON());
+            }
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+
+        return newFixedLengthResponse(Response.Status.OK, "application/json", competitionsJSON.toString());
     }
 
     @Override
@@ -113,7 +145,9 @@ public class BlackboxWebServer extends NanoHTTPD {
         String uri = session.getUri();
 
         if (uri.startsWith("/api")) {
-            if (uri.equals("/api/listSessions")) {
+            if (uri.equals("/api/listCompetitions")) {
+                return listAllCompetitions();
+            } else if (uri.equals("/api/listSessions")) {
                 return listAllLogSessions();
             }
             return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/html", "File not found.");
