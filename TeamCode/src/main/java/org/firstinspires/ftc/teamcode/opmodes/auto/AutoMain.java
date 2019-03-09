@@ -297,7 +297,7 @@ public abstract class AutoMain extends LinearOpMode {
                 robot.turn(90, 1.0);
 
                 robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
-                sleep(500);
+                sleep(400);
 
                 robot.turn(45, 1.0);
             }

@@ -127,7 +127,9 @@ public class AutoAligner {
 
             double lastDistanceDiff = 0;
 
-            PIDController pid = new PIDController("corner", new PIDCoefficients(0.0021, 0.00000075, 0), true, 0.8);
+            //new PIDCoefficients(0.0021, 0.00000075, 0)
+            //new PIDCoefficients(0.0042, 0.0000015, 0.01)
+            PIDController pid = new PIDController("corner", new PIDCoefficients(0.0032, 0.000005, 0.072), true, 0.8);
 
             context.attachDatastreamable(pid);
 
