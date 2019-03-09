@@ -23,7 +23,7 @@ public abstract class AutoMain extends LinearOpMode {
 
     public abstract StartingPosition getStartingPosition();
 
-    public int MINERAL_TICKS = 650;
+    public int MINERAL_TICKS = 600;
     @Override
     public void runOpMode() throws InterruptedException {
         // When init is pressed make an instance of Robot
@@ -345,7 +345,7 @@ public abstract class AutoMain extends LinearOpMode {
             }
 
             if (!useUltrasonic) {
-                robot.driveTicks(-300, -1, 1, 1, -1);
+                robot.driveTicks(300, 1, -1, -1, 1);
             }
 
             double currentHeading = robot.imu.getHeading();
@@ -372,7 +372,7 @@ public abstract class AutoMain extends LinearOpMode {
                     sleep(moveTime);
                     robot.george.setPower(0.0);
                 } else if (superTimer.seconds() <= 29.15 && endNom) {
-                    robot.driveMotors(-1, 1, 1, -1);
+                    robot.driveMotors(1, -1, -1, 1);
                     sleep(250);
                     robot.driveMotors(0, 0, 0, 0);
                     robot.driveMotors(0.4, 0.4, 0.4, 0.4);
