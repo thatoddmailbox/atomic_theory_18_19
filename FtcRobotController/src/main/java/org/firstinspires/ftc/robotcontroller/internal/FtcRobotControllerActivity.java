@@ -120,6 +120,8 @@ import org.firstinspires.ftc.robotcore.internal.webserver.RobotControllerWebInfo
 import org.firstinspires.ftc.robotcore.internal.webserver.WebServer;
 import org.firstinspires.inspection.RcInspectionActivity;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -167,6 +169,11 @@ public class FtcRobotControllerActivity extends Activity
 
   protected WifiMuteStateMachine wifiMuteStateMachine;
   protected MotionDetection motionDetection;
+
+  // START MODIFICATION
+  private Method _stopServerMethod;
+  private Object _webServerObject;
+  // END MODIFICATION
 
   protected class RobotRestarter implements Restarter {
 
@@ -344,8 +351,9 @@ public class FtcRobotControllerActivity extends Activity
     Class blackboxWebServer = null;
     try {
       blackboxWebServer = Class.forName("org.firstinspires.ftc.teamcode.blackbox.BlackboxWebServer");
-      blackboxWebServer.newInstance();
-    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+      _webServerObject = blackboxWebServer.newInstance();
+      _stopServerMethod = blackboxWebServer.getMethod("stop");
+    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
       e.printStackTrace();
     }
     // END MODIFICATION
@@ -428,6 +436,14 @@ public class FtcRobotControllerActivity extends Activity
 
     preferencesHelper.getSharedPreferences().unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener);
     RobotLog.cancelWriteLogcatToDisk();
+
+    // START MODIFICATION
+    try {
+      _stopServerMethod.invoke(_webServerObject);
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      e.printStackTrace();
+    }
+    // END MODIFICATION
   }
 
   protected void bindToService() {
