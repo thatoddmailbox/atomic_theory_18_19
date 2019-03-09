@@ -77,7 +77,7 @@ public class Robot implements AutoCloseable {
     public static final int MOTOR_PORT_BACK_LEFT = 2;
     public static final int MOTOR_PORT_BACK_RIGHT = 3;
 
-    public static final int LATCH_DISTANCE = 7960;
+    public static final int LATCH_DISTANCE = 7540; //7960;
 
     public static final double MAX_LENNY_RETRO_VELOCITY = Double.MAX_VALUE; // ticks per millisecond
 
