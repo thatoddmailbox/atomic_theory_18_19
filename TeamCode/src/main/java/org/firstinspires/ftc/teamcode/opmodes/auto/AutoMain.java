@@ -179,6 +179,8 @@ public abstract class AutoMain extends LinearOpMode {
 
             ElapsedTime timer = new ElapsedTime();
 
+            robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
+            robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
             robot.backLeftServo.setPosition(Robot.SENSOR_REV_SERVO_ZERO);
 
             // Get away from lander
@@ -189,8 +191,11 @@ public abstract class AutoMain extends LinearOpMode {
             // Get in front of cube
             if (useUltrasonic) {
                 MINERAL_TICKS += 50;
+                robot.rangeFrontRight.cmUltrasonic();
+                robot.rangeBackRight.cmUltrasonic();
+
                 robot.aligner.centerInCorner(2.0, true);
-                sleep(50);
+
                 if (goldMineral == MineralPosition.LEFT) {
                     robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
                 } else if (goldMineral == MineralPosition.RIGHT) {
@@ -284,15 +289,12 @@ public abstract class AutoMain extends LinearOpMode {
 
                 if (useUltrasonic) {
                     robot.aligner.driveAlignDistanceTicks(0.9, 90, 2000, false);
-//                    robot.aligner.driveAlignDistance(90, 40, 6, true);
                 } else {
                     robot.driveTicks(2000, 0.9, 0.9, 0.9, 0.9);
                 }
 
-                sleep(100);
-
                 // turn to place team marker
-                robot.turn(90, 1.5);
+                robot.turn(90, 1.0);
 
                 robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
                 sleep(500);

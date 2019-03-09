@@ -117,7 +117,7 @@ public class AutoAligner {
             robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
             robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
 
-            Thread.sleep(110);
+//            Thread.sleep(110);
 
             double leftDistance;
             double rightDistance;
@@ -214,7 +214,7 @@ public class AutoAligner {
                 double output = pid.step(-distanceDiff, 0);
 
                 // Update saturation magnitude dynamically
-//                angleCorrection *= (1 + Math.max(0, Math.abs(angleCorrection/Math.max(output, 0.2)) - 0.25));
+                angleCorrection *= (1 + Math.max(0, Math.abs(angleCorrection/Math.max(output, 0.2)) - 0.25));
 
                 robot.driveMotors(output - angleCorrection, output + angleCorrection, output - angleCorrection, output + angleCorrection);
 
