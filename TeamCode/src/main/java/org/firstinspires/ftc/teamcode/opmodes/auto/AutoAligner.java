@@ -117,7 +117,7 @@ public class AutoAligner {
             robot.frontRightServo.setPosition(Robot.SENSOR_SERVO_HALF);
             robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
 
-            Thread.sleep(110);
+//            Thread.sleep(110);
 
             double leftDistance;
             double rightDistance;
@@ -127,7 +127,9 @@ public class AutoAligner {
 
             double lastDistanceDiff = 0;
 
-            PIDController pid = new PIDController("corner", new PIDCoefficients(0.0021, 0.00000075, 0), true, 0.8);
+            //new PIDCoefficients(0.0021, 0.00000075, 0)
+            //new PIDCoefficients(0.0042, 0.0000015, 0.01)
+            PIDController pid = new PIDController("corner", new PIDCoefficients(0.0032, 0.000005, 0.072), true, 0.8);
 
             context.attachDatastreamable(pid);
 
@@ -214,7 +216,7 @@ public class AutoAligner {
                 double output = pid.step(-distanceDiff, 0);
 
                 // Update saturation magnitude dynamically
-//                angleCorrection *= (1 + Math.max(0, Math.abs(angleCorrection/Math.max(output, 0.2)) - 0.25));
+                angleCorrection *= (1 + Math.max(0, Math.abs(angleCorrection/Math.max(output, 0.2)) - 0.25));
 
                 robot.driveMotors(output - angleCorrection, output + angleCorrection, output - angleCorrection, output + angleCorrection);
 
