@@ -38,6 +38,7 @@ public abstract class AutoMain extends LinearOpMode {
             boolean endInOtherCrater = OptionsManager.getBooleanSetting("alternateCrater");
             double timeDelay = OptionsManager.getDoubleSetting("timeDelay");
             boolean endNom = OptionsManager.getBooleanSetting("endNom");
+            boolean simpleAuto = OptionsManager.getBooleanSetting("simpleAuto");
 
             // print telemetry
             HashMap<String, String> displayList = OptionsManager.getDisplayList();
@@ -202,24 +203,29 @@ public abstract class AutoMain extends LinearOpMode {
                     robot.driveTicks(-MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
                 }
             } else {
+                double p = 0.9;
+                if (simpleAuto) p = 0.5;
                 // TODO: change me at competition - this is "very sketch" and probably relies on our lander being dumb
                 if (goldMineral == MineralPosition.LEFT) {
                     if (getStartingPosition() == StartingPosition.CRATER) {
-                        robot.driveTicks(300 + MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
+                        robot.driveTicks(250 + MINERAL_TICKS, p, p, p, p);
                     } else {
-                        robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
+                        //robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
+                        robot.driveTicks(250 + MINERAL_TICKS, p, p, p, p);
                     }
                 } else if (goldMineral == MineralPosition.RIGHT) {
                     if (getStartingPosition() == StartingPosition.CRATER) {
-                        robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
+                        robot.driveTicks(200 - MINERAL_TICKS, -p, -p, -p, -p);
                     } else {
-                        robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
+                        //robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
+                        robot.driveTicks(200 - MINERAL_TICKS, -p, -p, -p, -p);
                     }
                 } else {
                     if (getStartingPosition() == StartingPosition.CRATER) {
-                        robot.driveTicks(300, 0.9, 0.9, 0.9, 0.9);
+                        robot.driveTicks(95, p, p, p, p);
                     } else {
-                        robot.driveTicks(0, 0.9, 0.9, 0.9, 0.9);
+                        //robot.driveTicks(0, 0.9, 0.9, 0.9, 0.9);
+                        robot.driveTicks(95, p, p, p, p);
                     }
                 }
             }
@@ -240,9 +246,11 @@ public abstract class AutoMain extends LinearOpMode {
 
                 // Recenter
                 if (goldMineral == MineralPosition.LEFT) {
-                    robot.driveTicks(-MINERAL_TICKS, -1, -1, -1, -1);
+//                    robot.driveTicks(-MINERAL_TICKS, -1, -1, -1, -1);
+                    robot.driveTicks(-(150 + MINERAL_TICKS), -1, -1, -1, -1);
                 } else if (goldMineral == MineralPosition.RIGHT) {
-                    robot.driveTicks(MINERAL_TICKS, 1, 1, 1, 1);
+//                    robot.driveTicks(MINERAL_TICKS, 1, 1, 1, 1);
+                    robot.driveTicks(150 + MINERAL_TICKS, 1, 1, 1, 1);
                 }
 
                 // Drop team marker
@@ -261,8 +269,18 @@ public abstract class AutoMain extends LinearOpMode {
                 }
             } else if (getStartingPosition() == StartingPosition.CRATER) {
                 // Hit cube and back up again
-                robot.driveTicks(600, 1, 1, 1, 1);
-                robot.driveTicks(-400, -1, -1, -1, -1);
+                if (simpleAuto) {
+                    robot.driveTicks(900, 0.5, 0.5, 0.5, 0.5);
+//                    robot.driveTicks(-500, -0.5, -0.5, -0.5, -0.5);
+//                    robot.lenny.setPower(1.0);
+//                    sleep(2000);
+//                    robot.lenny.setPower(0.0);
+                    return;
+                } else {
+                    robot.driveTicks(700, 1, 1, 1, 1);
+                }
+
+                robot.driveTicks(-450, -1, -1, -1, -1);
 
                 robot.turn(0, 1.5);
 
@@ -341,13 +359,17 @@ public abstract class AutoMain extends LinearOpMode {
                     targetHeading = 135;
                 }
             } else {
-//                robot.turn(-45, 1.5);
-//                robot.turn(-135, 2);
-//                targetHeading = -135;
+                robot.turn(-45, 1.5);
+                robot.turn(-135, 2);
+                targetHeading = -135;
             }
 
             if (!useUltrasonic) {
-                robot.driveTicks(300, 1, -1, -1, 1);
+                if (getStartingPosition() == StartingPosition.DEPOT) {
+                    robot.driveTicks(300, 1, -1, -1, 1);
+                } else {
+                    robot.driveTicks(-300, -1, 1, 1, -1);
+                }
             }
 
             double currentHeading = robot.imu.getHeading();
@@ -359,7 +381,7 @@ public abstract class AutoMain extends LinearOpMode {
                 }
             }
 
-            if (getStartingPosition() == StartingPosition.DEPOT) {
+//            if (getStartingPosition() == StartingPosition.DEPOT) {
                 if (superTimer.seconds() <= 26.5) {
                     robot.lenny.setPower(1.0);
                     sleep(2000);
@@ -381,14 +403,15 @@ public abstract class AutoMain extends LinearOpMode {
                     sleep(600);
                     robot.driveMotors(0, 0, 0, 0);
                 }
-            } else {
-                robot.driveMotors(1, -1, -1, 1);
-                sleep(250);
-                robot.driveMotors(0, 0, 0, 0);
-                robot.driveMotors(-0.4, -0.4, -0.4, -0.4);
-                sleep(700);
-                robot.driveMotors(0, 0, 0, 0);
-            }
+//            }
+//            else {
+//                robot.driveMotors(1, -1, -1, 1);
+//                sleep(250);
+//                robot.driveMotors(0, 0, 0, 0);
+//                robot.driveMotors(-0.4, -0.4, -0.4, -0.4);
+//                sleep(700);
+//                robot.driveMotors(0, 0, 0, 0);
+//            }
 
             // Save heading
             PersistentHeading.saveHeading(robot.getHeading());

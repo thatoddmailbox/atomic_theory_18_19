@@ -94,7 +94,10 @@ public class BlackboxWebServer extends NanoHTTPD {
                 JSONObject sessionFileJSON = new JSONObject(sessionFileContents);
                 JSONObject logSessionJSON = new JSONObject();
 
+                boolean inProgress = sessionFileJSON.has("inProgress") && sessionFileJSON.getBoolean("inProgress");
+
                 logSessionJSON.put("path", entry);
+                logSessionJSON.put("inProgress", inProgress);
                 logSessionJSON.put("phase", sessionFileJSON.get("phase"));
                 logSessionJSON.put("opmode", sessionFileJSON.getJSONArray("contexts").getJSONObject(0).getJSONObject("facts").getString("Name"));
                 logSessionJSON.put("matchType", sessionFileJSON.get("type"));

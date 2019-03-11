@@ -77,7 +77,7 @@ public class Robot implements AutoCloseable {
     public static final int MOTOR_PORT_BACK_LEFT = 2;
     public static final int MOTOR_PORT_BACK_RIGHT = 3;
 
-    public static final int LATCH_DISTANCE = 7540; //7960;
+    public static final int LATCH_DISTANCE = 7960; // 7540;
 
     public static final double MAX_LENNY_RETRO_VELOCITY = Double.MAX_VALUE; // ticks per millisecond
 
@@ -623,6 +623,10 @@ public class Robot implements AutoCloseable {
         List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
         HashMap<MineralPosition, Float> recognitions = new HashMap<>();
+
+        recognitions.put(MineralPosition.LEFT, 0.0f);
+        recognitions.put(MineralPosition.CENTER, 0.0f);
+        recognitions.put(MineralPosition.RIGHT, 0.0f);
 
         if (updatedRecognitions == null) {
             return recognitions;
