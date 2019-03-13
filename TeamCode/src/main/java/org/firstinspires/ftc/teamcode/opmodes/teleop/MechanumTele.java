@@ -6,10 +6,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.blackbox.MatchPhase;
 import org.firstinspires.ftc.teamcode.robot.Robot;
+import org.firstinspires.ftc.teamcode.utils.PIDController;
 import org.firstinspires.ftc.teamcode.utils.RobotFeature;
 
 @TeleOp(name="Mechanum Tele-op")
@@ -47,6 +49,8 @@ public class MechanumTele extends LinearOpMode {
             lennyTimer.reset();
             boolean lennyPressed = false;
             boolean lennyBackPressed = false;
+
+            PIDController pid = new PIDController("latch turn", new PIDCoefficients(0.016, 0.000025, 0.36), true, 0.5);
 
             while (opModeIsActive()) {
                 double slowMode = gamepad1.left_bumper ? .5 : 1.0;
@@ -103,6 +107,7 @@ public class MechanumTele extends LinearOpMode {
                     double BL = biggerStick * ((Math.sin(robotAngle) / biggerValue * (biggerDrive / stickMax)) + (turnPower / stickMax));
                     double BR = biggerStick * ((Math.cos(robotAngle) / biggerValue * (biggerDrive / stickMax)) - (turnPower / stickMax));
 
+                    // Change the two falses to activate wacky mode
                     if (latchMode && false) {
                         if (Math.abs(FL-BR) < Math.abs(FL-FR)) {
                             FL = Math.signum(FL)*Math.max(Math.abs(FL), Math.abs(BR));
@@ -119,8 +124,12 @@ public class MechanumTele extends LinearOpMode {
                             BR = Math.signum(BL)*Math.max(Math.abs(BL), Math.abs(BR));
                         }
                     }
-                        //Powers Motors
-                    robot.driveMotorsClipped(FL * slowMode, FR * slowMode, BL * slowMode, BR * slowMode);
+                    double currentHeading = robot.getHeading();
+
+                    double output = false ? pid.step(currentHeading, 0) : 0;
+
+                    //Powers Motors
+                    robot.driveMotorsClipped(FL * slowMode - output, FR * slowMode + output, BL * slowMode - output, BR * slowMode + output);
                 } else {
                     robot.driveMotors(0, 0, 0, 0);
                 }
