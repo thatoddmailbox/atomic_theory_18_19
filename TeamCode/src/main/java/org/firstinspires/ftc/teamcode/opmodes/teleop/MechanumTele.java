@@ -103,7 +103,23 @@ public class MechanumTele extends LinearOpMode {
                     double BL = biggerStick * ((Math.sin(robotAngle) / biggerValue * (biggerDrive / stickMax)) + (turnPower / stickMax));
                     double BR = biggerStick * ((Math.cos(robotAngle) / biggerValue * (biggerDrive / stickMax)) - (turnPower / stickMax));
 
-                    //Powers Motors
+                    if (latchMode && false) {
+                        if (Math.abs(FL-BR) < Math.abs(FL-FR)) {
+                            FL = Math.signum(FL)*Math.max(Math.abs(FL), Math.abs(BR));
+                            BR = Math.signum(FL)*Math.max(Math.abs(FL), Math.abs(BR));
+                        } else {
+                            FL = Math.signum(FL)*Math.max(Math.abs(FL), Math.abs(FR));
+                            FR = Math.signum(FL)*Math.max(Math.abs(FL), Math.abs(FR));
+                        }
+                        if (Math.abs(BL-FR) < Math.abs(BL-BR)) {
+                            BL = Math.signum(BL)*Math.max(Math.abs(BL), Math.abs(FR));
+                            FR = Math.signum(BL)*Math.max(Math.abs(BL), Math.abs(FR));
+                        } else {
+                            BL = Math.signum(BL)*Math.max(Math.abs(BL), Math.abs(BR));
+                            BR = Math.signum(BL)*Math.max(Math.abs(BL), Math.abs(BR));
+                        }
+                    }
+                        //Powers Motors
                     robot.driveMotorsClipped(FL * slowMode, FR * slowMode, BL * slowMode, BR * slowMode);
                 } else {
                     robot.driveMotors(0, 0, 0, 0);
