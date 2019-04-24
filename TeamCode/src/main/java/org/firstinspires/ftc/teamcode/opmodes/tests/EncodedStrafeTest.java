@@ -18,7 +18,12 @@ public class EncodedStrafeTest extends LinearOpMode {
             waitForStart();
             robot.handleMatchStart();
 
-            robot.driveTicks(1000, 0.9, -0.9, -0.9, 0.9);
+//            robot.driveTicks(900, 1, -1, -1, 1);
+            robot.strafeTicks(900, 1, -0.6, -1, 0.6);
+            sleep(500);
+            robot.driveMotors(1, -0.6, -1, 0.6);
+            sleep(900);
+            robot.driveMotors(0, 0, 0, 0);
 
             sleep(20000);
         }

@@ -77,7 +77,7 @@ public class Robot implements AutoCloseable {
     public static final int MOTOR_PORT_BACK_LEFT = 2;
     public static final int MOTOR_PORT_BACK_RIGHT = 3;
 
-    public static final int LATCH_DISTANCE = 7960; // 7540;
+    public static final int LATCH_DISTANCE = 7760; // 7540;
 
     public static final double MAX_LENNY_RETRO_VELOCITY = Double.MAX_VALUE; // ticks per millisecond
 
@@ -441,7 +441,7 @@ public class Robot implements AutoCloseable {
             }
             double angleCorrection = anglePID.step(currentHeading, lastTargetHeading);
 
-            angleCorrection = 0;
+//            angleCorrection = 0;
 //            double currentPower = power;
             double diffuFrontLeft = targetFrontLeftPosition - frontLeft.getCurrentPosition();
             double diffFrontLeft = Math.abs(diffuFrontLeft);

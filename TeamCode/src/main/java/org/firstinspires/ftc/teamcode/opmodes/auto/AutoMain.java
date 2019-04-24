@@ -185,7 +185,7 @@ public abstract class AutoMain extends LinearOpMode {
             robot.backLeftServo.setPosition(Robot.SENSOR_REV_SERVO_ZERO);
 
             // Get away from lander
-            robot.driveTicks(900, 1, -1, -1, 1);
+            robot.driveTicks(1500, 1, -0.6, -1, 0.6);
 
             robot.turn(0, 0.5);
 
@@ -208,24 +208,27 @@ public abstract class AutoMain extends LinearOpMode {
                 // TODO: change me at competition - this is "very sketch" and probably relies on our lander being dumb
                 if (goldMineral == MineralPosition.LEFT) {
                     if (getStartingPosition() == StartingPosition.CRATER) {
-                        robot.driveTicks(250 + MINERAL_TICKS, p, p, p, p);
+                        //250 +
+                        robot.driveTicks(750 + MINERAL_TICKS, p, p, p, p);
                     } else {
                         //robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
-                        robot.driveTicks(250 + MINERAL_TICKS, p, p, p, p);
+                        robot.driveTicks(750 + MINERAL_TICKS, p, p, p, p);
                     }
                 } else if (goldMineral == MineralPosition.RIGHT) {
                     if (getStartingPosition() == StartingPosition.CRATER) {
-                        robot.driveTicks(200 - MINERAL_TICKS, -p, -p, -p, -p);
+//                        200 -
+//                        robot.driveTicks(750 - MINERAL_TICKS, -p, -p, -p, -p);
                     } else {
                         //robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
-                        robot.driveTicks(200 - MINERAL_TICKS, -p, -p, -p, -p);
+//                        robot.driveTicks(750 - MINERAL_TICKS, -p, -p, -p, -p);
                     }
                 } else {
+                    //95
                     if (getStartingPosition() == StartingPosition.CRATER) {
-                        robot.driveTicks(95, p, p, p, p);
+                        robot.driveTicks(750, p, p, p, p);
                     } else {
                         //robot.driveTicks(0, 0.9, 0.9, 0.9, 0.9);
-                        robot.driveTicks(95, p, p, p, p);
+                        robot.driveTicks(650, p, p, p, p);
                     }
                 }
             }
@@ -238,19 +241,19 @@ public abstract class AutoMain extends LinearOpMode {
 
                 // Hit cube
                 if (goldMineral == MineralPosition.CENTER) {
-                    robot.driveTicks(1900, 1, 1, 1, 1);
+                    robot.driveTicks(1900, 0.8, 0.8, 0.8, 0.8);
                 } else {
-                    robot.driveTicks(1750, 1, 1, 1, 1);
+                    robot.driveTicks(1900, 0.8, 0.8, 0.8, 0.8);
                 }
                 robot.turn(0, 1.5);
 
                 // Recenter
                 if (goldMineral == MineralPosition.LEFT) {
 //                    robot.driveTicks(-MINERAL_TICKS, -1, -1, -1, -1);
-                    robot.driveTicks(-(150 + MINERAL_TICKS), -1, -1, -1, -1);
+                    robot.driveTicks(-MINERAL_TICKS + 100, -1, -1, -1, -1);
                 } else if (goldMineral == MineralPosition.RIGHT) {
 //                    robot.driveTicks(MINERAL_TICKS, 1, 1, 1, 1);
-                    robot.driveTicks(150 + MINERAL_TICKS, 1, 1, 1, 1);
+                    robot.driveTicks(MINERAL_TICKS - 200, 1, 1, 1, 1);
                 }
 
                 // Drop team marker
@@ -262,10 +265,10 @@ public abstract class AutoMain extends LinearOpMode {
                 // Turn and strafe into wall
                 if (!endInOtherCrater) {
                     robot.turn(-45, 1.5);
-                    robot.driveTicks(800, 0.9, -0.9, -0.9, 0.9);
+                    robot.driveTicks(1000, 0.9, -0.9, -0.9, 0.9);
                 } else {
                     robot.turn(45, 1.5);
-                    robot.driveTicks(900, 0.9, -0.9, -0.9, 0.9);
+                    robot.driveTicks(1600, 0.9, -0.9, -0.9, 0.9);
                 }
             } else if (getStartingPosition() == StartingPosition.CRATER) {
                 // Hit cube and back up again
@@ -273,14 +276,20 @@ public abstract class AutoMain extends LinearOpMode {
                     robot.driveTicks(900, 0.5, 0.5, 0.5, 0.5);
 //                    robot.driveTicks(-500, -0.5, -0.5, -0.5, -0.5);
 //                    robot.lenny.setPower(1.0);
-//                    sleep(2000);
+//               `     sleep(2000);
 //                    robot.lenny.setPower(0.0);
                     return;
                 } else {
-                    robot.driveTicks(700, 1, 1, 1, 1);
+                    if (goldMineral == MineralPosition.LEFT) {
+                        robot.driveTicks(1100, 1, 1, 1, 1);
+                    } else if (goldMineral == MineralPosition.RIGHT) {
+                        robot.driveTicks(1000, 1, 1, 1, 1);
+                    } else {
+                        robot.driveTicks(900, 1, 1, 1, 1);
+                    }
                 }
 
-                robot.driveTicks(-450, -1, -1, -1, -1);
+                robot.driveTicks(-350, -1, -1, -1, -1);
 
                 robot.turn(0, 1.5);
 
@@ -298,18 +307,18 @@ public abstract class AutoMain extends LinearOpMode {
                 // Turn and strafe to wall
                 robot.turn(45, 1.5);
 
-                robot.driveTicks(750, 1, -1, -1, 1);
+                robot.driveTicks(1300, 1, -0.7, -1, 0.7);
 
                 // Possible wait for alliance to do their thing
                 sleep(Math.round(timeDelay * 1000));
 
                 timer.reset();
 
-                if (useUltrasonic) {
-                    robot.aligner.driveAlignDistanceTicks(0.9, 90, 2000, false);
-                } else {
-                    robot.driveTicks(2000, 0.9, 0.9, 0.9, 0.9);
-                }
+//                if (useUltrasonic) {
+                robot.aligner.driveAlignDistanceTicks(0.9, 90, 2300, false);
+//                } else {
+//                    robot.driveTicks(2300, 0.9, 0.9, 0.9, 0.9);
+//                }
 
                 // turn to place team marker
                 robot.turn(90, 1.0);
@@ -330,9 +339,9 @@ public abstract class AutoMain extends LinearOpMode {
             // Head back to crater
             if (getStartingPosition() == StartingPosition.CRATER) {
                 if (useUltrasonic) {
-                    robot.aligner.driveAlignDistanceTicks(-0.9, 100, -2400, false);
+                    robot.aligner.driveAlignDistanceTicks(-0.9, 100, -2200, false);
                 } else {
-                    robot.driveTicks(-2400, -0.9, -0.9, -0.9, -0.9);
+                    robot.driveTicks(-2200, -0.9, -0.9, -0.9, -0.9);
                 }
             } else {
                 if (!endInOtherCrater) {
@@ -366,7 +375,11 @@ public abstract class AutoMain extends LinearOpMode {
 
             if (!useUltrasonic) {
                 if (getStartingPosition() == StartingPosition.DEPOT) {
-                    robot.driveTicks(300, 1, -1, -1, 1);
+                    if (endInOtherCrater) {
+                        robot.driveTicks(300, 1, -1, -1, 1);
+                    } else {
+                        robot.driveTicks(-300, -1, 1, 1, -1);
+                    }
                 } else {
                     robot.driveTicks(-300, -1, 1, 1, -1);
                 }
