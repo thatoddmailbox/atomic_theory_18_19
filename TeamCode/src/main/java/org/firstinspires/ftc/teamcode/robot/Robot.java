@@ -395,7 +395,7 @@ public class Robot implements AutoCloseable {
             if (Math.abs(currentHeading - lastTargetHeading) < 0.25) {
                 currentHeading = lastTargetHeading;
             }
-            double angleCorrection = anglePID.step(currentHeading, lastTargetHeading);
+            double angleCorrection = anglePID.step(currentHeading, lastTargetHeading) * 1.5;
 
 //            angleCorrection = 0;
 //            double currentPower = power;

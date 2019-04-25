@@ -184,8 +184,59 @@ public abstract class AutoMain extends LinearOpMode {
             robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
             robot.backLeftServo.setPosition(Robot.SENSOR_REV_SERVO_ZERO);
 
-            // Get away from lander
-            robot.driveTicks(1500, 1, -0.6, -1, 0.6);
+            if (goldMineral == MineralPosition.LEFT) {
+                robot.turn(90 + 30);
+                robot.driveTicks(-1200, -0.6, -0.6, -0.6, -0.6);
+                robot.driveTicks(400, 0.6, 0.6, 0.6, 0.6);
+            } else if (goldMineral == MineralPosition.RIGHT) {
+                robot.turn(90 - 30);
+                robot.driveTicks(-1200, -0.6, -0.6, -0.6, -0.6);
+                robot.driveTicks(400, 0.6, 0.6, 0.6, 0.6);
+            } else {
+                robot.turn(90);
+                robot.driveTicks(-950, -0.6, -0.6, -0.6, -0.6);
+                robot.driveTicks(300, 0.6, 0.6, 0.6, 0.6);
+            }
+
+            if (getStartingPosition() == StartingPosition.CRATER) {
+                robot.turn(0);
+
+                if (goldMineral == MineralPosition.LEFT) {
+                    robot.driveTicks(1800 - 200, 0.9, 0.9, 0.9, 0.9);
+                } else if (goldMineral == MineralPosition.RIGHT) {
+                    robot.driveTicks(1800 + 200, 0.9, 0.9, 0.9, 0.9);
+                } else {
+                    robot.driveTicks(1800, 0.9, 0.9, 0.9, 0.9);
+                }
+
+                robot.setupSimpleServos(Direction.RIGHT);
+
+                // Turn and strafe to wall
+                robot.turn(45, 1.5);
+
+                robot.driveTicks(1300, 1, -0.7, -1, 0.7);
+
+                // Possible wait for alliance to do their thing
+                sleep(Math.round(timeDelay * 1000));
+
+                timer.reset();
+
+//                if (useUltrasonic) {
+                robot.aligner.driveAlignDistanceTicks(0.9, 90, 2300, false);
+//                } else {
+//                    robot.driveTicks(2300, 0.9, 0.9, 0.9, 0.9);
+//                }
+
+                // turn to place team marker
+                robot.turn(90, 1.0);
+
+                robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
+                sleep(400);
+
+                robot.turn(45, 1.0);
+            } else {
+                // Get away from lander
+                robot.driveTicks(1500, 1, -0.6, -1, 0.6);
 
             robot.turn(0, 0.5);
 
@@ -228,22 +279,23 @@ public abstract class AutoMain extends LinearOpMode {
                         robot.driveTicks(750, p, p, p, p);
                     } else {
                         //robot.driveTicks(0, 0.9, 0.9, 0.9, 0.9);
-                        robot.driveTicks(650, p, p, p, p);
+                        robot.driveTicks(750, p, p, p, p);
                     }
                 }
             }
 
             // Turn to drive head on into cube
-            robot.turn(-90, 2.0);
 
+            robot.turn(-90, 2.25);
+        }
             if (getStartingPosition() == StartingPosition.DEPOT) {
                 sleep(Math.round(timeDelay * 1000));
 
                 // Hit cube
                 if (goldMineral == MineralPosition.CENTER) {
-                    robot.driveTicks(1900, 0.8, 0.8, 0.8, 0.8);
+                    robot.driveTicks(1900, 0.7, 0.7, 0.7, 0.7);
                 } else {
-                    robot.driveTicks(1900, 0.8, 0.8, 0.8, 0.8);
+                    robot.driveTicks(1900, 0.7, 0.7, 0.7, 0.7);
                 }
                 robot.turn(0, 1.5);
 
@@ -270,7 +322,7 @@ public abstract class AutoMain extends LinearOpMode {
                     robot.turn(45, 1.5);
                     robot.driveTicks(1600, 0.9, -0.9, -0.9, 0.9);
                 }
-            } else if (getStartingPosition() == StartingPosition.CRATER) {
+            } else if (getStartingPosition() == StartingPosition.CRATER && false) {
                 // Hit cube and back up again
                 if (simpleAuto) {
                     robot.driveTicks(900, 0.5, 0.5, 0.5, 0.5);
@@ -285,7 +337,7 @@ public abstract class AutoMain extends LinearOpMode {
                     } else if (goldMineral == MineralPosition.RIGHT) {
                         robot.driveTicks(1000, 1, 1, 1, 1);
                     } else {
-                        robot.driveTicks(900, 1, 1, 1, 1);
+                        robot.driveTicks(900, 0.7, 0.7, 0.7, 0.7);
                     }
                 }
 
