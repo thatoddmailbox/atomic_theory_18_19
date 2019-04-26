@@ -184,21 +184,22 @@ public abstract class AutoMain extends LinearOpMode {
             robot.backRightServo.setPosition(Robot.SENSOR_REV_SERVO_HALF);
             robot.backLeftServo.setPosition(Robot.SENSOR_REV_SERVO_ZERO);
 
-            if (goldMineral == MineralPosition.LEFT) {
-                robot.turn(90 + 30);
-                robot.driveTicks(-1200, -0.6, -0.6, -0.6, -0.6);
-                robot.driveTicks(400, 0.6, 0.6, 0.6, 0.6);
-            } else if (goldMineral == MineralPosition.RIGHT) {
-                robot.turn(90 - 30);
-                robot.driveTicks(-1200, -0.6, -0.6, -0.6, -0.6);
-                robot.driveTicks(400, 0.6, 0.6, 0.6, 0.6);
-            } else {
-                robot.turn(90);
-                robot.driveTicks(-950, -0.6, -0.6, -0.6, -0.6);
-                robot.driveTicks(300, 0.6, 0.6, 0.6, 0.6);
-            }
 
             if (getStartingPosition() == StartingPosition.CRATER) {
+                if (goldMineral == MineralPosition.LEFT) {
+                    robot.turn(90 + 30);
+                    robot.driveTicks(-1200, -0.6, -0.6, -0.6, -0.6);
+                    robot.driveTicks(400, 0.6, 0.6, 0.6, 0.6);
+                } else if (goldMineral == MineralPosition.RIGHT) {
+                    robot.turn(90 - 30);
+                    robot.driveTicks(-1200, -0.6, -0.6, -0.6, -0.6);
+                    robot.driveTicks(400, 0.6, 0.6, 0.6, 0.6);
+                } else {
+                    robot.turn(90);
+                    robot.driveTicks(-950, -0.6, -0.6, -0.6, -0.6);
+                    robot.driveTicks(300, 0.6, 0.6, 0.6, 0.6);
+                }
+
                 robot.turn(0);
 
                 if (goldMineral == MineralPosition.LEFT) {
@@ -235,60 +236,97 @@ public abstract class AutoMain extends LinearOpMode {
 
                 robot.turn(45, 1.0);
             } else {
-                // Get away from lander
-                robot.driveTicks(1500, 1, -0.6, -1, 0.6);
-
-            robot.turn(0, 0.5);
-
-            // Get in front of cube
-            if (useUltrasonic) {
-                MINERAL_TICKS += 50;
-                robot.rangeFrontRight.cmUltrasonic();
-                robot.rangeBackRight.cmUltrasonic();
-
-                robot.aligner.centerInCorner(2.0, true);
-
-                if (goldMineral == MineralPosition.LEFT) {
-                    robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
-                } else if (goldMineral == MineralPosition.RIGHT) {
-                    robot.driveTicks(-MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
-                }
-            } else {
-                double p = 0.9;
-                if (simpleAuto) p = 0.5;
-                // TODO: change me at competition - this is "very sketch" and probably relies on our lander being dumb
-                if (goldMineral == MineralPosition.LEFT) {
-                    if (getStartingPosition() == StartingPosition.CRATER) {
-                        //250 +
-                        robot.driveTicks(750 + MINERAL_TICKS, p, p, p, p);
+                if (true) {
+                    if (goldMineral == MineralPosition.LEFT) {
+                        robot.turn(90 + 30);
+                        robot.driveTicks(-1400, -0.6, -0.6, -0.6, -0.6);
+                        robot.turn(90);
+                        robot.driveTicks(-800, -0.6, -0.6, -0.6, -0.6);
+                        robot.turn(0);
+                        robot.driveTicks(-600, -0.6, -0.6, -0.6, -0.6);
+                    } else if (goldMineral == MineralPosition.RIGHT) {
+                        robot.turn(90 - 30);
+                        robot.driveTicks(-1400, -0.6, -0.6, -0.6, -0.6);
+                        robot.turn(90);
+                        robot.driveTicks(-800, -0.6, -0.6, -0.6, -0.6);
+                        robot.turn(0);
+                        robot.driveTicks(600, 0.6, 0.6, 0.6, 0.6);
                     } else {
-                        //robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
-                        robot.driveTicks(750 + MINERAL_TICKS, p, p, p, p);
+                        robot.turn(90);
+                        robot.driveTicks(-2050, -.6, -0.6, -0.6, -0.6);
+                        robot.turn(0);
                     }
-                } else if (goldMineral == MineralPosition.RIGHT) {
-                    if (getStartingPosition() == StartingPosition.CRATER) {
-//                        200 -
-//                        robot.driveTicks(750 - MINERAL_TICKS, -p, -p, -p, -p);
+
+                    // Drop team marker
+                    robot.teamMarker.setPosition(Robot.SERVO_TEAM_MARKER_DEPOSIT);
+                    robot.setupSimpleServos(Direction.RIGHT);
+
+                    sleep(400);
+
+                    // Turn and strafe into wall
+                    if (!endInOtherCrater) {
+                        robot.turn(-45, 1.5);
+                        robot.driveTicks(1000, 1, -0.7, -1, 0.7);
                     } else {
-                        //robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
-//                        robot.driveTicks(750 - MINERAL_TICKS, -p, -p, -p, -p);
+                        robot.turn(45, 1.5);
+                        robot.driveTicks(1600, 1, -0.7, -1, 0.7);
                     }
                 } else {
-                    //95
-                    if (getStartingPosition() == StartingPosition.CRATER) {
-                        robot.driveTicks(750, p, p, p, p);
+                    // Get away from lander
+                    robot.driveTicks(1500, 1, -0.6, -1, 0.6);
+
+                    robot.turn(0, 0.5);
+
+                    // Get in front of cube
+                    if (useUltrasonic) {
+                        MINERAL_TICKS += 50;
+                        robot.rangeFrontRight.cmUltrasonic();
+                        robot.rangeBackRight.cmUltrasonic();
+
+                        robot.aligner.centerInCorner(2.0, true);
+
+                        if (goldMineral == MineralPosition.LEFT) {
+                            robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
+                        } else if (goldMineral == MineralPosition.RIGHT) {
+                            robot.driveTicks(-MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
+                        }
                     } else {
-                        //robot.driveTicks(0, 0.9, 0.9, 0.9, 0.9);
-                        robot.driveTicks(750, p, p, p, p);
+                        double p = 0.9;
+                        if (simpleAuto) p = 0.5;
+                        // TODO: change me at competition - this is "very sketch" and probably relies on our lander being dumb
+                        if (goldMineral == MineralPosition.LEFT) {
+                            if (getStartingPosition() == StartingPosition.CRATER) {
+                                //250 +
+                                robot.driveTicks(750 + MINERAL_TICKS, p, p, p, p);
+                            } else {
+                                //robot.driveTicks(MINERAL_TICKS, 0.9, 0.9, 0.9, 0.9);
+                                robot.driveTicks(750 + MINERAL_TICKS, p, p, p, p);
+                            }
+                        } else if (goldMineral == MineralPosition.RIGHT) {
+                            if (getStartingPosition() == StartingPosition.CRATER) {
+//                        200 -
+//                        robot.driveTicks(750 - MINERAL_TICKS, -p, -p, -p, -p);
+                            } else {
+                                //robot.driveTicks(300 - MINERAL_TICKS, -0.9, -0.9, -0.9, -0.9);
+//                        robot.driveTicks(750 - MINERAL_TICKS, -p, -p, -p, -p);
+                            }
+                        } else {
+                            //95
+                            if (getStartingPosition() == StartingPosition.CRATER) {
+                                robot.driveTicks(750, p, p, p, p);
+                            } else {
+                                //robot.driveTicks(0, 0.9, 0.9, 0.9, 0.9);
+                                robot.driveTicks(750, p, p, p, p);
+                            }
+                        }
                     }
+
+                    // Turn to drive head on into cube
+
+                    robot.turn(-90, 2.25);
                 }
             }
-
-            // Turn to drive head on into cube
-
-            robot.turn(-90, 2.25);
-        }
-            if (getStartingPosition() == StartingPosition.DEPOT) {
+            if (getStartingPosition() == StartingPosition.DEPOT && false) {
                 sleep(Math.round(timeDelay * 1000));
 
                 // Hit cube
