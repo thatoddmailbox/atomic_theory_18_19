@@ -90,6 +90,7 @@ public abstract class AutoMain extends LinearOpMode {
             int totalRightVotes = 0;
 
             int totalReads = 0;
+            int totalReadsTried = 0;
 
             /*
 
@@ -98,9 +99,31 @@ public abstract class AutoMain extends LinearOpMode {
             - Begins taking readings until latch approaches bottom (30 ticks away)
 
              */
+            ElapsedTime sampleTimer = new ElapsedTime();
+            boolean wasBusy = true;
             try (LogContext context = robot.logSession.createContext("unlatch and sample")) {
-                while ((Math.abs(robot.latchLeft.getCurrentPosition() - (latchLeftStart - Robot.LATCH_DISTANCE)) > 30 || Math.abs(robot.latchRight.getCurrentPosition() - (latchRightStart - Robot.LATCH_DISTANCE)) > 30) && opModeIsActive()) {
+                while (
+                        (
+                                (Math.abs(robot.latchLeft.getCurrentPosition() - (latchLeftStart - Robot.LATCH_DISTANCE)) > 30 || Math.abs(robot.latchRight.getCurrentPosition() - (latchRightStart - Robot.LATCH_DISTANCE)) > 30) ||
+                                (wasBusy || sampleTimer.milliseconds() < 750)
+                        )
+                        && opModeIsActive()
+                    ) {
+                    if (!robot.latchLeft.isBusy() && !robot.latchRight.isBusy()) {
+                        if (wasBusy) {
+                            // we're not anymore
+                            wasBusy = false;
+                            sampleTimer.reset();
+                        }
+                    }
                     HashMap<MineralPosition, Float> reading = robot.findGoldMineralDifferent();
+
+                    totalReadsTried++;
+
+                    if (totalReadsTried < 15) {
+                        sleep(10);
+                        continue;
+                    }
 
                     if (reading.containsKey(MineralPosition.CENTER)) {
                         goldCenterVote += reading.get(MineralPosition.CENTER);
@@ -499,10 +522,10 @@ public abstract class AutoMain extends LinearOpMode {
                     sleep(moveTime);
                     robot.george.setPower(0.0);
                 } else if (superTimer.seconds() <= 29.15 && endNom) {
-                    robot.driveMotors(1, -1, -1, 1);
+                    robot.driveMotors(-1, 1, 1, -1);
                     sleep(250);
                     robot.driveMotors(0, 0, 0, 0);
-                    robot.driveMotors(0.4, 0.4, 0.4, 0.4);
+                    robot.driveMotors(0.5, 0.5, 0.5, 0.5);
                     sleep(600);
                     robot.driveMotors(0, 0, 0, 0);
                 }
